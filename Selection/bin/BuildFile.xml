@@ -1,0 +1,4 @@
+<use name="DoubleHiggs/Selection"/>
+<use name="root"/>
+<flags CXXFLAGS="-g -Wall"/>
+<bin file="Selection.cc" name="Selection"> </bin>

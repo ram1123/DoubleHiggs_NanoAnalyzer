@@ -1,0 +1,1 @@
+/eos/uscms/store/user/rasharma/double-higgs/nanoAOD_skim/Run2016_v7_06Oct2020/GluGluToHHTo2G4Q_node_SM_TuneCP5_PSWeights_13TeV-madgraph-pythia8/201006_131113/255129E3-D986-F54C-9897-1F8D507D7521_SkimHadd.root
