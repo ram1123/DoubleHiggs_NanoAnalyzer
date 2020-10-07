@@ -1,5 +1,7 @@
 # DoubleHiggs_NanoAnalyzer
 
+## Get Reduced Ntuples
+
 ```bash
 cmsrel CMSSW_10_2_22
 cd CMSSW_10_2_22/src
@@ -12,7 +14,7 @@ scramv1 b -j 8
 To run the code:
 
 ```bash
-cd Selection
+cd $CMSSW_BASE/src/DoubleHiggs/Selection
 Selection test.txt output.root 1 2017  1
 ```
 Description of arguments in above command:
@@ -22,3 +24,10 @@ Description of arguments in above command:
 - Third argument: for MC = 1, for Data = 0
 - Fourth argument: Year
 - Fifth argument: DEBUG (0/1)
+
+## Get workspace from reduced ntuples
+
+```bash
+cd $CMSSW_BASE/src/DoubleHiggs/Selection
+root -l -b  scripts/CreateWorkspace.C
+```
