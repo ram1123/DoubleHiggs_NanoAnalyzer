@@ -2,6 +2,14 @@
 *.root
 *.png
 *.pdf
+*.jdl
+submit*.sh
+*.tgz
+*.patch
+*.log
+summary.dat
+docker_stderror
+condor_logs/
 
 # Prerequisites
 *.d

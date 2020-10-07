@@ -34,4 +34,16 @@ double GetJECunc( double pt, double eta, JetCorrectionUncertainty *fJetUnc) {
   return fJetUnc->getUncertainty(true);
 }
 
+/**
+ * @brief      Check if the string contains suffix or not
+ *
+ * @param[in]  s       Input string
+ * @param[in]  suffix  Suffix to check
+ *
+ * @return     Return true or false if input string contains suffix or not.
+ */
+bool ends_with(const std::string & s, const std::string & suffix) {
+    return s.rfind(suffix) == s.length() - suffix.length();
+}
+
 #endif

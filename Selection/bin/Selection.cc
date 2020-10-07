@@ -32,9 +32,6 @@
 #include "DoubleHiggs/Selection/interface/NanoAOD_Weights.hh"
 #include "DoubleHiggs/Selection/interface/Utils.hh"
 
-
-
-
 int main(int argc, char const *argv[])
 {
     std::cout << "[INFO]: Program name is : " << argv[0] << std::endl;
@@ -45,9 +42,20 @@ int main(int argc, char const *argv[])
     int era = atoi(argv[4]);
     bool DEBUG = atoi(argv[5]);
 
+    /**
+     * If the inputFile ends with ".root", then add it into the text file.
+     */
+    if (ends_with(inputFile,"root"))
+    {
+        std::string str = "echo ";
+        str = str + inputFile + " > InputRootFileList.txt";
+        const char *command = str.c_str();
+        system(command);
+        inputFile = "InputRootFileList.txt";
+    }
+
     if(DEBUG) std::cout << "[INFO]: inputFile: " << inputFile << std::endl;
     if(DEBUG) std::cout << "[INFO]: outputFile: " << outputFile << std::endl;
-
 
     const float H_MASS = 125.10;
     const float W_MASS = 80.379;
@@ -125,7 +133,7 @@ int main(int argc, char const *argv[])
             NanoReader.GetEntry(i);
 
             if (i%1000==0) std::cout <<"event " << i << std::endl;
-            // if (i>100) exit(0);
+            if (i>50000) exit(0);
 
             if (isMC==1) {
                 OutputTree->genWeight=NanoReader.Generator_weight;

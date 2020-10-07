@@ -17,7 +17,7 @@
   int entries = myTree->GetEntriesFast();
   std::cout <<"Total entries: " << entries << std::endl;
 
-  RooRealVar CMS_hgg_mass("CMS_hgg_mass", "CMS_hgg_mass", 125.10,100,180, "GeV");
+  RooRealVar CMS_hgg_mass("CMS_hgg_mass", "Mass of Higgs boson decaying to photons", 125.10,100,180, "GeV");
   RooRealVar weight("weight", "weight", -10,10);
 
   RooDataSet ggh_125_13TeV_cat0("ggh_125_13TeV_cat0", "ggh_125_13TeV_cat0", RooArgSet(CMS_hgg_mass,weight));
