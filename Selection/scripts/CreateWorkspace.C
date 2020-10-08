@@ -700,6 +700,10 @@ GluGluToHHTo_WWgg_qqqq_nodeSM_13TeV_HHWWggTag_2_MCScaleGain1EBUp01sigma->add(*Ar
 
   Data_13TeV_HHWWggTag_2->Print("v");
 
+  TFile *outFile = TFile::Open("nodeSM_HHWWgg_qqqq.root","RECREATE");
+  TDirectory *cdtof = outFile->mkdir("tagsDumper");
+  cdtof->cd();    // make the "tof" directory the current director
+
   RooWorkspace *workspace = new RooWorkspace("cms_hgg_13TeV", "cms_hgg_13TeV");
   workspace->import(*Data_13TeV_HHWWggTag_2);
   workspace->import(*Data_13TeV_HHWWggTag_2_weight);
@@ -1038,7 +1042,9 @@ GluGluToHHTo_WWgg_qqqq_nodeSM_13TeV_HHWWggTag_2_MCScaleGain1EBUp01sigma->add(*Ar
   // c2->SetLogy(1);
   c2->SaveAs("AfterWeight.png");
 
-  workspace->writeToFile("nodeSM_HHWWgg_qqqq.root","kTRUE");
+  workspace->Write();
+  outFile->Close();
+  // workspace->writeToFile("nodeSM_HHWWgg_qqqq.root","kTRUE");
 
 }
 
