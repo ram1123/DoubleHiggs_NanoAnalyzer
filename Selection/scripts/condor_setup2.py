@@ -2,7 +2,7 @@
 # @Author: Ram Krishna Sharma
 # @Date:   2020-10-07 14:03:36
 # @Last Modified by:   ramkrishna
-# @Last Modified time: 2020-10-07 17:47:59
+# @Last Modified time: 2020-10-07 18:31:41
 
 import subprocess
 import os
@@ -78,10 +78,10 @@ outjdl_file.write("x509userproxy = $ENV(X509_USER_PROXY)\n")
 ExternalCounter = 0
 isMC = 1
 for count,files in enumerate(test.ListOfAllInputRootFiles):
-    if "DoubleEG" in files:
-        continue
-    if "SinglePhoton" in files:
-        continue
+    # if "DoubleEG" in files:
+    #     continue
+    # if "SinglePhoton" in files:
+    #     continue
     # print count,files
     if "DoubleEG" in files:
         isMC = 0
@@ -89,7 +89,7 @@ for count,files in enumerate(test.ListOfAllInputRootFiles):
         isMC = 0
     else:
         isMC = 1
-    if ExternalCounter > 5:  continue
+    # if ExternalCounter > 5:  continue
     LogFileName = files.replace(InputFilePath,"")
     if LogFileName[0] == "/":
         LogFileName = LogFileName.split("/")[1]

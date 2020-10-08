@@ -28,8 +28,8 @@
 #include "TH2.h"
 #include <TClonesArray.h>
 
-#include "DoubleHiggs/Selection/interface/NanoAOD_MC.hh"
-#include "DoubleHiggs/Selection/interface/NanoAOD_Weights.hh"
+#include "DoubleHiggs/Selection/interface/NanoAOD_Data.hh"
+#include "DoubleHiggs/Selection/interface/NanoAOD_Weights_Data.hh"
 #include "DoubleHiggs/Selection/interface/Utils.hh"
 
 int main(int argc, char const *argv[])
@@ -56,6 +56,7 @@ int main(int argc, char const *argv[])
 
     if(DEBUG) std::cout << "[INFO]: inputFile: " << inputFile << std::endl;
     if(DEBUG) std::cout << "[INFO]: outputFile: " << outputFile << std::endl;
+    if(DEBUG) std::cout << "[INFO]: DEBUG: " << DEBUG << std::endl;
 
     const float H_MASS = 125.10;
     const float W_MASS = 80.379;
@@ -95,10 +96,10 @@ int main(int argc, char const *argv[])
     TFile *of = new TFile(outputFile.c_str(),"RECREATE");
     TTree *ot = new TTree("Events","Events");
     output* OutputTree = new output(ot);
-    TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
+    // TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
 
     TFile *f=0;
-    TTree *t=0, *r=0;
+    TTree *t=0;
 
     std::ifstream ifs;
     ifs.open(inputFile.data());
@@ -114,18 +115,18 @@ int main(int argc, char const *argv[])
         f = TFile::Open(TString("root://cmseos.fnal.gov/")+TString(filetoopen),"read");
         //f = TFile::Open(TString("root://xrootd-cms.infn.it/")+TString(filetoopen),"read");
         t = (TTree *)f->Get("Events");
-        r = (TTree *)f->Get("Runs");
+        // r = (TTree *)f->Get("Runs");
         if (t==NULL) continue;
 
         //std::cout << filetoopen << std::endl;
 
-        NanoAOD_MC NanoReader = NanoAOD_MC(t);
-        NanoAOD_Weights NanoWeightReader = NanoAOD_Weights(r);
+        NanoAOD_Data NanoReader = NanoAOD_Data(t);
+        // NanoAOD_Weights_Data NanoWeightReader = NanoAOD_Weights_Data(r);
 
-        if (isMC==1) {
-            NanoWeightReader.GetEntry(0);
-            totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+NanoWeightReader.genEventSumw);
-        }
+        // if (isMC==1) {
+        //     NanoWeightReader.GetEntry(0);
+        //     totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+NanoWeightReader.genEventSumw);
+        // }
 
         for (uint i=0; i < t->GetEntries(); i++) {
             //for (uint i=0; i < 1000000; i++) {
@@ -135,9 +136,9 @@ int main(int argc, char const *argv[])
             if (i%1000==0) std::cout <<"event " << i << std::endl;
             // if (i>50000) exit(0);
 
-            if (isMC==1) {
-                OutputTree->genWeight=NanoReader.Generator_weight;
-            }
+            // if (isMC==1) {
+            //     OutputTree->genWeight=NanoReader.Generator_weight;
+            // }
 
             if (era==2017) {
                 if ( NanoReader.HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 || NanoReader.HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55 || NanoReader.HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55 ) OutputTree->trigger_1Pho = true;
@@ -150,7 +151,7 @@ int main(int argc, char const *argv[])
             //     if ( NanoReader.HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 || NanoReader.HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55 || NanoReader.HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55 ) OutputTree->trigger_1Pho = true;
             // }
 
-            if (!(OutputTree->trigger_1Pho)) continue;
+            // if (!(OutputTree->trigger_1Pho)) continue;
 
             TightPhoton.clear();
             Ak4Jets.clear();
@@ -161,7 +162,7 @@ int main(int argc, char const *argv[])
             OutputTree->ls = NanoReader.luminosityBlock;
 
             OutputTree->nPV = NanoReader.PV_npvsGood;
-            OutputTree->nPU_mean = NanoReader.Pileup_nPU;
+            // OutputTree->nPU_mean = NanoReader.Pileup_nPU;
 
             OutputTree->puWeight = 1.0;//scaleFactor.GetPUWeight(info->nPUmean, 0);
 
@@ -447,26 +448,26 @@ int main(int argc, char const *argv[])
             if (DEBUG) std::cout << "[INFO] jet4 pT = " << NanoReader.Jet_pt[OffShellW_SubLeadingJetIndex] << std::endl;
 
 
-            if (isMC==1) {
+            // if (isMC==1) {
 
-                OutputTree->nScaleWeight = NanoReader.nLHEScaleWeight;
-                OutputTree->nPdfWeight = NanoReader.nLHEPdfWeight;
+            //     OutputTree->nScaleWeight = NanoReader.nLHEScaleWeight;
+            //     OutputTree->nPdfWeight = NanoReader.nLHEPdfWeight;
 
-                for (uint j=0; j<OutputTree->nScaleWeight; j++) {
-                    //LHE scale variation weights (w_var / w_nominal); [0] is MUR="0.5" MUF="0.5";
-                    //[1] is MUR="0.5" MUF="1.0"; [2] is MUR="0.5" MUF="2.0"; [3] is MUR="1.0" MUF="0.5";
-                    //[4] is MUR="1.0" MUF="2.0"; [5] is MUR="2.0" MUF="0.5"; [6] is MUR="2.0" MUF="1.0";
-                    //[7] is MUR="2.0" MUF="2.0"
-                    OutputTree->scaleWeight[j]=NanoReader.LHEScaleWeight[j];
-                }
-                for (uint j=0; j<OutputTree->nPdfWeight; j++) {
-                    //LHE pdf variation weights (w_var / w_nominal) for LHA IDs 91400 - 91432
-                    OutputTree->pdfWeight[j]=NanoReader.LHEPdfWeight[j];
-                }
+            //     for (uint j=0; j<OutputTree->nScaleWeight; j++) {
+            //         //LHE scale variation weights (w_var / w_nominal); [0] is MUR="0.5" MUF="0.5";
+            //         //[1] is MUR="0.5" MUF="1.0"; [2] is MUR="0.5" MUF="2.0"; [3] is MUR="1.0" MUF="0.5";
+            //         //[4] is MUR="1.0" MUF="2.0"; [5] is MUR="2.0" MUF="0.5"; [6] is MUR="2.0" MUF="1.0";
+            //         //[7] is MUR="2.0" MUF="2.0"
+            //         OutputTree->scaleWeight[j]=NanoReader.LHEScaleWeight[j];
+            //     }
+            //     for (uint j=0; j<OutputTree->nPdfWeight; j++) {
+            //         //LHE pdf variation weights (w_var / w_nominal) for LHA IDs 91400 - 91432
+            //         OutputTree->pdfWeight[j]=NanoReader.LHEPdfWeight[j];
+            //     }
 
-            }
+            // }
 
-            OutputTree->btagWeight = NanoReader.btagWeight_DeepCSVB;
+            // OutputTree->btagWeight = NanoReader.btagWeight_DeepCSVB;
             OutputTree->L1PFWeight = NanoReader.L1PreFiringWeight_Nom;
 
             ot->Fill();
@@ -477,8 +478,5 @@ int main(int argc, char const *argv[])
     of->Close();
     return 0;
 }
-
-
-
 
 
