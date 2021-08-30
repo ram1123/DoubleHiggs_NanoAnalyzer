@@ -8,7 +8,7 @@ void output::init() {
   fTree->Branch("run",&run,"run/I");
   fTree->Branch("ls",&ls,"ls/I");
   fTree->Branch("evt",&evt,"evt/I");
-  fTree->Branch("nPV",&nPV,"nPV/F");
+  // fTree->Branch("nPV",&nPV,"nPV/F");
   fTree->Branch("nPU_mean",&nPU_mean,"nPU_mean/F");
   fTree->Branch("genWeight",&genWeight,"genWeight/F");
   fTree->Branch("puWeight",&puWeight,"puWeight/F");
@@ -79,7 +79,7 @@ void output::clearVars() {
   ls = 0;
   evt = 0;
 
-  nPV = 0;
+  // nPV = 0;
   nPU_mean = 0;
 
   genWeight = 1.0;

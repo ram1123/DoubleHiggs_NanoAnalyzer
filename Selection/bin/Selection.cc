@@ -109,10 +109,11 @@ int main(int argc, char const *argv[])
         std::string filetoopen;
         ss >> filetoopen;
 
-        std::cout << "File: root://cmseos.fnal.gov/" << TString(filetoopen) << std::endl;
+        std::cout << "File: " << TString(filetoopen) << std::endl;
 
-        f = TFile::Open(TString("root://cmseos.fnal.gov/")+TString(filetoopen),"read");
+        //f = TFile::Open(TString("root://cmseos.fnal.gov/")+TString(filetoopen),"read");
         //f = TFile::Open(TString("root://xrootd-cms.infn.it/")+TString(filetoopen),"read");
+        f = TFile::Open(TString(filetoopen),"read");
         t = (TTree *)f->Get("Events");
         r = (TTree *)f->Get("Runs");
         if (t==NULL) continue;
@@ -140,7 +141,7 @@ int main(int argc, char const *argv[])
             }
 
             if (era==2017) {
-                if ( NanoReader.HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 || NanoReader.HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55 || NanoReader.HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55 ) OutputTree->trigger_1Pho = true;
+                if ( NanoReader.HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 || NanoReader.HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55 || NanoReader.HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55 ) OutputTree->trigger_1Pho = true;
             }
             // else if (era==2017) {
             //     if ( NanoReader.HLT_Diphoton30_18_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 || NanoReader.HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55 || NanoReader.HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55 ) OutputTree->trigger_1Pho = true;
@@ -160,7 +161,7 @@ int main(int argc, char const *argv[])
             OutputTree->evt = NanoReader.event;
             OutputTree->ls = NanoReader.luminosityBlock;
 
-            OutputTree->nPV = NanoReader.PV_npvsGood;
+            // OutputTree->nPV = NanoReader.PV_npvsGood;
             OutputTree->nPU_mean = NanoReader.Pileup_nPU;
 
             OutputTree->puWeight = 1.0;//scaleFactor.GetPUWeight(info->nPUmean, 0);
@@ -466,7 +467,7 @@ int main(int argc, char const *argv[])
 
             }
 
-            OutputTree->btagWeight = NanoReader.btagWeight_DeepCSVB;
+            OutputTree->btagWeight = NanoReader.btagWeight_CSVV2;
             OutputTree->L1PFWeight = NanoReader.L1PreFiringWeight_Nom;
 
             ot->Fill();

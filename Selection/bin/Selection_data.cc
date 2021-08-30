@@ -161,7 +161,7 @@ int main(int argc, char const *argv[])
             OutputTree->evt = NanoReader.event;
             OutputTree->ls = NanoReader.luminosityBlock;
 
-            OutputTree->nPV = NanoReader.PV_npvsGood;
+            // OutputTree->nPV = NanoReader.PV_npvsGood;
             // OutputTree->nPU_mean = NanoReader.Pileup_nPU;
 
             OutputTree->puWeight = 1.0;//scaleFactor.GetPUWeight(info->nPUmean, 0);

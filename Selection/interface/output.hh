@@ -28,7 +28,7 @@ public:
   uint run = 0;
   uint ls = 0;
   uint evt = 0;
-  float nPV = -999.0;
+  // float nPV = -999.0;
   float nPU_mean = -999.0;
   float genWeight = -999.0;
   float puWeight = -999.0;

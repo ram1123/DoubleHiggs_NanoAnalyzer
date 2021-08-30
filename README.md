@@ -3,8 +3,8 @@
 ## Get Reduced Ntuples
 
 ```bash
-cmsrel CMSSW_10_2_22
-cd CMSSW_10_2_22/src
+cmsrel CMSSW_10_6_20
+cd CMSSW_10_6_20/src
 git clone git@github.com:ram1123/DoubleHiggs_NanoAnalyzer.git DoubleHiggs
 cd DoubleHiggs
 git checkout Develop
@@ -15,15 +15,15 @@ To run the code:
 
 ```bash
 cd $CMSSW_BASE/src/DoubleHiggs/Selection
-Selection test.txt output.root 1 2017  1
+Selection inputFiles.dat output.root 1 2017  1
 ```
 Description of arguments in above command:
 
-- First argument is the input txt file having list of root files with path
+- First argument is the name of input txt file having list of root files with path or one can also provide the one root file here
 - Second argument is the name of output root file
 - Third argument: for MC = 1, for Data = 0
 - Fourth argument: Year
-- Fifth argument: DEBUG (0/1)
+- Fifth argument: DEBUG (0/1); If its 1 then it prints many outputs.
 
 ## Get workspace from reduced ntuples
 
