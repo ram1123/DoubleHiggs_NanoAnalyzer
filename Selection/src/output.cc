@@ -4,6 +4,36 @@ void output::init() {
 
   clearVars();
 
+  fTree->Branch("test",&test,"test/F");
+  fTree->Branch("AK4_Jet1_pt",&AK4_Jet1_pt,"AK4_Jet1_pt/F");
+  fTree->Branch("AK4_Jet2_pt",&AK4_Jet2_pt,"AK4_Jet2_pt/F");
+  fTree->Branch("AK4_Jet3_pt",&AK4_Jet3_pt,"AK4_Jet3_pt/F");
+  fTree->Branch("AK4_Jet4_pt",&AK4_Jet4_pt,"AK4_Jet4_pt/F");
+
+  fTree->Branch("AK4_Jet1_eta",&AK4_Jet1_eta,"AK4_Jet1_eta/F");
+  fTree->Branch("AK4_Jet2_eta",&AK4_Jet2_eta,"AK4_Jet2_eta/F");
+  fTree->Branch("AK4_Jet3_eta",&AK4_Jet3_eta,"AK4_Jet3_eta/F");
+  fTree->Branch("AK4_Jet4_eta",&AK4_Jet4_eta,"AK4_Jet4_eta/F");
+
+  fTree->Branch("AK4_Jet1_phi",&AK4_Jet1_phi,"AK4_Jet1_phi/F");
+  fTree->Branch("AK4_Jet2_phi",&AK4_Jet2_phi,"AK4_Jet2_phi/F");
+  fTree->Branch("AK4_Jet3_phi",&AK4_Jet3_phi,"AK4_Jet3_phi/F");
+  fTree->Branch("AK4_Jet4_phi",&AK4_Jet4_phi,"AK4_Jet4_phi/F");
+
+  // fTree->Branch("AK8_Jet1_pt",&AK8_Jet1_pt,"AK8_Jet1_pt/F");
+  // fTree->Branch("AK8_Jet2_pt",&AK8_Jet2_pt,"AK8_Jet2_pt/F");
+  // fTree->Branch("AK8_Jet3_pt",&AK8_Jet3_pt,"AK8_Jet3_pt/F");
+  // fTree->Branch("AK8_Jet4_pt",&AK8_Jet4_pt,"AK8_Jet4_pt/F");
+
+  // fTree->Branch("AK8_Jet1_eta",&AK8_Jet1_eta,"AK8_Jet1_eta/F");
+  // fTree->Branch("AK8_Jet2_eta",&AK8_Jet2_eta,"AK8_Jet2_eta/F");
+  // fTree->Branch("AK8_Jet3_eta",&AK8_Jet3_eta,"AK8_Jet3_eta/F");
+  // fTree->Branch("AK8_Jet4_eta",&AK8_Jet4_eta,"AK8_Jet4_eta/F");
+
+  // fTree->Branch("AK8_Jet1_phi",&AK8_Jet1_phi,"AK8_Jet1_phi/F");
+  // fTree->Branch("AK8_Jet2_phi",&AK8_Jet2_phi,"AK8_Jet2_phi/F");
+  // fTree->Branch("AK8_Jet3_phi",&AK8_Jet3_phi,"AK8_Jet3_phi/F");
+  // fTree->Branch("AK8_Jet4_phi",&AK8_Jet4_phi,"AK8_Jet4_phi/F");
   //metadata and weights
   fTree->Branch("run",&run,"run/I");
   fTree->Branch("ls",&ls,"ls/I");
@@ -78,6 +108,37 @@ void output::clearVars() {
   run = 0;
   ls = 0;
   evt = 0;
+  test = -999.0;
+  AK4_Jet1_pt = -999.0;
+  AK4_Jet2_pt = -999.0;
+  AK4_Jet3_pt = -999.0;
+  AK4_Jet4_pt = -999.0;
+  
+  AK4_Jet1_eta = -999.0;
+  AK4_Jet2_eta = -999.0;
+  AK4_Jet3_eta = -999.0;
+  AK4_Jet4_eta = -999.0;
+  
+  AK4_Jet1_phi = -999.0;
+  AK4_Jet2_phi = -999.0;
+  AK4_Jet3_phi = -999.0;
+  AK4_Jet4_phi = -999.0;
+
+  // AK8_Jet1_pt = -999.0;
+  // AK8_Jet2_pt = -999.0;
+  // AK8_Jet3_pt = -999.0;
+  // AK8_Jet4_pt = -999.0;
+
+  // AK8_Jet1_eta = -999.0;
+  // AK8_Jet2_eta = -999.0;
+  // AK8_Jet3_eta = -999.0;
+  // AK8_Jet4_eta = -999.0;
+
+  // AK8_Jet1_phi = -999.0;
+  // AK8_Jet2_phi = -999.0;
+  // AK8_Jet3_phi = -999.0;
+  // AK8_Jet4_phi = -999.0;
+
 
   // nPV = 0;
   nPU_mean = 0;

@@ -1,8 +1,5 @@
 # Output files
-*.root
-*.png
-*.pdf
-*.jdl
+/DoubleHiggs/Selection/CMSSW_10_6_20/
 submit*.sh
 *.tgz
 *.patch

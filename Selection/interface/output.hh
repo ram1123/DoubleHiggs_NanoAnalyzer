@@ -20,6 +20,37 @@ public:
   void init();
 
   TTree *fTree;
+  float test = -999.0;
+  float AK4_Jet1_pt = -999.0;
+  float AK4_Jet2_pt = -999.0;
+  float AK4_Jet3_pt = -999.0;
+  float AK4_Jet4_pt = -999.0;
+  
+  float AK4_Jet1_eta = -999.0;
+  float AK4_Jet2_eta = -999.0;
+  float AK4_Jet3_eta = -999.0;
+  float AK4_Jet4_eta = -999.0;
+  
+  float AK4_Jet1_phi = -999.0;
+  float AK4_Jet2_phi = -999.0;
+  float AK4_Jet3_phi = -999.0;
+  float AK4_Jet4_phi = -999.0;
+
+  // float AK8_Jet1_pt = -999.0;
+  // float AK8_Jet2_pt = -999.0;
+  // float AK8_Jet3_pt = -999.0;
+  // float AK8_Jet4_pt = -999.0;
+
+  // float AK8_Jet1_eta = -999.0;
+  // float AK8_Jet2_eta = -999.0;
+  // float AK8_Jet3_eta = -999.0;
+  // float AK8_Jet4_eta = -999.0;
+
+  // float AK8_Jet1_phi = -999.0;
+  // float AK8_Jet2_phi = -999.0;
+  // float AK8_Jet3_phi = -999.0;
+  // float AK8_Jet4_phi = -999.0;
+
 
   //------------------------------------//
   //       METADATA AND EVENT WEIGHTS   //
