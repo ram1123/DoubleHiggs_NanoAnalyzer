@@ -69,12 +69,13 @@ int main(int argc, char const *argv[])
     const float PHO_PT_CUT = 10.0;
 
     const float AK8_LEP_DR_CUT = 0.8;
+    const float AK4_LEP_DR_CUT = 0.4;
 
     //ak8 jet cuts
     const float AK8_MIN_PT = 200;
     const float AK8_MAX_ETA = 2.4;
     const float AK8_MIN_SDM = 40;
-    const float AK8_MAX_SDM = 150;
+    const float AK8_MAX_SDM = 160;
 
     //ak4 jet cuts
     //const float AK4_PT_VETO_CUT = 20;
@@ -94,7 +95,7 @@ int main(int argc, char const *argv[])
 
     TFile *of = new TFile(outputFile.c_str(),"RECREATE");
     TTree *ot = new TTree("Events","Events");
-    output* OutputTree = new output(ot);
+    output* OutputTree = new output(ot); //!"ot" is a output tree
     TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
 
     TFile *f=0;
@@ -108,7 +109,6 @@ int main(int argc, char const *argv[])
         std::stringstream ss(line);
         std::string filetoopen;
         ss >> filetoopen;
-
         std::cout << "File: " << TString(filetoopen) << std::endl;
 
         //f = TFile::Open(TString("root://cmseos.fnal.gov/")+TString(filetoopen),"read");
@@ -119,10 +119,10 @@ int main(int argc, char const *argv[])
         if (t==NULL) continue;
 
         //std::cout << filetoopen << std::endl;
-
+        //!NanoReader is the tree Events T
         NanoAOD_MC NanoReader = NanoAOD_MC(t);
         NanoAOD_Weights NanoWeightReader = NanoAOD_Weights(r);
-
+        //! MC so getEntry(0) 
         if (isMC==1) {
             NanoWeightReader.GetEntry(0);
             totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+NanoWeightReader.genEventSumw);
@@ -165,7 +165,10 @@ int main(int argc, char const *argv[])
             OutputTree->nPU_mean = NanoReader.Pileup_nPU;
 
             OutputTree->puWeight = 1.0;//scaleFactor.GetPUWeight(info->nPUmean, 0);
-
+/* -------------------------------------------------------------------------- */
+/*                      ele and muon Selection 
+                no electron and muon in fullyHadronic                         */
+/* -------------------------------------------------------------------------- */
             int nTightEle=0;
             int nTightMu=0;
 
@@ -183,7 +186,9 @@ int main(int argc, char const *argv[])
 
             if (nTightEle+nTightMu>0) continue;
 
-            // PHOTON SELECTION
+            /* -------------------------------------------------------------------------- */
+            /*                              PHOTON SELECTION                              */
+            /* -------------------------------------------------------------------------- */
             int nTightPhoton = 0;
             int nVetoPhoton = 0;
 
@@ -203,20 +208,21 @@ int main(int argc, char const *argv[])
                 if (NanoReader.Photon_pfRelIso03_all[PhotonCount]>0.15) continue;
 
                 nTightPhoton++;
+                /* ----------- push pt,eta,phi,ecorr in the TightPhoton last index ---------- */
                 TightPhoton.push_back(TLorentzVector(0,0,0,0));
                 TightPhoton.back().SetPtEtaPhiE( NanoReader.Photon_pt[PhotonCount],
                                                 NanoReader.Photon_eta[PhotonCount],
                                                 NanoReader.Photon_phi[PhotonCount],
                                                 NanoReader.Photon_eCorr[PhotonCount]
                                                 );
-
+                /* ------- sort and Leading_photon -> pho1  SubLeading_photon -> pho2  ------- */
                 if ( NanoReader.Photon_pt[PhotonCount] > OutputTree->pho1_pt ) {
                     OutputTree->pho2_pt = OutputTree->pho1_pt;
                     OutputTree->pho2_eta = OutputTree->pho1_eta;
                     OutputTree->pho2_phi = OutputTree->pho1_phi;
                     OutputTree->pho2_m = OutputTree->pho1_m;
                     OutputTree->pho2_iso = OutputTree->pho1_iso;
-                    OutputTree->pho2_q = OutputTree->pho1_q;
+                    OutputTree->pho2_q = OutputTree->pho1_q;    
 
                     OutputTree->pho1_pt = NanoReader.Photon_pt[PhotonCount];
                     OutputTree->pho1_eta = NanoReader.Photon_eta[PhotonCount];
@@ -236,7 +242,9 @@ int main(int argc, char const *argv[])
             }
 
             if (!(nTightPhoton==2)) continue;
-
+            /* -------------------------------------------------------------------------- */
+            /*                             photon m,pt,eta,phi                            */
+            /* -------------------------------------------------------------------------- */
             TLorentzVector LV_pho1(0,0,0,0);
             LV_pho1.SetPtEtaPhiM( OutputTree->pho1_pt, OutputTree->pho1_eta, OutputTree->pho1_phi, OutputTree->pho1_m );
 
@@ -249,58 +257,62 @@ int main(int argc, char const *argv[])
             OutputTree->diphoton_pt = diphoton.Pt();
             OutputTree->diphoton_eta = diphoton.Eta();
             OutputTree->diphoton_phi = diphoton.Phi();
+            OutputTree->test = diphoton.M();
 
-            // float dmW = 3000.0;
-            // int nGoodFatJet=0;
-            // for (UInt_t Ak8JetCount = 0; Ak8JetCount < NanoReader.nFatJet; ++Ak8JetCount)
-            // {
-            //     if ( ! (NanoReader.FatJet_pt[Ak8JetCount]>AK8_MIN_PT ||
-            //             NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount]>AK8_MIN_PT ||
-            //             NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount]>AK8_MIN_PT)
-            //         ) continue;
-            //     if ( fabs(NanoReader.FatJet_eta[Ak8JetCount]) > AK8_MAX_ETA
-            //         ) continue;
 
-            //     if ( ! (NanoReader.FatJet_msoftdrop[Ak8JetCount]>AK8_MIN_SDM ||
-            //             NanoReader.FatJet_msoftdrop_jesTotalUp[Ak8JetCount]>AK8_MIN_SDM ||
-            //             NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount]>AK8_MIN_SDM)
-            //         ) continue;
+            float dmW = 3000.0;  
 
-            //     if ( ! (NanoReader.FatJet_msoftdrop[Ak8JetCount]<AK8_MAX_SDM ||
-            //             NanoReader.FatJet_msoftdrop_jesTotalUp[Ak8JetCount]<AK8_MAX_SDM ||
-            //             NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount]<AK8_MAX_SDM)
-            //         ) continue;
+                if ( ! (NanoReader.FatJet_pt[Ak8JetCount]>AK8_MIN_PT ||
+                        NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount]>AK8_MIN_PT ||
+                        NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount]>AK8_MIN_PT)
+                    ) continue;
+                if ( ! (fabs(NanoReader.FatJet_eta[Ak8JetCount]) < AK8_MAX_ETA)
+                    ) continue;
 
-            //     bool isClean=true;
-            //     //lepton cleaning
-            //     for ( std::size_t k=0; k<TightPhoton.size(); k++) {
-            //         if (deltaR( TightPhoton.at(k).Eta(), TightPhoton.at(k).Phi(),
-            //                 NanoReader.FatJet_eta[Ak8JetCount], NanoReader.FatJet_phi[Ak8JetCount])
-            //                 < AK8_LEP_DR_CUT)
-            //         isClean = false;
-            //     }
+                if ( ! (NanoReader.FatJet_msoftdrop[Ak8JetCount]>AK8_MIN_SDM ||
+                        NanoReader.FatJet_msoftdrop_jesTotalUp[Ak8JetCount]>AK8_MIN_SDM ||
+                        NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount]>AK8_MIN_SDM)
+                    ) continue;
 
-            //     if ( isClean == false ) continue;
+                if ( ! (NanoReader.FatJet_msoftdrop[Ak8JetCount]<AK8_MAX_SDM ||
+                        NanoReader.FatJet_msoftdrop_jesTotalUp[Ak8JetCount]<AK8_MAX_SDM ||
+                        NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount]<AK8_MAX_SDM)
+                    ) continue;
 
-            //     if ( fabs(NanoReader.FatJet_msoftdrop[Ak8JetCount] - H_MASS) > dmW ) continue;
+                bool isClean=true;
+                /* -------------------------------------------------------------------------- */
+                /*                               lepton cleaning                              */
+                /* -------------------------------------------------------------------------- */
+                for ( std::size_t k=0; k<TightPhoton.size(); k++) {
+                    if (deltaR( TightPhoton.at(k).Eta(), TightPhoton.at(k).Phi(),
+                            NanoReader.FatJet_eta[Ak8JetCount], NanoReader.FatJet_phi[Ak8JetCount])
+                            < AK8_LEP_DR_CUT)
+                    isClean = false;
+                }
 
-            //     OutputTree->Higgs_PuppiAK8_m_sd0 = NanoReader.FatJet_msoftdrop[Ak8JetCount];
-            //     OutputTree->Higgs_PuppiAK8_m_sd0_corr = NanoReader.FatJet_msoftdrop[Ak8JetCount];
-            //     OutputTree->Higgs_PuppiAK8_tau2tau1 = NanoReader.FatJet_tau2[Ak8JetCount]/NanoReader.FatJet_tau1[Ak8JetCount];
-            //     OutputTree->Higgs_PuppiAK8_pt = NanoReader.FatJet_pt[Ak8JetCount];
-            //     OutputTree->Higgs_PuppiAK8_eta = NanoReader.FatJet_eta[Ak8JetCount];
-            //     OutputTree->Higgs_PuppiAK8_phi = NanoReader.FatJet_phi[Ak8JetCount];
+                if ( isClean == false ) continue;
+                /* -------------------------------------------------------------------------- */
+                // resonnance FatJet - H_mass > 3000
+                if ( fabs(NanoReader.FatJet_msoftdrop[Ak8JetCount] - H_MASS) > dmW ) continue;
 
-            //     OutputTree->Higgs_PuppiAK8_m_sd0_corr_scaleUp = NanoReader.FatJet_msoftdrop_jesTotalUp[Ak8JetCount];
-            //     OutputTree->Higgs_PuppiAK8_m_sd0_corr_scaleDn = NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount];
-            //     OutputTree->Higgs_PuppiAK8_pt_scaleUp = NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount];
-            //     OutputTree->Higgs_PuppiAK8_pt_scaleDn = NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_m_sd0 = NanoReader.FatJet_msoftdrop[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_m_sd0_corr = NanoReader.FatJet_msoftdrop[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_tau2tau1 = NanoReader.FatJet_tau4[Ak8JetCount]/NanoReader.FatJet_tau1[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_pt = NanoReader.FatJet_pt[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_eta = NanoReader.FatJet_eta[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_phi = NanoReader.FatJet_phi[Ak8JetCount];
 
-            //     dmW = fabs(NanoReader.FatJet_msoftdrop[Ak8JetCount] - H_MASS);
-            //     nGoodFatJet++;
-            // }
+                OutputTree->Higgs_PuppiAK8_m_sd0_corr_scaleUp = NanoReader.FatJet_msoftdrop_jesTotalUp[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_m_sd0_corr_scaleDn = NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_pt_scaleUp = NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount];
+                OutputTree->Higgs_PuppiAK8_pt_scaleDn = NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount];
+
+                dmW = fabs(NanoReader.FatJet_msoftdrop[Ak8JetCount] - H_MASS);
+                nGoodFatJet++;
+            }
 
             goodAK4JetIndex.clear();
+            /* -------------------------------------------------------------------------- */
             for (UInt_t Ak4JetCount = 0; Ak4JetCount < NanoReader.nJet; ++Ak4JetCount)
             {
                 //jet energy scale variations
@@ -318,7 +330,7 @@ int main(int argc, char const *argv[])
                 for ( std::size_t k=0; k<TightPhoton.size(); k++) {
                     if (deltaR( TightPhoton.at(k).Eta(), TightPhoton.at(k).Phi(),
                                NanoReader.Jet_eta[Ak4JetCount], NanoReader.Jet_phi[Ak4JetCount])
-                        < AK8_LEP_DR_CUT)
+                        < AK4_LEP_DR_CUT)
                         isClean = false;
                 }
                 if ( isClean == false ) continue;
@@ -336,116 +348,49 @@ int main(int argc, char const *argv[])
 
             // for (std::vector<int>::iterator It_JetIndex = goodAK4JetIndex.begin(); It_JetIndex != goodAK4JetIndex.end(); ++It_JetIndex)
             // {
-            //     // std::cout << "DEBUG: " << *It_JetIndex << std::endl;
+                // std::cout << "DEBUG: " << *It_JetIndex << std::endl;
             // }
             //
             //
             // get 4 jets for FH final state with minWH vals
-            double TempMinWMass = 999999.0;
-            double TempMinHMass = 999999.0;
-
-            int OnShellW_LeadingJetIndex = -1;
-            int OnShellW_SubLeadingJetIndex = -1;
-            int OffShellW_LeadingJetIndex = -1;
-            int OffShellW_SubLeadingJetIndex = -1;
 
             int nTagJets = goodAK4JetIndex.size();
 
             if (nTagJets<4) continue;
+            // We need to save pt, eta, phi, energy for first 4 AK4 jets
+            // output->AK4_Jet1_pt = goodAK4JetIndex[0].pT
+            /* ----------------------- output the AK4 and AK8 jet ----------------------- */
+                OutputTree->AK4_Jet1_pt = NanoReader.Jet_pt[goodAK4JetIndex[0]];
+                OutputTree->AK4_Jet2_pt = NanoReader.Jet_pt[goodAK4JetIndex[1]];
+                OutputTree->AK4_Jet3_pt = NanoReader.Jet_pt[goodAK4JetIndex[2]];
+                OutputTree->AK4_Jet4_pt = NanoReader.Jet_pt[goodAK4JetIndex[3]];
+            
 
-            if (DEBUG) std::cout << "-----\n\n\n" << nTagJets << ": All Jet Index: ";
-            for (int CountJet1 = 0; CountJet1 < nTagJets; CountJet1++) {
-                if (DEBUG) std::cout << goodAK4JetIndex.at(CountJet1) << "\t";
-            }
-            if (DEBUG) std::cout << "\n\n";
-
-            for (int CountJet1 = 0; CountJet1 < nTagJets-1; CountJet1++) {
-                for (int CountJet2 = CountJet1+1; CountJet2 < nTagJets; CountJet2++) {
-                    // if (DEBUG) std::cout << "(CountJet1,CountJet2) = (" << CountJet1 << "," << CountJet2 << ")" << std::endl;
-                    // NanoReader.Jet_mass[Ak4JetCount]
-                    TLorentzVector FirstJet(0,0,0,0);
-                    FirstJet.SetPtEtaPhiM(NanoReader.Jet_pt[goodAK4JetIndex.at(CountJet1)],
-                                          NanoReader.Jet_eta[goodAK4JetIndex.at(CountJet1)],
-                                          NanoReader.Jet_phi[goodAK4JetIndex.at(CountJet1)],
-                                          NanoReader.Jet_mass[goodAK4JetIndex.at(CountJet1)] );
-
-                    TLorentzVector SecondJet(0,0,0,0);
-                    SecondJet.SetPtEtaPhiM(NanoReader.Jet_pt[goodAK4JetIndex.at(CountJet2)],
-                                           NanoReader.Jet_eta[goodAK4JetIndex.at(CountJet2)],
-                                           NanoReader.Jet_phi[goodAK4JetIndex.at(CountJet2)],
-                                           NanoReader.Jet_mass[goodAK4JetIndex.at(CountJet2)] );
-
-                    double deltaMass =  abs((FirstJet+SecondJet).M() - 80.0);
-                    // if (DEBUG) std::cout << "deltaMass = " << deltaMass << "\t TempMinWMass = " << TempMinWMass << std::endl;
-                    if ( deltaMass < TempMinWMass)
-                    {
-                        if  (FirstJet.Pt() > SecondJet.Pt()) {
-                            OnShellW_LeadingJetIndex = goodAK4JetIndex.at(CountJet1);
-                            OnShellW_SubLeadingJetIndex = goodAK4JetIndex.at(CountJet2);
-                        } else {
-                            OnShellW_LeadingJetIndex = goodAK4JetIndex.at(CountJet2);
-                            OnShellW_SubLeadingJetIndex = goodAK4JetIndex.at(CountJet1);
-                        }
-                        TempMinWMass = deltaMass;
-                        // if (DEBUG) std::cout << "==> (CountJet1,CountJet2) = (" << OnShellW_LeadingJetIndex << "," << OnShellW_SubLeadingJetIndex << ")" << std::endl;
-                    }
-                }
-            }
-            // if (DEBUG) std::cout << "[INFO] Print Jet Index (After W-Selection): " << OnShellW_LeadingJetIndex << "\t" << OnShellW_SubLeadingJetIndex << "\t" << OffShellW_LeadingJetIndex << "\t" << OffShellW_SubLeadingJetIndex  << std::endl;
-
-            for (int CountJet1 = 0; CountJet1 < nTagJets-1; CountJet1++) {
-                if (goodAK4JetIndex.at(CountJet1) == OnShellW_LeadingJetIndex || goodAK4JetIndex.at(CountJet1) == OnShellW_SubLeadingJetIndex) continue;
-                for (int CountJet2 = CountJet1+1; CountJet2 < nTagJets; CountJet2++) {
-                    if (goodAK4JetIndex.at(CountJet2) == OnShellW_LeadingJetIndex || goodAK4JetIndex.at(CountJet2) == OnShellW_SubLeadingJetIndex) continue;
-                    // if (DEBUG) std::cout << "(CountJet1,CountJet2) = (" << CountJet1 << "," << CountJet2 << ")" << std::endl;
-                    // if (DEBUG) std::cout << "===> " << goodAK4JetIndex.at(CountJet1) << "\t" << goodAK4JetIndex.at(CountJet2) << std::endl;
-
-                    TLorentzVector FirstJet(0,0,0,0);
-                    FirstJet.SetPtEtaPhiM(NanoReader.Jet_pt[goodAK4JetIndex.at(CountJet1)],
-                                          NanoReader.Jet_eta[goodAK4JetIndex.at(CountJet1)],
-                                          NanoReader.Jet_phi[goodAK4JetIndex.at(CountJet1)],
-                                          NanoReader.Jet_mass[goodAK4JetIndex.at(CountJet1)] );
-
-                    TLorentzVector SecondJet(0,0,0,0);
-                    SecondJet.SetPtEtaPhiM(NanoReader.Jet_pt[goodAK4JetIndex.at(CountJet2)],
-                                           NanoReader.Jet_eta[goodAK4JetIndex.at(CountJet2)],
-                                           NanoReader.Jet_phi[goodAK4JetIndex.at(CountJet2)],
-                                           NanoReader.Jet_mass[goodAK4JetIndex.at(CountJet2)] );
-
-                    TLorentzVector ThirdJet(0,0,0,0);
-                    ThirdJet.SetPtEtaPhiM(NanoReader.Jet_pt[OnShellW_LeadingJetIndex],
-                                          NanoReader.Jet_eta[OnShellW_LeadingJetIndex],
-                                          NanoReader.Jet_phi[OnShellW_LeadingJetIndex],
-                                          NanoReader.Jet_mass[OnShellW_LeadingJetIndex] );
-
-                    TLorentzVector FourthJet(0,0,0,0);
-                    FourthJet.SetPtEtaPhiM(NanoReader.Jet_pt[OnShellW_SubLeadingJetIndex],
-                                           NanoReader.Jet_eta[OnShellW_SubLeadingJetIndex],
-                                           NanoReader.Jet_phi[OnShellW_SubLeadingJetIndex],
-                                           NanoReader.Jet_mass[OnShellW_SubLeadingJetIndex] );
-                    // if (DEBUG) std::cout << "===> " << goodAK4JetIndex.at(CountJet1) << "\t" << goodAK4JetIndex.at(CountJet2) << std::endl;
-                    double deltaMass =  abs(( FirstJet + SecondJet + ThirdJet + FourthJet).M() - 125.0);
-                    // if (DEBUG) std::cout << "deltaMass = " << deltaMass << "\t TempMinHMass = " << TempMinHMass << std::endl;
-                    if ( deltaMass < TempMinHMass)
-                    {
-                        if  (FirstJet.Pt() > SecondJet.Pt()) {
-                            OffShellW_LeadingJetIndex = goodAK4JetIndex.at(CountJet1);
-                            OffShellW_SubLeadingJetIndex = goodAK4JetIndex.at(CountJet2);
-                        } else {
-                            OffShellW_LeadingJetIndex = goodAK4JetIndex.at(CountJet2);
-                            OffShellW_SubLeadingJetIndex = goodAK4JetIndex.at(CountJet1);
-                        }
-                        TempMinHMass = deltaMass;
-                        // if (DEBUG) std::cout << "==> (CountJet1,CountJet2) = (" << CountJet1 << "," << CountJet2 << ")" << std::endl;
-                    }
-                }
-            }
-
-            if (DEBUG) std::cout << "[INFO] Print pt of 4 selected jets: " << OnShellW_LeadingJetIndex << "\t" << OnShellW_SubLeadingJetIndex << "\t" << OffShellW_LeadingJetIndex << "\t" << OffShellW_SubLeadingJetIndex  << std::endl;
-            if (DEBUG) std::cout << "[INFO] jet1 pT = " << NanoReader.Jet_pt[OnShellW_LeadingJetIndex] << std::endl;
-            if (DEBUG) std::cout << "[INFO] jet2 pT = " << NanoReader.Jet_pt[OnShellW_SubLeadingJetIndex] << std::endl;
-            if (DEBUG) std::cout << "[INFO] jet3 pT = " << NanoReader.Jet_pt[OffShellW_LeadingJetIndex] << std::endl;
-            if (DEBUG) std::cout << "[INFO] jet4 pT = " << NanoReader.Jet_pt[OffShellW_SubLeadingJetIndex] << std::endl;
+                OutputTree->AK4_Jet1_eta = NanoReader.Jet_eta[goodAK4JetIndex[0]];
+                OutputTree->AK4_Jet2_eta = NanoReader.Jet_eta[goodAK4JetIndex[1]];
+                OutputTree->AK4_Jet3_eta = NanoReader.Jet_eta[goodAK4JetIndex[2]];
+                OutputTree->AK4_Jet4_eta = NanoReader.Jet_eta[goodAK4JetIndex[3]];
+               
+                OutputTree->AK4_Jet1_phi = NanoReader.Jet_phi[goodAK4JetIndex[0]];
+                OutputTree->AK4_Jet2_phi = NanoReader.Jet_phi[goodAK4JetIndex[1]];
+                OutputTree->AK4_Jet3_phi = NanoReader.Jet_phi[goodAK4JetIndex[2]];
+                OutputTree->AK4_Jet4_phi = NanoReader.Jet_phi[goodAK4JetIndex[3]];
+                
+                // OutputTree->AK8_Jet1_pt = NanoReader.Jet_pt[goodAK8JetIndex[0]];
+                // OutputTree->AK8_Jet2_pt = NanoReader.Jet_pt[goodAK8JetIndex[1]];
+                // OutputTree->AK8_Jet3_pt = NanoReader.Jet_pt[goodAK8JetIndex[2]];
+                // OutputTree->AK8_Jet4_pt = NanoReader.Jet_pt[goodAK8JetIndex[3]];
+                
+                // OutputTree->AK8_Jet1_eta = NanoReader.Jet_eta[goodAK8JetIndex[0]];
+                // OutputTree->AK8_Jet2_eta = NanoReader.Jet_eta[goodAK8JetIndex[1]];
+                // OutputTree->AK8_Jet3_eta = NanoReader.Jet_eta[goodAK8JetIndex[2]];
+                // OutputTree->AK8_Jet4_eta = NanoReader.Jet_eta[goodAK8JetIndex[3]];
+                
+                // OutputTree->AK8_Jet1_phi = NanoReader.Jet_phi[goodAK8JetIndex[0]];
+                // OutputTree->AK8_Jet2_phi = NanoReader.Jet_phi[goodAK8JetIndex[1]];
+                // OutputTree->AK8_Jet3_phi = NanoReader.Jet_phi[goodAK8JetIndex[2]];
+                // OutputTree->AK8_Jet4_phi = NanoReader.Jet_phi[goodAK8JetIndex[3]];
+                
 
 
             if (isMC==1) {
@@ -478,6 +423,9 @@ int main(int argc, char const *argv[])
     of->Close();
     return 0;
 }
+
+
+
 
 
 
