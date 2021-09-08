@@ -36,6 +36,34 @@ public:
   float AK4_Jet3_phi = -999.0;
   float AK4_Jet4_phi = -999.0;
 
+  float AK4_Jet1_E = -999.0;
+  float AK4_Jet2_E = -999.0;
+  float AK4_Jet3_E = -999.0;
+  float AK4_Jet4_E = -999.0;
+
+  float AK4_Jet1_M = -999.0;
+  float AK4_Jet2_M = -999.0;
+  float AK4_Jet3_M = -999.0;
+  float AK4_Jet4_M = -999.0;
+
+  float TwoLeadingJets_pt = -999.0;
+  float TwoLeadingJets_eta = -999.0;
+  float TwoLeadingJets_phi = -999.0;
+  float TwoLeadingJets_m = -999.0;
+  float TwoLeadingJets_E = -999.0;
+
+  float ThirdFourthJets_pt = -999.0;
+  float ThirdFourthJets_eta = -999.0;
+  float ThirdFourthJets_phi = -999.0;
+  float ThirdFourthJets_m = -999.0;
+  float ThirdFourthJets_E = -999.0;
+
+  float FourJets_pt = -999.0;
+  float FourJets_eta = -999.0;
+  float FourJets_phi = -999.0;
+  float FourJets_m = -999.0;
+  float FourJets_E = -999.0;
+
   // float AK8_Jet1_pt = -999.0;
   // float AK8_Jet2_pt = -999.0;
   // float AK8_Jet3_pt = -999.0;
@@ -100,7 +128,7 @@ public:
   float pho1_dxy = -999.0;
   float pho1_dz = -999.0;
   float pho1_idEffWeight = -999.0;
-
+  float pho1_E = -999.0;
   //photon 1 scale variations
   float pho1_pt_scaleUp = -999.0;
   float pho1_pt_scaleDn = -999.0;
@@ -115,7 +143,7 @@ public:
   float pho2_dxy = -999.0;
   float pho2_dz = -999.0;
   float pho2_idEffWeight = -999.0;
-
+  float pho2_E = -999.0;
   //photon 2 scale variations
   float pho2_pt_scaleUp = -999.0;
   float pho2_pt_scaleDn = -999.0;
@@ -125,7 +153,7 @@ public:
   float diphoton_pt = -999.0;
   float diphoton_eta = -999.0;
   float diphoton_phi = -999.0;
-
+  float diphoton_E = -999.0;
   //diphoton scale variations
   float diphoton_m_scaleUp = -999.0;
   float diphoton_m_scaleDn = -999.0;

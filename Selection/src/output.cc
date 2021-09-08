@@ -20,6 +20,33 @@ void output::init() {
   fTree->Branch("AK4_Jet3_phi",&AK4_Jet3_phi,"AK4_Jet3_phi/F");
   fTree->Branch("AK4_Jet4_phi",&AK4_Jet4_phi,"AK4_Jet4_phi/F");
 
+  fTree->Branch("AK4_Jet1_E",&AK4_Jet1_E,"AK4_Jet1_E/F");
+  fTree->Branch("AK4_Jet2_E",&AK4_Jet2_E,"AK4_Jet2_E/F");
+  fTree->Branch("AK4_Jet3_E",&AK4_Jet3_E,"AK4_Jet3_E/F");
+  fTree->Branch("AK4_Jet4_E",&AK4_Jet4_E,"AK4_Jet4_E/F");
+  
+  fTree->Branch("AK4_Jet1_M",&AK4_Jet1_M,"AK4_Jet1_M/F");
+  fTree->Branch("AK4_Jet2_M",&AK4_Jet2_M,"AK4_Jet2_M/F");
+  fTree->Branch("AK4_Jet3_M",&AK4_Jet3_M,"AK4_Jet3_M/F");
+  fTree->Branch("AK4_Jet4_M",&AK4_Jet4_M,"AK4_Jet4_M/F");
+  
+  fTree->Branch("TwoLeadingJets_pt",&TwoLeadingJets_pt,"TwoLeadingJets_pt/F");
+  fTree->Branch("TwoLeadingJets_eta",&TwoLeadingJets_eta,"TwoLeadingJets_eta/F");
+  fTree->Branch("TwoLeadingJets_phi",&TwoLeadingJets_phi,"TwoLeadingJets_phi/F");
+  fTree->Branch("TwoLeadingJets_m",&TwoLeadingJets_m,"TwoLeadingJets_m/F");
+  fTree->Branch("TwoLeadingJets_E",&TwoLeadingJets_E,"TwoLeadingJets_E/F");
+  
+  fTree->Branch("ThirdFourthJets_pt",&ThirdFourthJets_pt,"ThirdFourthJets_pt/F");
+  fTree->Branch("ThirdFourthJets_eta",&ThirdFourthJets_eta,"ThirdFourthJets_eta/F");
+  fTree->Branch("ThirdFourthJets_phi",&ThirdFourthJets_phi,"ThirdFourthJets_phi/F");
+  fTree->Branch("ThirdFourthJets_m",&ThirdFourthJets_m,"ThirdFourthJets_m/F");
+  fTree->Branch("ThirdFourthJets_E",&ThirdFourthJets_E,"ThirdFourthJets_E/F");
+  
+  fTree->Branch("FourJets_pt",&FourJets_pt,"FourJets_pt/F");
+  fTree->Branch("FourJets_eta",&FourJets_eta,"FourJets_eta/F");
+  fTree->Branch("FourJets_phi",&FourJets_phi,"FourJets_phi/F");
+  fTree->Branch("FourJets_m",&FourJets_m,"FourJets_m/F");
+  fTree->Branch("FourJets_E",&FourJets_E,"FourJets_E/F");
   // fTree->Branch("AK8_Jet1_pt",&AK8_Jet1_pt,"AK8_Jet1_pt/F");
   // fTree->Branch("AK8_Jet2_pt",&AK8_Jet2_pt,"AK8_Jet2_pt/F");
   // fTree->Branch("AK8_Jet3_pt",&AK8_Jet3_pt,"AK8_Jet3_pt/F");
@@ -69,6 +96,7 @@ void output::init() {
   fTree->Branch("pho1_iso",&pho1_iso,"pho1_iso/F");
   fTree->Branch("pho1_dxy",&pho1_dxy,"pho1_dxy/F");
   fTree->Branch("pho1_dz",&pho1_dz,"pho1_dz/F");
+  fTree->Branch("pho1_E",&pho1_E,"pho1_E/F");
   fTree->Branch("pho1_idEffWeight",&pho1_idEffWeight,"pho1_idEffWeight/F");
   //lepton 1 scale variations
   fTree->Branch("pho1_pt_scaleUp",&pho1_pt_scaleUp,"pho1_pt_scaleUp/F");
@@ -82,6 +110,7 @@ void output::init() {
   fTree->Branch("pho2_iso",&pho2_iso,"pho2_iso/F");
   fTree->Branch("pho2_dxy",&pho2_dxy,"pho2_dxy/F");
   fTree->Branch("pho2_dz",&pho2_dz,"pho2_dz/F");
+  fTree->Branch("pho2_E",&pho2_E,"pho2_E/F");
   fTree->Branch("pho2_idEffWeight",&pho2_idEffWeight,"pho2_idEffWeight/F");
   //lepton 2 scale variations
   fTree->Branch("pho2_pt_scaleUp",&pho2_pt_scaleUp,"pho2_pt_scaleUp/F");
@@ -91,6 +120,7 @@ void output::init() {
   fTree->Branch("diphoton_pt",&diphoton_pt,"diphoton_pt/F");
   fTree->Branch("diphoton_eta",&diphoton_eta,"diphoton_eta/F");
   fTree->Branch("diphoton_phi",&diphoton_phi,"diphoton_phi/F");
+  fTree->Branch("diphoton_E",&diphoton_E,"diphoton_E/F");
   //dilepton scale variations
   fTree->Branch("diphoton_m_scaleUp",&diphoton_m_scaleUp,"diphoton_m_scaleUp/F");
   fTree->Branch("diphoton_m_scaleDn",&diphoton_m_scaleDn,"diphoton_m_scaleDn/F");

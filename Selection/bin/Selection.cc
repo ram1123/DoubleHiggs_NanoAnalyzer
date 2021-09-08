@@ -371,6 +371,70 @@ int main(int argc, char const *argv[])
             if (nTagJets<4) continue;
             // We need to save pt, eta, phi, energy for first 4 AK4 jets
             // output->AK4_Jet1_pt = goodAK4JetIndex[0].pT
+            /* -------------------------------------------------------------------------- */
+            /*                              sort four jet pt                              */
+            /* -------------------------------------------------------------------------- */
+            if(NanoReader.Jet_pt[goodAK4JetIndex[0]]<NanoReader.Jet_pt[goodAK4JetIndex[1]])
+            {
+            e=goodAK4JetIndex[0];
+            goodAK4JetIndex[0]=goodAK4JetIndex[1];
+            goodAK4JetIndex[1]=e;
+            e=AK4Jets.at(0);
+            AK4Jets.at(0)=AK4Jets.at(1);
+            AK4Jets.at(1)=e;
+            }
+            if(NanoReader.Jet_pt[goodAK4JetIndex[0]]<NanoReader.Jet_pt[goodAK4JetIndex[2]])
+            {
+            e=goodAK4JetIndex[0];
+            goodAK4JetIndex[0]=goodAK4JetIndex[2];
+            goodAK4JetIndex[2]=e;
+            e=AK4Jets.at(0);
+            AK4Jets.at(0)=AK4Jets.at(2);
+            AK4Jets.at(2)=e;
+            }
+            if(NanoReader.Jet_pt[goodAK4JetIndex[0]]<NanoReader.Jet_pt[goodAK4JetIndex[3]])
+            {
+            e=goodAK4JetIndex[0];
+            goodAK4JetIndex[0]=goodAK4JetIndex[3];
+            goodAK4JetIndex[3]=e;
+
+            e=AK4Jets.at(0);
+            AK4Jets.at(0)=AK4Jets.at(3);
+            AK4Jets.at(3)=e;
+            
+            }
+            if(NanoReader.Jet_pt[goodAK4JetIndex[1]]<NanoReader.Jet_pt[goodAK4JetIndex[2]])
+            {
+            e=goodAK4JetIndex[1];
+            goodAK4JetIndex[1]=goodAK4JetIndex[2];
+            goodAK4JetIndex[2]=e;
+            
+            e=Ak4Jets.at(1);
+            Ak4Jets.at(1)=Ak4Jets.at(2);
+            Ak4Jets.at(2)=e;
+            }
+            if(NanoReader.Jet_pt[goodAK4JetIndex[1]]<NanoReader.Jet_pt[goodAK4JetIndex[3]])
+            {
+            e=goodAK4JetIndex[1];
+            goodAK4JetIndex[1]=goodAK4JetIndex[3];
+            goodAK4JetIndex[3]=e;
+            
+            e=Ak4Jets.at(1);
+            Ak4Jets.at(1)=Ak4Jets.at(3);
+            Ak4Jets.at(3)=e;
+            }
+            if(NanoReader.Jet_pt[goodAK4JetIndex[2]]<NanoReader.Jet_pt[goodAK4JetIndex[3]])
+            {
+            e=goodAK4JetIndex[2];
+            goodAK4JetIndex[2]=goodAK4JetIndex[3];
+            goodAK4JetIndex[3]=e;
+            
+            e=AK4Jets.at(2);
+            AK4Jets.at(2)=AK4Jets.at(3);
+            AK4Jets.at(3)=e;
+            }
+/* ----------------------------------- -- ----------------------------------- */
+
             /* ----------------------- output the AK4 and AK8 jet ----------------------- */
                 OutputTree->AK4_Jet1_pt = NanoReader.Jet_pt[goodAK4JetIndex[0]];
                 OutputTree->AK4_Jet2_pt = NanoReader.Jet_pt[goodAK4JetIndex[1]];
@@ -392,6 +456,7 @@ int main(int argc, char const *argv[])
                 OutputTree->AK4_Jet2_M = NanoReader.Jet_mass[goodAK4JetIndex[1]];
                 OutputTree->AK4_Jet3_M = NanoReader.Jet_mass[goodAK4JetIndex[2]];
                 OutputTree->AK4_Jet4_M = NanoReader.Jet_mass[goodAK4JetIndex[3]];
+                
                 
                 OutputTree->AK4_Jet1_E = Ak4Jets.at(0).E();
                 OutputTree->AK4_Jet2_E = Ak4Jets.at(1).E();
