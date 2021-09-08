@@ -80,7 +80,7 @@ int main(int argc, char const *argv[])
     //ak4 jet cuts
     //const float AK4_PT_VETO_CUT = 20;
     const float AK4_ETA_CUT = 2.4;
-    const float AK4_PT_CUT = 30;
+    const float AK4_PT_CUT = 25;
     const float AK4_JJ_MIN_M = 40.0;
     const float AK4_JJ_MAX_M = 150.0;
 
@@ -132,7 +132,7 @@ int main(int argc, char const *argv[])
             //for (uint i=0; i < 1000000; i++) {
             OutputTree->clearVars();
             NanoReader.GetEntry(i);
-
+            if (i > 2001) break;
             if (i%1000==0) std::cout <<"event " << i << std::endl;
             // if (i>50000) exit(0);
 
@@ -222,7 +222,7 @@ int main(int argc, char const *argv[])
                     OutputTree->pho2_phi = OutputTree->pho1_phi;
                     OutputTree->pho2_m = OutputTree->pho1_m;
                     OutputTree->pho2_iso = OutputTree->pho1_iso;
-                    OutputTree->pho2_q = OutputTree->pho1_q;    
+                    OutputTree->pho2_q = OutputTree->pho1_q; 
 
                     OutputTree->pho1_pt = NanoReader.Photon_pt[PhotonCount];
                     OutputTree->pho1_eta = NanoReader.Photon_eta[PhotonCount];
@@ -242,6 +242,7 @@ int main(int argc, char const *argv[])
             }
 
             if (!(nTightPhoton==2)) continue;
+
             /* -------------------------------------------------------------------------- */
             /*                             photon m,pt,eta,phi                            */
             /* -------------------------------------------------------------------------- */
@@ -257,11 +258,16 @@ int main(int argc, char const *argv[])
             OutputTree->diphoton_pt = diphoton.Pt();
             OutputTree->diphoton_eta = diphoton.Eta();
             OutputTree->diphoton_phi = diphoton.Phi();
+            OutputTree->diphoton_E = diphoton.E();
             OutputTree->test = diphoton.M();
+            OutputTree->pho1_E = LV_pho1.E();
+            OutputTree->pho2_E = LV_pho2.E();
 
 
             float dmW = 3000.0;  
-
+            int nGoodFatJet=0;
+            for (UInt_t Ak8JetCount = 0; Ak8JetCount < NanoReader.nFatJet; ++Ak8JetCount)
+            {
                 if ( ! (NanoReader.FatJet_pt[Ak8JetCount]>AK8_MIN_PT ||
                         NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount]>AK8_MIN_PT ||
                         NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount]>AK8_MIN_PT)
@@ -313,6 +319,11 @@ int main(int argc, char const *argv[])
 
             goodAK4JetIndex.clear();
             /* -------------------------------------------------------------------------- */
+
+            /* -------------------------------------------------------------------------- */
+            /*                                   AK4Jet                                   */
+            /* -------------------------------------------------------------------------- */
+        
             for (UInt_t Ak4JetCount = 0; Ak4JetCount < NanoReader.nJet; ++Ak4JetCount)
             {
                 //jet energy scale variations
@@ -342,6 +353,7 @@ int main(int argc, char const *argv[])
                                             NanoReader.Jet_phi[Ak4JetCount],
                                             NanoReader.Jet_mass[Ak4JetCount]
                                             );
+
                 goodAK4JetIndex.push_back(Ak4JetCount);
             }
 
@@ -375,7 +387,40 @@ int main(int argc, char const *argv[])
                 OutputTree->AK4_Jet2_phi = NanoReader.Jet_phi[goodAK4JetIndex[1]];
                 OutputTree->AK4_Jet3_phi = NanoReader.Jet_phi[goodAK4JetIndex[2]];
                 OutputTree->AK4_Jet4_phi = NanoReader.Jet_phi[goodAK4JetIndex[3]];
+
+                OutputTree->AK4_Jet1_M = NanoReader.Jet_mass[goodAK4JetIndex[0]];
+                OutputTree->AK4_Jet2_M = NanoReader.Jet_mass[goodAK4JetIndex[1]];
+                OutputTree->AK4_Jet3_M = NanoReader.Jet_mass[goodAK4JetIndex[2]];
+                OutputTree->AK4_Jet4_M = NanoReader.Jet_mass[goodAK4JetIndex[3]];
                 
+                OutputTree->AK4_Jet1_E = Ak4Jets.at(0).E();
+                OutputTree->AK4_Jet2_E = Ak4Jets.at(1).E();
+                OutputTree->AK4_Jet3_E = Ak4Jets.at(2).E();
+                OutputTree->AK4_Jet4_E = Ak4Jets.at(3).E();
+                
+                /* -------------------------- Sum of 2 leading jets ------------------------- */
+                TLorentzVector TwoLeadingJets = Ak4Jets.at(0) + Ak4Jets.at(1);
+                OutputTree -> TwoLeadingJets_pt = TwoLeadingJets.Pt();
+                OutputTree -> TwoLeadingJets_eta = TwoLeadingJets.Eta();
+                OutputTree -> TwoLeadingJets_phi = TwoLeadingJets.Phi();
+                OutputTree -> TwoLeadingJets_m = TwoLeadingJets.M();
+                OutputTree -> TwoLeadingJets_E = TwoLeadingJets.E();
+
+                /* -------------------------- Sum of 3rd 4th  jets -------------------------- */
+                TLorentzVector ThirdFourthJets = Ak4Jets.at(2) + Ak4Jets.at(3);
+                OutputTree -> ThirdFourthJets_pt = ThirdFourthJets.Pt();
+                OutputTree -> ThirdFourthJets_eta = ThirdFourthJets.Eta();
+                OutputTree -> ThirdFourthJets_phi = ThirdFourthJets.Phi();
+                OutputTree -> ThirdFourthJets_m = ThirdFourthJets.M();
+                OutputTree -> ThirdFourthJets_E = ThirdFourthJets.E();
+
+                /* ------------------------------ Sum of 4 jets ----------------------------- */
+                TLorentzVector FourJets = Ak4Jets.at(0) + Ak4Jets.at(1)+_Ak4Jets.at(2) + Ak4Jets.at(3);
+                OutputTree -> FourJets_pt = FourJets.Pt();
+                OutputTree -> FourJets_eta = FourJets.Eta();
+                OutputTree -> FourJets_phi = FourJets.Phi();
+                OutputTree -> FourJets_m = FourJets.M();
+                OutputTree -> FourJets_E = FourJets.E();
                 // OutputTree->AK8_Jet1_pt = NanoReader.Jet_pt[goodAK8JetIndex[0]];
                 // OutputTree->AK8_Jet2_pt = NanoReader.Jet_pt[goodAK8JetIndex[1]];
                 // OutputTree->AK8_Jet3_pt = NanoReader.Jet_pt[goodAK8JetIndex[2]];
