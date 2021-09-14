@@ -64,15 +64,25 @@ int main(int argc, char const *argv[])
     const float EL_PT_CUT = 10;
     const float MU_PT_CUT = 10;
 
-    const float PHO_ETA_CUT = 4.5;
+    const float PHO_ETA_CUT = 2.5;
     const float PHO_PT_VETO_CUT = 10.0;
     const float PHO_PT_CUT = 10.0;
+    const float PHO_R9_CUT = 0.8;
+    const float PHOTON_PFRELISO03_CHG_CUT = 20;
+    const float HOVERE_CUT = 0.08;
+    const float PHO1_PT_CUT = 35;
+    const float PHO2_PT_CUT = 25;
+
+
+
+
+
 
     const float AK8_LEP_DR_CUT = 0.8;
     const float AK4_LEP_DR_CUT = 0.4;
 
     //ak8 jet cuts
-    const float AK8_MIN_PT = 200;
+    const float ONEJET_AK8JET_PT_MIN_CUT = 400;
     const float AK8_MAX_ETA = 2.4;
     const float AK8_MIN_SDM = 40;
     const float AK8_MAX_SDM = 160;
@@ -80,22 +90,22 @@ int main(int argc, char const *argv[])
     //ak4 jet cuts
     //const float AK4_PT_VETO_CUT = 20;
     const float AK4_ETA_CUT = 2.4;
-    const float AK4_PT_CUT = 25;
+    const float AK4_PT_CUT = 30;
     const float AK4_JJ_MIN_M = 40.0;
     const float AK4_JJ_MAX_M = 150.0;
 
     std::vector<TLorentzVector> TightPhoton;
     std::vector<TLorentzVector> Ak4Jets;
+    std::vector<TLorentzVector> Ak4JetsTem;
     std::vector<TLorentzVector> Ak8Jets;
     std::vector<int> goodAK4JetIndex;
-
+    std::vector<int> goodAK4JetTem;
     //
     //   INPUT/OUTPUT
     //
 
     TFile *of = new TFile(outputFile.c_str(),"RECREATE");
     TTree *ot = new TTree("Events","Events");
-    output* OutputTree = new output(ot); //!"ot" is a output tree
     TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
 
     TFile *f=0;
@@ -104,6 +114,7 @@ int main(int argc, char const *argv[])
     std::ifstream ifs;
     ifs.open(inputFile.data());
     assert(ifs.is_open());
+    output* OutputTree = new output(ot); //!"ot" is a output tree
     std::string line;
     while (getline(ifs,line)) {
         std::stringstream ss(line);
@@ -165,10 +176,10 @@ int main(int argc, char const *argv[])
             OutputTree->nPU_mean = NanoReader.Pileup_nPU;
 
             OutputTree->puWeight = 1.0;//scaleFactor.GetPUWeight(info->nPUmean, 0);
-/* -------------------------------------------------------------------------- */
-/*                      ele and muon Selection 
+        /* -------------------------------------------------------------------------- */
+        /*                      ele and muon Selection 
                 no electron and muon in fullyHadronic                         */
-/* -------------------------------------------------------------------------- */
+        /* -------------------------------------------------------------------------- */
             int nTightEle=0;
             int nTightMu=0;
 
@@ -194,7 +205,11 @@ int main(int argc, char const *argv[])
 
             for (UInt_t PhotonCount = 0; PhotonCount < NanoReader.nPhoton; ++PhotonCount)
             {
-                if ( abs(NanoReader.Photon_eta[PhotonCount]) > PHO_ETA_CUT ) continue;
+                if (!(NanoReader.Photon_r9[PhotonCount] > PHO_R9_CUT)) continue;
+                if (!(NanoReader.Photon_pfRelIso03_chg[PhotonCount] < PHOTON_PFRELISO03_CHG_CUT)) continue;
+                // if (!(NanoReader.HoverE[PhotonCount] < HOVERE_CUT)) continue;
+
+                if ( !(abs(NanoReader.Photon_eta[PhotonCount]) < PHO_ETA_CUT )&& ! ( 1.44 < abs(NanoReader.Photon_eta[PhotonCount]) < 1.57 )) continue;
                 //using conservative uncertainty value of 3%
                 if ( 1.03*NanoReader.Photon_pt[PhotonCount] < PHO_PT_VETO_CUT ) continue;
 
@@ -240,9 +255,12 @@ int main(int argc, char const *argv[])
                     OutputTree->pho2_q = NanoReader.Photon_charge[PhotonCount];
                 }
             }
+            /* ----------------- Leading and SubLeading photon selection ---------------- */
+            if(!(OutputTree->pho1_pt > PHO1_PT_CUT)) continue;
+            if(!(OutputTree->pho2_pt > PHO2_PT_CUT)) continue;
 
             if (!(nTightPhoton==2)) continue;
-
+            
             /* -------------------------------------------------------------------------- */
             /*                             photon m,pt,eta,phi                            */
             /* -------------------------------------------------------------------------- */
@@ -266,11 +284,12 @@ int main(int argc, char const *argv[])
 
             float dmW = 3000.0;  
             int nGoodFatJet=0;
+            float allAK8JetsSum_pt = 0.0;
             for (UInt_t Ak8JetCount = 0; Ak8JetCount < NanoReader.nFatJet; ++Ak8JetCount)
             {
-                if ( ! (NanoReader.FatJet_pt[Ak8JetCount]>AK8_MIN_PT ||
-                        NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount]>AK8_MIN_PT ||
-                        NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount]>AK8_MIN_PT)
+                if ( ! (NanoReader.FatJet_pt[Ak8JetCount]>ONEJET_AK8JET_PT_MIN_CUT ||
+                        NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount]>ONEJET_AK8JET_PT_MIN_CUT ||
+                        NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount]>ONEJET_AK8JET_PT_MIN_CUT)
                     ) continue;
                 if ( ! (fabs(NanoReader.FatJet_eta[Ak8JetCount]) < AK8_MAX_ETA)
                     ) continue;
@@ -295,35 +314,99 @@ int main(int argc, char const *argv[])
                             < AK8_LEP_DR_CUT)
                     isClean = false;
                 }
-
                 if ( isClean == false ) continue;
                 /* -------------------------------------------------------------------------- */
                 // resonnance FatJet - H_mass > 3000
                 if ( fabs(NanoReader.FatJet_msoftdrop[Ak8JetCount] - H_MASS) > dmW ) continue;
 
-                OutputTree->Higgs_PuppiAK8_m_sd0 = NanoReader.FatJet_msoftdrop[Ak8JetCount];
-                OutputTree->Higgs_PuppiAK8_m_sd0_corr = NanoReader.FatJet_msoftdrop[Ak8JetCount];
-                OutputTree->Higgs_PuppiAK8_tau2tau1 = NanoReader.FatJet_tau4[Ak8JetCount]/NanoReader.FatJet_tau1[Ak8JetCount];
-                OutputTree->Higgs_PuppiAK8_pt = NanoReader.FatJet_pt[Ak8JetCount];
-                OutputTree->Higgs_PuppiAK8_eta = NanoReader.FatJet_eta[Ak8JetCount];
-                OutputTree->Higgs_PuppiAK8_phi = NanoReader.FatJet_phi[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_m_sd0 = NanoReader.FatJet_msoftdrop[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_m_sd0_corr = NanoReader.FatJet_msoftdrop[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_tau2tau1 = NanoReader.FatJet_tau4[Ak8JetCount]/NanoReader.FatJet_tau1[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_pt = NanoReader.FatJet_pt[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_eta = NanoReader.FatJet_eta[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_phi = NanoReader.FatJet_phi[Ak8JetCount];
 
-                OutputTree->Higgs_PuppiAK8_m_sd0_corr_scaleUp = NanoReader.FatJet_msoftdrop_jesTotalUp[Ak8JetCount];
-                OutputTree->Higgs_PuppiAK8_m_sd0_corr_scaleDn = NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount];
-                OutputTree->Higgs_PuppiAK8_pt_scaleUp = NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount];
-                OutputTree->Higgs_PuppiAK8_pt_scaleDn = NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_m_sd0_corr_scaleUp = NanoReader.FatJet_msoftdrop_jesTotalUp[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_m_sd0_corr_scaleDn = NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_pt_scaleUp = NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount];
+                OutputTree->OneJet_Higgs_PuppiAK8_pt_scaleDn = NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount];
+                
+                OutputTree->OneJet_FatJet_area = NanoReader.FatJet_area[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagCMVA = NanoReader.FatJet_btagCMVA[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagCSVV2 = NanoReader.FatJet_btagCSVV2[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagDDBvL = NanoReader.FatJet_btagDDBvL[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagDDBvL_noMD = NanoReader.FatJet_btagDDBvL_noMD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagDDCvB = NanoReader.FatJet_btagDDCvB[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagDDCvB_noMD = NanoReader.FatJet_btagDDCvB_noMD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagDDCvL = NanoReader.FatJet_btagDDCvB_noMD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagDDCvL_noMD = NanoReader.FatJet_btagDDCvB_noMD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagDeepB = NanoReader.FatJet_btagDDCvB_noMD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_btagHbb = NanoReader.FatJet_btagHbb[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_H4qvsQCD = NanoReader.FatJet_deepTagMD_H4qvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_HbbvsQCD = NanoReader.FatJet_deepTagMD_HbbvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_TvsQCD = NanoReader.FatJet_deepTagMD_TvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_WvsQCD = NanoReader.FatJet_deepTagMD_WvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_ZHbbvsQCD = NanoReader.FatJet_deepTagMD_ZHbbvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_ZHccvsQCD = NanoReader.FatJet_deepTagMD_ZHccvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_ZbbvsQCD = NanoReader.FatJet_deepTagMD_ZbbvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_ZvsQCD = NanoReader.FatJet_deepTagMD_ZvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_bbvsLight = NanoReader.FatJet_deepTagMD_bbvsLight[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTagMD_ccvsLight = NanoReader.FatJet_deepTagMD_ccvsLight[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTag_H = NanoReader.FatJet_deepTag_H[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTag_QCD = NanoReader.FatJet_deepTag_QCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTag_QCDothers = NanoReader.FatJet_deepTag_QCDothers[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTag_TvsQCD = NanoReader.FatJet_deepTag_TvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTag_WvsQCD = NanoReader.FatJet_deepTag_WvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_deepTag_ZvsQCD = NanoReader.FatJet_deepTag_ZvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_electronIdx3SJ = NanoReader.FatJet_electronIdx3SJ[Ak8JetCount];
+                OutputTree->OneJet_FatJet_eta = NanoReader.FatJet_eta[Ak8JetCount];
+                OutputTree->OneJet_FatJet_genJetAK8Idx = NanoReader.FatJet_genJetAK8Idx[Ak8JetCount];
+                OutputTree->OneJet_FatJet_hadronFlavour = NanoReader.FatJet_hadronFlavour[Ak8JetCount];
+                OutputTree->OneJet_FatJet_jetId=NanoReader.FatJet_jetId[Ak8JetCount];
+                OutputTree->OneJet_FatJet_lsf3=NanoReader.FatJet_lsf3[Ak8JetCount];
+                OutputTree->OneJet_FatJet_mass=NanoReader.FatJet_mass[Ak8JetCount];
+                OutputTree->OneJet_FatJet_msoftdrop=NanoReader.FatJet_msoftdrop[Ak8JetCount];
+                OutputTree->OneJet_FatJet_muonIdx3SJ=NanoReader.FatJet_muonIdx3SJ[Ak8JetCount];
+                OutputTree->OneJet_FatJet_n2b1=NanoReader.FatJet_n2b1[Ak8JetCount];
+                OutputTree->OneJet_FatJet_n3b1=NanoReader.FatJet_n3b1[Ak8JetCount];
+                OutputTree->OneJet_FatJet_nBHadrons=NanoReader.FatJet_nBHadrons[Ak8JetCount];
+                OutputTree->OneJet_FatJet_nCHadrons=NanoReader.FatJet_nCHadrons[Ak8JetCount];
+                // OutputTree->FatJet_particleNetMD_QCD=NanoReader.FatJet_particleNetMD_QCD[Ak8JetCount];
+                // OutputTree->FatJet_particleNetMD_Xbb=NanoReader.FatJet_particleNetMD_Xbb[Ak8JetCount];
+                // OutputTree->FatJet_particleNetMD_Xcc=NanoReader.FatJet_particleNetMD_Xcc[Ak8JetCount];
+                // OutputTree->FatJet_particleNetMD_Xqq=NanoReader.FatJet_particleNetMD_Xqq[Ak8JetCount];
+                // OutputTree->FatJet_particleNet_H4qvsQCD=NanoReader.FatJet_particleNet_H4qvsQCD[Ak8JetCount];
+                // OutputTree->FatJet_particleNet_HbbvsQCD=NanoReader.FatJet_particleNet_HbbvsQCD[Ak8JetCount];
+                // OutputTree->FatJet_particleNet_HccvsQCD=NanoReader.FatJet_particleNet_HccvsQCD[Ak8JetCount];
+                // OutputTree->FatJet_particleNet_QCD=NanoReader.FatJet_particleNet_QCD[Ak8JetCount];
+                // OutputTree->FatJet_particleNet_TvsQCD=NanoReader.FatJet_particleNet_TvsQCD[Ak8JetCount];
+                // OutputTree->FatJet_particleNet_WvsQCD=NanoReader.FatJet_particleNet_WvsQCD[Ak8JetCount];
+                // OutputTree->FatJet_particleNet_ZvsQCD=NanoReader.FatJet_particleNet_ZvsQCD[Ak8JetCount];
+                OutputTree->OneJet_FatJet_phi=NanoReader.FatJet_phi[Ak8JetCount];
+                OutputTree->OneJet_FatJet_pt=NanoReader.FatJet_pt[Ak8JetCount];
+                OutputTree->OneJet_FatJet_rawFactor=NanoReader.FatJet_rawFactor[Ak8JetCount];
+                OutputTree->OneJet_FatJet_subJetIdx1=NanoReader.FatJet_subJetIdx1[Ak8JetCount];
+                OutputTree->OneJet_FatJet_subJetIdx2=NanoReader.FatJet_subJetIdx2[Ak8JetCount];
+                OutputTree->OneJet_FatJet_tau1=NanoReader.FatJet_tau1[Ak8JetCount];
+                OutputTree->OneJet_FatJet_tau2=NanoReader.FatJet_tau2[Ak8JetCount];
+                OutputTree->OneJet_FatJet_tau3=NanoReader.FatJet_tau3[Ak8JetCount];
+                OutputTree->OneJet_FatJet_tau4=NanoReader.FatJet_tau4[Ak8JetCount];
+                OutputTree->OneJet_nFatJet=NanoReader.nFatJet;
 
                 dmW = fabs(NanoReader.FatJet_msoftdrop[Ak8JetCount] - H_MASS);
+                allAK8JetsSum_pt += NanoReader.FatJet_pt[Ak8JetCount];
                 nGoodFatJet++;
             }
 
             goodAK4JetIndex.clear();
+            goodAK4JetTem.clear();
+            Ak4JetsTem.clear();
             /* -------------------------------------------------------------------------- */
 
             /* -------------------------------------------------------------------------- */
             /*                                   AK4Jet                                   */
             /* -------------------------------------------------------------------------- */
-        
+            float allAK4JetsSum_pt = 0.0;
             for (UInt_t Ak4JetCount = 0; Ak4JetCount < NanoReader.nJet; ++Ak4JetCount)
             {
                 //jet energy scale variations
@@ -355,6 +438,7 @@ int main(int argc, char const *argv[])
                                             );
 
                 goodAK4JetIndex.push_back(Ak4JetCount);
+                allAK4JetsSum_pt += NanoReader.Jet_pt[Ak4JetCount];
             }
 
 
@@ -371,136 +455,85 @@ int main(int argc, char const *argv[])
             if (nTagJets<4) continue;
             // We need to save pt, eta, phi, energy for first 4 AK4 jets
             // output->AK4_Jet1_pt = goodAK4JetIndex[0].pT
-            /* -------------------------------------------------------------------------- */
-            /*                              sort four jet pt                              */
-            /* -------------------------------------------------------------------------- */
-            if(NanoReader.Jet_pt[goodAK4JetIndex[0]]<NanoReader.Jet_pt[goodAK4JetIndex[1]])
-            {
-            e=goodAK4JetIndex[0];
-            goodAK4JetIndex[0]=goodAK4JetIndex[1];
-            goodAK4JetIndex[1]=e;
-            e=AK4Jets.at(0);
-            AK4Jets.at(0)=AK4Jets.at(1);
-            AK4Jets.at(1)=e;
-            }
-            if(NanoReader.Jet_pt[goodAK4JetIndex[0]]<NanoReader.Jet_pt[goodAK4JetIndex[2]])
-            {
-            e=goodAK4JetIndex[0];
-            goodAK4JetIndex[0]=goodAK4JetIndex[2];
-            goodAK4JetIndex[2]=e;
-            e=AK4Jets.at(0);
-            AK4Jets.at(0)=AK4Jets.at(2);
-            AK4Jets.at(2)=e;
-            }
-            if(NanoReader.Jet_pt[goodAK4JetIndex[0]]<NanoReader.Jet_pt[goodAK4JetIndex[3]])
-            {
-            e=goodAK4JetIndex[0];
-            goodAK4JetIndex[0]=goodAK4JetIndex[3];
-            goodAK4JetIndex[3]=e;
-
-            e=AK4Jets.at(0);
-            AK4Jets.at(0)=AK4Jets.at(3);
-            AK4Jets.at(3)=e;
             
-            }
-            if(NanoReader.Jet_pt[goodAK4JetIndex[1]]<NanoReader.Jet_pt[goodAK4JetIndex[2]])
-            {
-            e=goodAK4JetIndex[1];
-            goodAK4JetIndex[1]=goodAK4JetIndex[2];
-            goodAK4JetIndex[2]=e;
-            
-            e=Ak4Jets.at(1);
-            Ak4Jets.at(1)=Ak4Jets.at(2);
-            Ak4Jets.at(2)=e;
-            }
-            if(NanoReader.Jet_pt[goodAK4JetIndex[1]]<NanoReader.Jet_pt[goodAK4JetIndex[3]])
-            {
-            e=goodAK4JetIndex[1];
-            goodAK4JetIndex[1]=goodAK4JetIndex[3];
-            goodAK4JetIndex[3]=e;
-            
-            e=Ak4Jets.at(1);
-            Ak4Jets.at(1)=Ak4Jets.at(3);
-            Ak4Jets.at(3)=e;
-            }
-            if(NanoReader.Jet_pt[goodAK4JetIndex[2]]<NanoReader.Jet_pt[goodAK4JetIndex[3]])
-            {
-            e=goodAK4JetIndex[2];
-            goodAK4JetIndex[2]=goodAK4JetIndex[3];
-            goodAK4JetIndex[3]=e;
-            
-            e=AK4Jets.at(2);
-            AK4Jets.at(2)=AK4Jets.at(3);
-            AK4Jets.at(3)=e;
-            }
-/* ----------------------------------- -- ----------------------------------- */
-
             /* ----------------------- output the AK4 and AK8 jet ----------------------- */
-                OutputTree->AK4_Jet1_pt = NanoReader.Jet_pt[goodAK4JetIndex[0]];
-                OutputTree->AK4_Jet2_pt = NanoReader.Jet_pt[goodAK4JetIndex[1]];
-                OutputTree->AK4_Jet3_pt = NanoReader.Jet_pt[goodAK4JetIndex[2]];
-                OutputTree->AK4_Jet4_pt = NanoReader.Jet_pt[goodAK4JetIndex[3]];
             
+            /* ------------------- cout four pt to make sure in order ------------------- */
+            if(!(NanoReader.Jet_pt[goodAK4JetIndex[0]]>NanoReader.Jet_pt[goodAK4JetIndex[1]]>NanoReader.Jet_pt[goodAK4JetIndex[2]])>NanoReader.Jet_pt[goodAK4JetIndex[3]])
+            {
+                std::cout << "4 jets is not in order please check" << std::endl;
+            }
 
-                OutputTree->AK4_Jet1_eta = NanoReader.Jet_eta[goodAK4JetIndex[0]];
-                OutputTree->AK4_Jet2_eta = NanoReader.Jet_eta[goodAK4JetIndex[1]];
-                OutputTree->AK4_Jet3_eta = NanoReader.Jet_eta[goodAK4JetIndex[2]];
-                OutputTree->AK4_Jet4_eta = NanoReader.Jet_eta[goodAK4JetIndex[3]];
-               
-                OutputTree->AK4_Jet1_phi = NanoReader.Jet_phi[goodAK4JetIndex[0]];
-                OutputTree->AK4_Jet2_phi = NanoReader.Jet_phi[goodAK4JetIndex[1]];
-                OutputTree->AK4_Jet3_phi = NanoReader.Jet_phi[goodAK4JetIndex[2]];
-                OutputTree->AK4_Jet4_phi = NanoReader.Jet_phi[goodAK4JetIndex[3]];
+            OutputTree->nTagJets = nTagJets;
+            OutputTree->allAK4JetsSum_pt = allAK4JetsSum_pt;
+            OutputTree->allAK8JetsSum_pt = allAK8JetsSum_pt;
+            OutputTree->nGoodFatjet = nGoodFatJet;
 
-                OutputTree->AK4_Jet1_M = NanoReader.Jet_mass[goodAK4JetIndex[0]];
-                OutputTree->AK4_Jet2_M = NanoReader.Jet_mass[goodAK4JetIndex[1]];
-                OutputTree->AK4_Jet3_M = NanoReader.Jet_mass[goodAK4JetIndex[2]];
-                OutputTree->AK4_Jet4_M = NanoReader.Jet_mass[goodAK4JetIndex[3]];
-                
-                
-                OutputTree->AK4_Jet1_E = Ak4Jets.at(0).E();
-                OutputTree->AK4_Jet2_E = Ak4Jets.at(1).E();
-                OutputTree->AK4_Jet3_E = Ak4Jets.at(2).E();
-                OutputTree->AK4_Jet4_E = Ak4Jets.at(3).E();
-                
-                /* -------------------------- Sum of 2 leading jets ------------------------- */
-                TLorentzVector TwoLeadingJets = Ak4Jets.at(0) + Ak4Jets.at(1);
-                OutputTree -> TwoLeadingJets_pt = TwoLeadingJets.Pt();
-                OutputTree -> TwoLeadingJets_eta = TwoLeadingJets.Eta();
-                OutputTree -> TwoLeadingJets_phi = TwoLeadingJets.Phi();
-                OutputTree -> TwoLeadingJets_m = TwoLeadingJets.M();
-                OutputTree -> TwoLeadingJets_E = TwoLeadingJets.E();
+            OutputTree->AK4_Jet1_pt = NanoReader.Jet_pt[goodAK4JetIndex[0]];
+            OutputTree->AK4_Jet2_pt = NanoReader.Jet_pt[goodAK4JetIndex[1]];
+            OutputTree->AK4_Jet3_pt = NanoReader.Jet_pt[goodAK4JetIndex[2]];
+            OutputTree->AK4_Jet4_pt = NanoReader.Jet_pt[goodAK4JetIndex[3]];
 
-                /* -------------------------- Sum of 3rd 4th  jets -------------------------- */
-                TLorentzVector ThirdFourthJets = Ak4Jets.at(2) + Ak4Jets.at(3);
-                OutputTree -> ThirdFourthJets_pt = ThirdFourthJets.Pt();
-                OutputTree -> ThirdFourthJets_eta = ThirdFourthJets.Eta();
-                OutputTree -> ThirdFourthJets_phi = ThirdFourthJets.Phi();
-                OutputTree -> ThirdFourthJets_m = ThirdFourthJets.M();
-                OutputTree -> ThirdFourthJets_E = ThirdFourthJets.E();
 
-                /* ------------------------------ Sum of 4 jets ----------------------------- */
-                TLorentzVector FourJets = Ak4Jets.at(0) + Ak4Jets.at(1)+_Ak4Jets.at(2) + Ak4Jets.at(3);
-                OutputTree -> FourJets_pt = FourJets.Pt();
-                OutputTree -> FourJets_eta = FourJets.Eta();
-                OutputTree -> FourJets_phi = FourJets.Phi();
-                OutputTree -> FourJets_m = FourJets.M();
-                OutputTree -> FourJets_E = FourJets.E();
-                // OutputTree->AK8_Jet1_pt = NanoReader.Jet_pt[goodAK8JetIndex[0]];
-                // OutputTree->AK8_Jet2_pt = NanoReader.Jet_pt[goodAK8JetIndex[1]];
-                // OutputTree->AK8_Jet3_pt = NanoReader.Jet_pt[goodAK8JetIndex[2]];
-                // OutputTree->AK8_Jet4_pt = NanoReader.Jet_pt[goodAK8JetIndex[3]];
-                
-                // OutputTree->AK8_Jet1_eta = NanoReader.Jet_eta[goodAK8JetIndex[0]];
-                // OutputTree->AK8_Jet2_eta = NanoReader.Jet_eta[goodAK8JetIndex[1]];
-                // OutputTree->AK8_Jet3_eta = NanoReader.Jet_eta[goodAK8JetIndex[2]];
-                // OutputTree->AK8_Jet4_eta = NanoReader.Jet_eta[goodAK8JetIndex[3]];
-                
-                // OutputTree->AK8_Jet1_phi = NanoReader.Jet_phi[goodAK8JetIndex[0]];
-                // OutputTree->AK8_Jet2_phi = NanoReader.Jet_phi[goodAK8JetIndex[1]];
-                // OutputTree->AK8_Jet3_phi = NanoReader.Jet_phi[goodAK8JetIndex[2]];
-                // OutputTree->AK8_Jet4_phi = NanoReader.Jet_phi[goodAK8JetIndex[3]];
-                
+            OutputTree->AK4_Jet1_eta = NanoReader.Jet_eta[goodAK4JetIndex[0]];
+            OutputTree->AK4_Jet2_eta = NanoReader.Jet_eta[goodAK4JetIndex[1]];
+            OutputTree->AK4_Jet3_eta = NanoReader.Jet_eta[goodAK4JetIndex[2]];
+            OutputTree->AK4_Jet4_eta = NanoReader.Jet_eta[goodAK4JetIndex[3]];
+
+            OutputTree->AK4_Jet1_phi = NanoReader.Jet_phi[goodAK4JetIndex[0]];
+            OutputTree->AK4_Jet2_phi = NanoReader.Jet_phi[goodAK4JetIndex[1]];
+            OutputTree->AK4_Jet3_phi = NanoReader.Jet_phi[goodAK4JetIndex[2]];
+            OutputTree->AK4_Jet4_phi = NanoReader.Jet_phi[goodAK4JetIndex[3]];
+
+            OutputTree->AK4_Jet1_M = NanoReader.Jet_mass[goodAK4JetIndex[0]];
+            OutputTree->AK4_Jet2_M = NanoReader.Jet_mass[goodAK4JetIndex[1]];
+            OutputTree->AK4_Jet3_M = NanoReader.Jet_mass[goodAK4JetIndex[2]];
+            OutputTree->AK4_Jet4_M = NanoReader.Jet_mass[goodAK4JetIndex[3]];
+
+
+            OutputTree->AK4_Jet1_E = Ak4Jets.at(0).E();
+            OutputTree->AK4_Jet2_E = Ak4Jets.at(1).E();
+            OutputTree->AK4_Jet3_E = Ak4Jets.at(2).E();
+            OutputTree->AK4_Jet4_E = Ak4Jets.at(3).E();
+
+            /* -------------------------- Sum of 2 leading jets ------------------------- */
+            TLorentzVector TwoLeadingJets = Ak4Jets.at(0) + Ak4Jets.at(1);
+            OutputTree -> TwoLeadingJets_pt = TwoLeadingJets.Pt();
+            OutputTree -> TwoLeadingJets_eta = TwoLeadingJets.Eta();
+            OutputTree -> TwoLeadingJets_phi = TwoLeadingJets.Phi();
+            OutputTree -> TwoLeadingJets_m = TwoLeadingJets.M();
+            OutputTree -> TwoLeadingJets_E = TwoLeadingJets.E();
+
+            /* -------------------------- Sum of 3rd 4th  jets -------------------------- */
+            TLorentzVector ThirdFourthJets = Ak4Jets.at(2) + Ak4Jets.at(3);
+            OutputTree -> ThirdFourthJets_pt = ThirdFourthJets.Pt();
+            OutputTree -> ThirdFourthJets_eta = ThirdFourthJets.Eta();
+            OutputTree -> ThirdFourthJets_phi = ThirdFourthJets.Phi();
+            OutputTree -> ThirdFourthJets_m = ThirdFourthJets.M();
+            OutputTree -> ThirdFourthJets_E = ThirdFourthJets.E();
+
+            /* ------------------------------ Sum of 4 jets ----------------------------- */
+            TLorentzVector FourJets = Ak4Jets.at(0) + Ak4Jets.at(1)+ Ak4Jets.at(2) + Ak4Jets.at(3);
+            OutputTree -> FourJets_pt = FourJets.Pt();
+            OutputTree -> FourJets_eta = FourJets.Eta();
+            OutputTree -> FourJets_phi = FourJets.Phi();
+            OutputTree -> FourJets_m = FourJets.M();
+            OutputTree -> FourJets_E = FourJets.E();
+            // OutputTree->AK8_Jet1_pt = NanoReader.Jet_pt[goodAK8JetIndex[0]];
+            // OutputTree->AK8_Jet2_pt = NanoReader.Jet_pt[goodAK8JetIndex[1]];
+            // OutputTree->AK8_Jet3_pt = NanoReader.Jet_pt[goodAK8JetIndex[2]];
+            // OutputTree->AK8_Jet4_pt = NanoReader.Jet_pt[goodAK8JetIndex[3]];
+
+            // OutputTree->AK8_Jet1_eta = NanoReader.Jet_eta[goodAK8JetIndex[0]];
+            // OutputTree->AK8_Jet2_eta = NanoReader.Jet_eta[goodAK8JetIndex[1]];
+            // OutputTree->AK8_Jet3_eta = NanoReader.Jet_eta[goodAK8JetIndex[2]];
+            // OutputTree->AK8_Jet4_eta = NanoReader.Jet_eta[goodAK8JetIndex[3]];
+
+            // OutputTree->AK8_Jet1_phi = NanoReader.Jet_phi[goodAK8JetIndex[0]];
+            // OutputTree->AK8_Jet2_phi = NanoReader.Jet_phi[goodAK8JetIndex[1]];
+            // OutputTree->AK8_Jet3_phi = NanoReader.Jet_phi[goodAK8JetIndex[2]];
+            // OutputTree->AK8_Jet4_phi = NanoReader.Jet_phi[goodAK8JetIndex[3]];
+
 
 
             if (isMC==1) {

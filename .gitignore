@@ -7,7 +7,14 @@ submit*.sh
 summary.dat
 docker_stderror
 condor_logs/
+*/*.root
+*.png
+treeplot/
+Selection/*tree*
+*.png
 
+*.root
+Selection/output.root
 # Prerequisites
 *.d
 

@@ -20,17 +20,91 @@ public:
   void init();
 
   TTree *fTree;
+  float nTagJets = -999.0;
+  float allAK4JetsSum_pt = -999.0;
+  float allAK8JetsSum_pt = -999.0;
+  float nGoodFatjet = -999.0;
+
+
+
+  Float_t	FatJet_area = -999.0;
+  Float_t	FatJet_btagCMVA = -999.0;
+  Float_t	FatJet_btagCSVV2 = -999.0;
+  Float_t	FatJet_btagDDBvL = -999.0;
+  Float_t	FatJet_btagDDBvL_noMD = -999.0;
+  Float_t	FatJet_btagDDCvB = -999.0;
+  Float_t	FatJet_btagDDCvB_noMD = -999.0;
+  Float_t	FatJet_btagDDCvL = -999.0;
+  Float_t	FatJet_btagDDCvL_noMD = -999.0;
+  Float_t	FatJet_btagDeepB = -999.0;
+  Float_t	FatJet_btagHbb = -999.0;
+  Float_t	FatJet_deepTagMD_H4qvsQCD = -999.0;
+  Float_t	FatJet_deepTagMD_HbbvsQCD = -999.0;
+  Float_t	FatJet_deepTagMD_TvsQCD = -999.0;
+  Float_t	FatJet_deepTagMD_WvsQCD = -999.0;
+  Float_t	FatJet_deepTagMD_ZHbbvsQCD = -999.0;
+  Float_t	FatJet_deepTagMD_ZHccvsQCD = -999.0;
+  Float_t	FatJet_deepTagMD_ZbbvsQCD = -999.0;
+  Float_t	FatJet_deepTagMD_ZvsQCD = -999.0;
+  Float_t	FatJet_deepTagMD_bbvsLight = -999.0;
+  Float_t	FatJet_deepTagMD_ccvsLight = -999.0;
+  Float_t	FatJet_deepTag_H = -999.0;
+  Float_t	FatJet_deepTag_QCD = -999.0;
+  Float_t	FatJet_deepTag_QCDothers = -999.0;
+  Float_t	FatJet_deepTag_TvsQCD = -999.0;
+  Float_t	FatJet_deepTag_WvsQCD = -999.0;
+  Float_t	FatJet_deepTag_ZvsQCD = -999.0;
+  Int_t	FatJet_electronIdx3SJ = -999;
+  Float_t	FatJet_eta = -999.0;
+  Int_t FatJet_genJetAK8Idx = -999;
+  Int_t	FatJet_hadronFlavour = -999;
+  Int_t	FatJet_jetId = -999;
+  Float_t	FatJet_lsf3 = -999.0;
+  Float_t	FatJet_mass = -999.0;
+  Float_t	FatJet_msoftdrop = -999.0;
+  Int_t	FatJet_muonIdx3SJ = -999;
+  Float_t	FatJet_n2b1 = -999.0;
+  Float_t	FatJet_n3b1 = -999.0;
+  UChar_t	FatJet_nBHadrons ;
+  UChar_t	FatJet_nCHadrons ;
+  Float_t	FatJet_particleNetMD_QCD = -999.0;
+  Float_t	FatJet_particleNetMD_Xbb = -999.0;
+  Float_t	FatJet_particleNetMD_Xcc = -999.0;
+  Float_t	FatJet_particleNetMD_Xqq = -999.0;
+  Float_t	FatJet_particleNet_H4qvsQCD = -999.0;
+  Float_t	FatJet_particleNet_HbbvsQCD = -999.0;
+  Float_t	FatJet_particleNet_HccvsQCD = -999.0;
+  Float_t	FatJet_particleNet_QCD = -999.0;
+  Float_t	FatJet_particleNet_TvsQCD = -999.0;
+  Float_t	FatJet_particleNet_WvsQCD = -999.0;
+  Float_t	FatJet_particleNet_ZvsQCD = -999.0;
+  Float_t	FatJet_phi = -999.0;
+  Float_t	FatJet_pt = -999.0;
+  Float_t	FatJet_rawFactor = -999.0;
+  Int_t FatJet_subJetIdx1 = -999;
+  Int_t	FatJet_subJetIdx2 = -999;
+  Float_t	FatJet_tau1 = -999.0;
+  Float_t	FatJet_tau2 = -999.0;
+  Float_t	FatJet_tau3 = -999.0;
+  Float_t	FatJet_tau4 = -999.0;
+  UInt_t	nFatJet = -999; 
+
+
+
+
+
+
   float test = -999.0;
   float AK4_Jet1_pt = -999.0;
   float AK4_Jet2_pt = -999.0;
   float AK4_Jet3_pt = -999.0;
   float AK4_Jet4_pt = -999.0;
-  
+
   float AK4_Jet1_eta = -999.0;
   float AK4_Jet2_eta = -999.0;
   float AK4_Jet3_eta = -999.0;
   float AK4_Jet4_eta = -999.0;
-  
+
   float AK4_Jet1_phi = -999.0;
   float AK4_Jet2_phi = -999.0;
   float AK4_Jet3_phi = -999.0;

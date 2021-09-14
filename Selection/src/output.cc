@@ -5,6 +5,74 @@ void output::init() {
   clearVars();
 
   fTree->Branch("test",&test,"test/F");
+  fTree->Branch("nTagJets",&nTagJets,"nTagJets/F");
+  fTree->Branch("allAK4JetsSum_pt",&allAK4JetsSum_pt,"allAK4JetsSum_pt/F");
+  fTree->Branch("allAK8JetsSum_pt",&allAK8JetsSum_pt,"allAK8JetsSum_pt/F");
+  fTree->Branch("nGoodFatjet",&nGoodFatjet,"nGoodFatjet/F");
+
+fTree->Branch("	FatJet_area	",&	FatJet_area	,"	FatJet_area	");
+fTree->Branch("	FatJet_btagCMVA	",&	FatJet_btagCMVA	,"	FatJet_btagCMVA	");
+fTree->Branch("	FatJet_btagCSVV2	",&	FatJet_btagCSVV2	,"	FatJet_btagCSVV2	");
+fTree->Branch("	FatJet_btagDDBvL	",&	FatJet_btagDDBvL	,"	FatJet_btagDDBvL	");
+fTree->Branch("	FatJet_btagDDBvL_noMD	",&	FatJet_btagDDBvL_noMD	,"FatJet_btagDDBvL_noMD");
+fTree->Branch("	FatJet_btagDDCvB	",&	FatJet_btagDDCvB	,"	FatJet_btagDDCvB	");
+fTree->Branch("	FatJet_btagDDCvB_noMD	",&	FatJet_btagDDCvB_noMD	,"FatJet_btagDDCvB_noMD	");
+fTree->Branch("	FatJet_btagDDCvL	",&	FatJet_btagDDCvL	,"	FatJet_btagDDCvL	");
+fTree->Branch("	FatJet_btagDDCvL_noMD	",&	FatJet_btagDDCvL_noMD	,"FatJet_btagDDCvL_noMD	");
+fTree->Branch("	FatJet_btagDeepB	",&	FatJet_btagDeepB	,"	FatJet_btagDeepB	");
+fTree->Branch("	FatJet_btagHbb	",&	FatJet_btagHbb	,"	FatJet_btagHbb	");
+fTree->Branch("	FatJet_deepTagMD_H4qvsQCD	",&	FatJet_deepTagMD_H4qvsQCD	,"	FatJet_deepTagMD_H4qvsQCD	");
+fTree->Branch("	FatJet_deepTagMD_HbbvsQCD	",&	FatJet_deepTagMD_HbbvsQCD	,"	FatJet_deepTagMD_HbbvsQCD	");
+fTree->Branch("	FatJet_deepTagMD_TvsQCD	",&	FatJet_deepTagMD_TvsQCD	,"	FatJet_deepTagMD_TvsQCD	");
+fTree->Branch("	FatJet_deepTagMD_WvsQCD	",&	FatJet_deepTagMD_WvsQCD	,"	FatJet_deepTagMD_WvsQCD	");
+fTree->Branch("	FatJet_deepTagMD_ZHbbvsQCD	",&	FatJet_deepTagMD_ZHbbvsQCD	,"	FatJet_deepTagMD_ZHbbvsQCD	");
+fTree->Branch("	FatJet_deepTagMD_ZHccvsQCD	",&	FatJet_deepTagMD_ZHccvsQCD	,"	FatJet_deepTagMD_ZHccvsQCD	");
+fTree->Branch("	FatJet_deepTagMD_ZbbvsQCD	",&	FatJet_deepTagMD_ZbbvsQCD	,"	FatJet_deepTagMD_ZbbvsQCD	");
+fTree->Branch("	FatJet_deepTagMD_ZvsQCD	",&	FatJet_deepTagMD_ZvsQCD	,"	FatJet_deepTagMD_ZvsQCD	");
+fTree->Branch("	FatJet_deepTagMD_bbvsLight	",&	FatJet_deepTagMD_bbvsLight	,"	FatJet_deepTagMD_bbvsLight	");
+fTree->Branch("	FatJet_deepTagMD_ccvsLight	",&	FatJet_deepTagMD_ccvsLight	,"	FatJet_deepTagMD_ccvsLight	");
+fTree->Branch("	FatJet_deepTag_H	",&	FatJet_deepTag_H	,"	FatJet_deepTag_H	");
+fTree->Branch("	FatJet_deepTag_QCD	",&	FatJet_deepTag_QCD	,"	FatJet_deepTag_QCD	");
+fTree->Branch("	FatJet_deepTag_QCDothers	",&	FatJet_deepTag_QCDothers	,"	FatJet_deepTag_QCDothers	");
+fTree->Branch("	FatJet_deepTag_TvsQCD	",&	FatJet_deepTag_TvsQCD	,"	FatJet_deepTag_TvsQCD	");
+fTree->Branch("	FatJet_deepTag_WvsQCD	",&	FatJet_deepTag_WvsQCD	,"	FatJet_deepTag_WvsQCD	");
+fTree->Branch("	FatJet_deepTag_ZvsQCD	",&	FatJet_deepTag_ZvsQCD	,"	FatJet_deepTag_ZvsQCD	");
+fTree->Branch("	FatJet_electronIdx3SJ	",&	FatJet_electronIdx3SJ	,"	FatJet_electronIdx3SJ	");
+fTree->Branch("	FatJet_eta	",&	FatJet_eta	,"	FatJet_eta	");
+fTree->Branch("	FatJet_genJetAK8Idx	",&	FatJet_genJetAK8Idx	,"	FatJet_genJetAK8Idx	");
+fTree->Branch("	FatJet_hadronFlavour	",&	FatJet_hadronFlavour	,"	FatJet_hadronFlavour	");
+fTree->Branch("	FatJet_jetId	",&	FatJet_jetId	,"	FatJet_jetId	");
+fTree->Branch("	FatJet_lsf3	",&	FatJet_lsf3	,"	FatJet_lsf3	");
+fTree->Branch("	FatJet_mass	",&	FatJet_mass	,"	FatJet_mass	");
+fTree->Branch("	FatJet_msoftdrop	",&	FatJet_msoftdrop	,"	FatJet_msoftdrop	");
+fTree->Branch("	FatJet_muonIdx3SJ	",&	FatJet_muonIdx3SJ	,"	FatJet_muonIdx3SJ	");
+fTree->Branch("	FatJet_n2b1	",&	FatJet_n2b1	,"	FatJet_n2b1	");
+fTree->Branch("	FatJet_n3b1	",&	FatJet_n3b1	,"	FatJet_n3b1	");
+fTree->Branch("	FatJet_nBHadrons	",&	FatJet_nBHadrons	,"	FatJet_nBHadrons	");
+fTree->Branch("	FatJet_nCHadrons	",&	FatJet_nCHadrons	,"	FatJet_nCHadrons	");
+fTree->Branch("	FatJet_particleNetMD_QCD	",&	FatJet_particleNetMD_QCD	,"	FatJet_particleNetMD_QCD	");
+fTree->Branch("	FatJet_particleNetMD_Xbb	",&	FatJet_particleNetMD_Xbb	,"	FatJet_particleNetMD_Xbb	");
+fTree->Branch("	FatJet_particleNetMD_Xcc	",&	FatJet_particleNetMD_Xcc	,"	FatJet_particleNetMD_Xcc	");
+fTree->Branch("	FatJet_particleNetMD_Xqq	",&	FatJet_particleNetMD_Xqq	,"	FatJet_particleNetMD_Xqq	");
+fTree->Branch("	FatJet_particleNet_H4qvsQCD	",&	FatJet_particleNet_H4qvsQCD	,"	FatJet_particleNet_H4qvsQCD	");
+fTree->Branch("	FatJet_particleNet_HbbvsQCD	",&	FatJet_particleNet_HbbvsQCD	,"	FatJet_particleNet_HbbvsQCD	");
+fTree->Branch("	FatJet_particleNet_HccvsQCD	",&	FatJet_particleNet_HccvsQCD	,"	FatJet_particleNet_HccvsQCD	");
+fTree->Branch("	FatJet_particleNet_QCD	",&	FatJet_particleNet_QCD	,"	FatJet_particleNet_QCD	");
+fTree->Branch("	FatJet_particleNet_TvsQCD	",&	FatJet_particleNet_TvsQCD	,"	FatJet_particleNet_TvsQCD	");
+fTree->Branch("	FatJet_particleNet_WvsQCD	",&	FatJet_particleNet_WvsQCD	,"	FatJet_particleNet_WvsQCD	");
+fTree->Branch("	FatJet_particleNet_ZvsQCD	",&	FatJet_particleNet_ZvsQCD	,"	FatJet_particleNet_ZvsQCD	");
+fTree->Branch("	FatJet_phi	",&	FatJet_phi	,"	FatJet_phi	");
+fTree->Branch("	FatJet_pt	",&	FatJet_pt	,"	FatJet_pt	");
+fTree->Branch("	FatJet_rawFactor	",&	FatJet_rawFactor	,"	FatJet_rawFactor	");
+fTree->Branch("	FatJet_subJetIdx1	",&	FatJet_subJetIdx1	,"	FatJet_subJetIdx1	");
+fTree->Branch("	FatJet_subJetIdx2	",&	FatJet_subJetIdx2	,"	FatJet_subJetIdx2	");
+fTree->Branch("	FatJet_tau1	",&	FatJet_tau1	,"	FatJet_tau1	");
+fTree->Branch("	FatJet_tau2	",&	FatJet_tau2	,"	FatJet_tau2	");
+fTree->Branch("	FatJet_tau3	",&	FatJet_tau3	,"	FatJet_tau3	");
+fTree->Branch("	FatJet_tau4	",&	FatJet_tau4	,"	FatJet_tau4	");
+fTree->Branch("	nFatJet	",&	nFatJet	,"	nFatJet	");
+
+
   fTree->Branch("AK4_Jet1_pt",&AK4_Jet1_pt,"AK4_Jet1_pt/F");
   fTree->Branch("AK4_Jet2_pt",&AK4_Jet2_pt,"AK4_Jet2_pt/F");
   fTree->Branch("AK4_Jet3_pt",&AK4_Jet3_pt,"AK4_Jet3_pt/F");
@@ -47,20 +115,7 @@ void output::init() {
   fTree->Branch("FourJets_phi",&FourJets_phi,"FourJets_phi/F");
   fTree->Branch("FourJets_m",&FourJets_m,"FourJets_m/F");
   fTree->Branch("FourJets_E",&FourJets_E,"FourJets_E/F");
-  // fTree->Branch("AK8_Jet1_pt",&AK8_Jet1_pt,"AK8_Jet1_pt/F");
-  // fTree->Branch("AK8_Jet2_pt",&AK8_Jet2_pt,"AK8_Jet2_pt/F");
-  // fTree->Branch("AK8_Jet3_pt",&AK8_Jet3_pt,"AK8_Jet3_pt/F");
-  // fTree->Branch("AK8_Jet4_pt",&AK8_Jet4_pt,"AK8_Jet4_pt/F");
 
-  // fTree->Branch("AK8_Jet1_eta",&AK8_Jet1_eta,"AK8_Jet1_eta/F");
-  // fTree->Branch("AK8_Jet2_eta",&AK8_Jet2_eta,"AK8_Jet2_eta/F");
-  // fTree->Branch("AK8_Jet3_eta",&AK8_Jet3_eta,"AK8_Jet3_eta/F");
-  // fTree->Branch("AK8_Jet4_eta",&AK8_Jet4_eta,"AK8_Jet4_eta/F");
-
-  // fTree->Branch("AK8_Jet1_phi",&AK8_Jet1_phi,"AK8_Jet1_phi/F");
-  // fTree->Branch("AK8_Jet2_phi",&AK8_Jet2_phi,"AK8_Jet2_phi/F");
-  // fTree->Branch("AK8_Jet3_phi",&AK8_Jet3_phi,"AK8_Jet3_phi/F");
-  // fTree->Branch("AK8_Jet4_phi",&AK8_Jet4_phi,"AK8_Jet4_phi/F");
   //metadata and weights
   fTree->Branch("run",&run,"run/I");
   fTree->Branch("ls",&ls,"ls/I");
