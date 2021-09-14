@@ -87,7 +87,7 @@ public:
   Float_t	FatJet_tau2 = -999.0;
   Float_t	FatJet_tau3 = -999.0;
   Float_t	FatJet_tau4 = -999.0;
-  UInt_t	nFatJet = -999; 
+  UInt_t	nFatJet = -999;
 
 
 
@@ -207,6 +207,13 @@ public:
   float pho1_pt_scaleUp = -999.0;
   float pho1_pt_scaleDn = -999.0;
 
+  float pho1_mvaIDFall17V2 = -999.0;
+  float pho1_mvaIDFall17V1 = -999.0;
+  float pho1_mvaID_WP80 = -999.0;
+  float pho1_mvaID_WP90 = -999.0;
+  float pho1_pt_byMgg = -999.0;
+  float pho1_E_byMgg = -999.0;
+
   //photon 2
   float pho2_pt = -999.0;
   float pho2_eta = -999.0;
@@ -221,6 +228,13 @@ public:
   //photon 2 scale variations
   float pho2_pt_scaleUp = -999.0;
   float pho2_pt_scaleDn = -999.0;
+
+  float pho2_mvaIDFall17V2 = -999.0;
+  float pho2_mvaIDFall17V1 = -999.0;
+  float pho2_mvaID_WP80 = -999.0;
+  float pho2_mvaID_WP90 = -999.0;
+  float pho2_pt_byMgg = -999.0;
+  float pho2_E_byMgg = -999.0;
 
   //diphoton final state
   float diphoton_m = -999.0;

@@ -73,11 +73,6 @@ int main(int argc, char const *argv[])
     const float PHO1_PT_CUT = 35;
     const float PHO2_PT_CUT = 25;
 
-
-
-
-
-
     const float AK8_LEP_DR_CUT = 0.8;
     const float AK4_LEP_DR_CUT = 0.4;
 
@@ -133,7 +128,7 @@ int main(int argc, char const *argv[])
         //!NanoReader is the tree Events T
         NanoAOD_MC NanoReader = NanoAOD_MC(t);
         NanoAOD_Weights NanoWeightReader = NanoAOD_Weights(r);
-        //! MC so getEntry(0) 
+        //! MC so getEntry(0)
         if (isMC==1) {
             NanoWeightReader.GetEntry(0);
             totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+NanoWeightReader.genEventSumw);
@@ -177,7 +172,7 @@ int main(int argc, char const *argv[])
 
             OutputTree->puWeight = 1.0;//scaleFactor.GetPUWeight(info->nPUmean, 0);
         /* -------------------------------------------------------------------------- */
-        /*                      ele and muon Selection 
+        /*                      ele and muon Selection
                 no electron and muon in fullyHadronic                         */
         /* -------------------------------------------------------------------------- */
             int nTightEle=0;
@@ -209,7 +204,9 @@ int main(int argc, char const *argv[])
                 if (!(NanoReader.Photon_pfRelIso03_chg[PhotonCount] < PHOTON_PFRELISO03_CHG_CUT)) continue;
                 if (!(NanoReader.Photon_hoe[PhotonCount] < HOVERE_CUT)) continue;
 
-                if ( !(abs(NanoReader.Photon_eta[PhotonCount]) < PHO_ETA_CUT )&& !(Photon_isScEtaEB == True) ) continue;
+                if (!(abs(NanoReader.Photon_eta[PhotonCount]) < PHO_ETA_CUT )) continue;
+                if (!(NanoReader.Photon_isScEtaEB[PhotonCount] || NanoReader.Photon_isScEtaEE[PhotonCount])) continue;
+
                 //using conservative uncertainty value of 3%
                 if ( 1.03*NanoReader.Photon_pt[PhotonCount] < PHO_PT_VETO_CUT ) continue;
 
@@ -217,15 +214,11 @@ int main(int argc, char const *argv[])
                 if (NanoReader.Photon_pfRelIso03_all[PhotonCount]>0.25) continue;
                 nVetoPhoton++;
 
-                //using conservative uncertainty value of 3%
-                if ( 1.03*NanoReader.Photon_pt[PhotonCount] < PHO_PT_CUT ) continue;
+                if ( NanoReader.Photon_pt[PhotonCount] < PHO_PT_CUT ) continue;
                 if (!NanoReader.Photon_cutBased[PhotonCount]) continue;
                 if (NanoReader.Photon_pfRelIso03_all[PhotonCount]>0.15) continue;
 
                 nTightPhoton++;
-                OutputTree->Photon_mvaID_Fall17V1p1 = NanoReader.Photon_mvaID_Fall17V1p1[PhotonCount]
-                OutputTree->Photon_mvaID_WP80 = NanoReader.Photon_mvaID_WP80[PhotonCount]
-                OutputTree->Photon_mvaID_WP90 = NanoReader.Photon_mvaID_WP90[PhotonCount]
 
                 /* ----------- push pt,eta,phi,ecorr in the TightPhoton last index ---------- */
                 TightPhoton.push_back(TLorentzVector(0,0,0,0));
@@ -241,7 +234,11 @@ int main(int argc, char const *argv[])
                     OutputTree->pho2_phi = OutputTree->pho1_phi;
                     OutputTree->pho2_m = OutputTree->pho1_m;
                     OutputTree->pho2_iso = OutputTree->pho1_iso;
-                    OutputTree->pho2_q = OutputTree->pho1_q; 
+                    OutputTree->pho2_q = OutputTree->pho1_q;
+                    OutputTree->pho2_mvaIDFall17V2 = OutputTree->pho1_mvaIDFall17V2;
+                    OutputTree->pho2_mvaIDFall17V1 = OutputTree->pho1_mvaIDFall17V1;
+                    OutputTree->pho2_mvaID_WP80 = OutputTree->pho1_mvaID_WP80;
+                    OutputTree->pho2_mvaID_WP90 = OutputTree->pho1_mvaID_WP90;
 
                     OutputTree->pho1_pt = NanoReader.Photon_pt[PhotonCount];
                     OutputTree->pho1_eta = NanoReader.Photon_eta[PhotonCount];
@@ -249,6 +246,10 @@ int main(int argc, char const *argv[])
                     OutputTree->pho1_m = NanoReader.Photon_mass[PhotonCount];
                     OutputTree->pho1_iso = NanoReader.Photon_pfRelIso03_all[PhotonCount];
                     OutputTree->pho1_q = NanoReader.Photon_charge[PhotonCount];
+                    OutputTree->pho1_mvaIDFall17V2 = NanoReader.Photon_mvaID[PhotonCount];
+                    OutputTree->pho1_mvaIDFall17V1 = NanoReader.Photon_mvaID_Fall17V1p1[PhotonCount];
+                    OutputTree->pho1_mvaID_WP80 = NanoReader.Photon_mvaID_WP80[PhotonCount];
+                    OutputTree->pho1_mvaID_WP90 = NanoReader.Photon_mvaID_WP90[PhotonCount];
                 }
                 else if ( NanoReader.Photon_pt[PhotonCount] > OutputTree->pho2_pt ) {
                     OutputTree->pho2_pt = NanoReader.Photon_pt[PhotonCount];
@@ -257,14 +258,18 @@ int main(int argc, char const *argv[])
                     OutputTree->pho2_m = NanoReader.Photon_mass[PhotonCount];
                     OutputTree->pho2_iso = NanoReader.Photon_pfRelIso03_all[PhotonCount];
                     OutputTree->pho2_q = NanoReader.Photon_charge[PhotonCount];
+                    OutputTree->pho2_mvaIDFall17V2 = NanoReader.Photon_mvaID[PhotonCount];
+                    OutputTree->pho2_mvaIDFall17V1 = NanoReader.Photon_mvaID_Fall17V1p1[PhotonCount];
+                    OutputTree->pho2_mvaID_WP80 = NanoReader.Photon_mvaID_WP80[PhotonCount];
+                    OutputTree->pho2_mvaID_WP90 = NanoReader.Photon_mvaID_WP90[PhotonCount];
                 }
             }
             /* ----------------- Leading and SubLeading photon selection ---------------- */
-            if(!(OutputTree->pho1_pt > PHO1_PT_CUT)) continue;
-            if(!(OutputTree->pho2_pt > PHO2_PT_CUT)) continue;
+            if(!(OutputTree->pho1_pt > 35)) continue;
+            if(!(OutputTree->pho2_pt > 25)) continue;
 
             if (!(nTightPhoton==2)) continue;
-            
+
             /* -------------------------------------------------------------------------- */
             /*                             photon m,pt,eta,phi                            */
             /* -------------------------------------------------------------------------- */
@@ -283,11 +288,19 @@ int main(int argc, char const *argv[])
             OutputTree->diphoton_E = diphoton.E();
             OutputTree->pho1_E = LV_pho1.E();
             OutputTree->pho2_E = LV_pho2.E();
+            OutputTree->pho1_pt_byMgg = LV_pho1.Pt()/diphoton.M();
+            OutputTree->pho2_pt_byMgg = LV_pho1.Pt()/diphoton.M();
+            OutputTree->pho1_E_byMgg = LV_pho2.E()/diphoton.M();
+            OutputTree->pho2_E_byMgg = LV_pho2.E()/diphoton.M();
+
+            if(!(OutputTree->pho1_pt_byMgg > 0.35)) continue;
+            if(!(OutputTree->pho2_pt_byMgg > 0.25)) continue;
 
 
-            float dmW = 3000.0;  
+            float dmW = 3000.0;
             int nGoodFatJet=0;
             float allAK8JetsSum_pt = 0.0;
+            #if 0
             /* -------------------------------------------------------------------------- */
             /*                              ONEJET SELECTION                              */
             /* -------------------------------------------------------------------------- */
@@ -335,7 +348,7 @@ int main(int argc, char const *argv[])
                 OutputTree->OneJet_Higgs_PuppiAK8_m_sd0_corr_scaleDn = NanoReader.FatJet_msoftdrop_jesTotalDown[Ak8JetCount];
                 OutputTree->OneJet_Higgs_PuppiAK8_pt_scaleUp = NanoReader.FatJet_pt_jesTotalUp[Ak8JetCount];
                 OutputTree->OneJet_Higgs_PuppiAK8_pt_scaleDn = NanoReader.FatJet_pt_jesTotalDown[Ak8JetCount];
-                
+
                 OutputTree->OneJet_FatJet_area = NanoReader.FatJet_area[Ak8JetCount];
                 OutputTree->OneJet_FatJet_btagCMVA = NanoReader.FatJet_btagCMVA[Ak8JetCount];
                 OutputTree->OneJet_FatJet_btagCSVV2 = NanoReader.FatJet_btagCSVV2[Ak8JetCount];
@@ -402,6 +415,7 @@ int main(int argc, char const *argv[])
                 allAK8JetsSum_pt += NanoReader.FatJet_pt[Ak8JetCount];
                 nGoodFatJet++;
             }
+            #endif
             /* -------------------------------------------------------------------------- */
             /*                              ONEJET SELECTION                              */
             /* -------------------------------------------------------------------------- */
@@ -418,15 +432,8 @@ int main(int argc, char const *argv[])
             float allAK4JetsSum_pt = 0.0;
             for (UInt_t Ak4JetCount = 0; Ak4JetCount < NanoReader.nJet; ++Ak4JetCount)
             {
-                //jet energy scale variations
                 if ( NanoReader.Jet_pt[Ak4JetCount] < AK4_PT_CUT) continue;
-
-                //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
-                if (NanoReader.Jet_eta[Ak4JetCount]<2.4) {
-                    if (NanoReader.Jet_btagDeepB[Ak4JetCount] > 0.1241) OutputTree->nBtag_loose++;
-                    if (NanoReader.Jet_btagDeepB[Ak4JetCount] > 0.4184) OutputTree->nBtag_medium++;
-                    if (NanoReader.Jet_btagDeepB[Ak4JetCount] > 0.7527) OutputTree->nBtag_tight++;
-                }
+                if (fabs(NanoReader.Jet_eta[Ak4JetCount]) > AK8_MAX_ETA) continue;
                 if (!(NanoReader.Jet_jetId[Ak4JetCount] >= 2)) continue;
                 if (!(NanoReader.Jet_puId[Ak4JetCount] >= 3)) continue;
 
@@ -439,8 +446,14 @@ int main(int argc, char const *argv[])
                         isClean = false;
                 }
                 if ( isClean == false ) continue;
-                //Ak4Jets
-                // nTightPhoton++;
+
+                //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
+                if (NanoReader.Jet_eta[Ak4JetCount]<2.4) {
+                    if (NanoReader.Jet_btagDeepB[Ak4JetCount] > 0.1241) OutputTree->nBtag_loose++;
+                    if (NanoReader.Jet_btagDeepB[Ak4JetCount] > 0.4184) OutputTree->nBtag_medium++;
+                    if (NanoReader.Jet_btagDeepB[Ak4JetCount] > 0.7527) OutputTree->nBtag_tight++;
+                }
+
                 Ak4Jets.push_back(TLorentzVector(0,0,0,0));
                 Ak4Jets.back().SetPtEtaPhiM( NanoReader.Jet_pt[Ak4JetCount],
                                             NanoReader.Jet_eta[Ak4JetCount],
@@ -466,9 +479,9 @@ int main(int argc, char const *argv[])
             if (nTagJets<4) continue;
             // We need to save pt, eta, phi, energy for first 4 AK4 jets
             // output->AK4_Jet1_pt = goodAK4JetIndex[0].pT
-            
+
             /* ----------------------- output the AK4 and AK8 jet ----------------------- */
-            
+
             /* ------------------- cout four pt to make sure in order ------------------- */
             if(!(NanoReader.Jet_pt[goodAK4JetIndex[0]]>NanoReader.Jet_pt[goodAK4JetIndex[1]]>NanoReader.Jet_pt[goodAK4JetIndex[2]])>NanoReader.Jet_pt[goodAK4JetIndex[3]])
             {
