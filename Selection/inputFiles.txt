@@ -1,4 +1,3 @@
-/eos/user/z/zhenxuan/double-higgs/ntuples/ResonantAna/nanoAOD_skim/TEST/GluGluToRadionToHHTo2G4Q_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8/210914_045554/232DAA0D-5B07-344D-BC8E-2BB420749CEF_Skim.root
 /eos/user/z/zhenxuan/double-higgs/ntuples/ResonantAna/nanoAOD_skim/TEST/GluGluToRadionToHHTo2G4Q_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8/210914_045554/3D5EDDAD-C47F-644B-B80D-D6EBDF3EF7F8_Skim.root
 /eos/user/z/zhenxuan/double-higgs/ntuples/ResonantAna/nanoAOD_skim/TEST/GluGluToRadionToHHTo2G4Q_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8/210914_045554/40D8FF61-AE10-AC48-AE5A-AD2E5139D9B5_Skim.root
 /eos/user/z/zhenxuan/double-higgs/ntuples/ResonantAna/nanoAOD_skim/TEST/GluGluToRadionToHHTo2G4Q_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8/210914_045554/421C0289-21D3-F44C-BEBA-B46C58964E3D_Skim.root

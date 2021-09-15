@@ -15,7 +15,7 @@ To run the code:
 
 ```bash
 cd $CMSSW_BASE/src/DoubleHiggs/Selection
-Selection inputFiles.dat output.root 1 2017  1
+Selection inputFiles.txt output.root 1 2017  7 1
 ```
 Description of arguments in above command:
 

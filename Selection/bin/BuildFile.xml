@@ -2,4 +2,4 @@
 <use name="root"/>
 <flags CXXFLAGS="-g -Wall"/>
 <bin file="Selection.cc" name="Selection"> </bin>
-<bin file="Selection_data.cc" name="Selection_data"> </bin>
+<bin file="RemoveDuplicateEvents.cc" name="RemoveDuplicateEvents"> </bin>

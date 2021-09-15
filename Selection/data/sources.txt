@@ -1,0 +1,4 @@
+https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2018
+https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2017
+https://twiki.cern.ch/twiki/bin/view/CMS/MuonReferenceEffs2016LegacyRereco
+https://twiki.cern.ch/twiki/bin/view/CMS/EgammaRunIIRecommendations#Fall17v2
