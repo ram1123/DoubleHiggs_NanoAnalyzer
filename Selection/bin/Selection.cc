@@ -144,6 +144,9 @@ int main (int argc, char** argv) {
   totalCutFlow->GetXaxis()->SetBinLabel(7,"nAK4 > 3");
   totalCutFlow->GetXaxis()->SetBinLabel(8,"pT(#gamma,#gamma)>100 && nAK4>3");
 
+  // TH1F *totalCutFlowPercentage = (TH1F*)totalCutFlow->Clone("totalCutFlowPercentage");
+  // totalCutFlowPercentage->SetTitle("totalCutFlowPercentage");
+
   TFile *f=0;
   TTree *t=0, *r=0;
 
@@ -191,7 +194,8 @@ int main (int argc, char** argv) {
 
     lineCount+=1;
 
-    if(DEBUG) std::cout << "[INFO]: current file: " << filetoopen << std::endl;
+    std::cout << "[INFO]: current file: " << filetoopen << std::endl;
+    // if(DEBUG) std::cout << "[INFO]: current file: " << filetoopen << std::endl;
     // f = TFile::Open(TString("root://cmseos.fnal.gov/") + TString(filetoopen), "read");
     // f = TFile::Open(TString("root://xrootd-cms.infn.it/")+TString(filetoopen),"read");
     f = TFile::Open(TString(filetoopen),"read");
@@ -218,7 +222,8 @@ int main (int argc, char** argv) {
     totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+genEventSumw);
     totalCutFlow->Fill("MC Gen",genEventCount);
     totalCutFlow->Fill("nEvent",genEventSumw);
-
+    // totalCutFlowPercentage->Fill("MC Gen",genEventCount/genEventSumw);
+    // totalCutFlowPercentage->Fill("nEvent",genEventSumw/genEventSumw);
     //check if tree has these hlt branches
     if (lineCount == 1){
       has_HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 = t->GetBranchStatus("HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90");
@@ -237,6 +242,7 @@ int main (int argc, char** argv) {
       WVJJTree->clearVars();
       NanoReader_.GetEntry(i);
       totalCutFlow->Fill("Skim NanoAOD",1);
+      // totalCutFlowPercentage->Fill("Skim NanoAOD",1./genEventSumw);
 
       if (i%100000==0) std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
       // if (DEBUG)       std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
@@ -277,7 +283,7 @@ int main (int argc, char** argv) {
 
       if (!(WVJJTree->trigger_2Pho)) continue;
       totalCutFlow->Fill("Trigger",1);
-
+      // totalCutFlowPercentage->Fill("Trigger",1./totalCutFlowPercentage);
       tightMuon.clear();
       tightEle.clear();
       tightPhoton.clear();
@@ -479,6 +485,7 @@ int main (int argc, char** argv) {
       if (WVJJTree->lep2_pt>0) std::cout << "WVJJTree->lep2_pt = " << WVJJTree->lep2_pt << std::endl;
       // if (!passLepSel && !WVJJTree->isAntiIso) continue;
       totalCutFlow->Fill("Lepton Selection",1);
+      // totalCutFlowPercentage->Fill("Lepton Selection",1./totalCutFlowPercentage);
 
       /* -------------------------------------------------------------------------- */
       /*                              PHOTON SELECTION                              */
@@ -560,6 +567,7 @@ int main (int argc, char** argv) {
 
       if (!(nTightPhoton==2)) continue;
       totalCutFlow->Fill("Photon Selection",1);
+      // totalCutFlowPercentage->Fill("Photon Selection",1./totalCutFlowPercentage);
 
 
       // std::cout << "Exactly 2 photons found..." << std::endl;
@@ -591,6 +599,7 @@ int main (int argc, char** argv) {
       if(!(WVJJTree->pho2_pt_byMgg > 0.25)) continue;
 
       // if(WVJJTree->diphoton_pt > 100.0) totalCutFlow->Fill("pT(#gamma,#gamma)>100",1);
+      // if(WVJJTree->diphoton_pt > 100.0) totalCutFlowPercentage->Fill("pT(#gamma,#gamma)>100",1./totalCutFlowPercentage);
 
       /* -------------------------------------------------------------------------- */
       /*                                   AK4Jet                                   */
@@ -606,8 +615,7 @@ int main (int argc, char** argv) {
 
         if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] =====> JetIndex: " << j << std::endl;
         //jet energy scale variations
-        if ( isMC && ( NanoReader_.Jet_pt_nom[j] < AK4_PT_CUT && NanoReader_.Jet_pt_jesTotalUp[j] < AK4_PT_CUT &&
-                      NanoReader_.Jet_pt_jesTotalDown[j] < AK4_PT_CUT ) ) continue;
+        if ( isMC && ( NanoReader_.Jet_pt_nom[j] < AK4_PT_CUT ) ) continue;
         else if ( !isMC && NanoReader_.Jet_pt_nom[j] < AK4_PT_CUT ) continue;
         if (fabs(NanoReader_.Jet_eta[j]) > AK4_MAX_ETA) continue;
         //jet ID
@@ -779,7 +787,9 @@ int main (int argc, char** argv) {
       if (nGoodAK4jets<4) continue;
       if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nJet>=4 conditon" << std::endl;
       totalCutFlow->Fill("nAK4 > 3",1);
+      // totalCutFlowPercentage->Fill("nAK4 > 3",1./totalCutFlowPercentage);
       if(WVJJTree->diphoton_pt > 100.0) totalCutFlow->Fill("pT(#gamma,#gamma)>100 && nAK4>3",1);
+      // if(WVJJTree->diphoton_pt > 100.0) totalCutFlowPercentage->Fill("pT(#gamma,#gamma)>100 && nAK4>3",1./totalCutFlowPercentage);
 
       // if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] " << std::endl;
       if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nAK4 jets >= 4 condition" << std::endl;
