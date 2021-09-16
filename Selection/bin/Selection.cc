@@ -42,6 +42,7 @@ int main (int argc, char** argv) {
   int era = atoi(argv[4]);
   int nanoVersion = atoi(argv[5]);
   bool DEBUG = atoi(argv[6]);
+  bool DOWNLOAD_LOCAL_COPY = atoi(argv[7]);
 
   // const float H_MASS = 125.10;
 
@@ -198,7 +199,11 @@ int main (int argc, char** argv) {
     // if(DEBUG) std::cout << "[INFO]: current file: " << filetoopen << std::endl;
     // f = TFile::Open(TString("root://cmseos.fnal.gov/") + TString(filetoopen), "read");
     // f = TFile::Open(TString("root://xrootd-cms.infn.it/")+TString(filetoopen),"read");
-    f = TFile::Open(TString(filetoopen),"read");
+    // if (DOWNLOAD_LOCAL_COPY)
+    //   continue;
+    //   f = TFile::Open(TString(filetoopen),"read");
+    // else
+      f = TFile::Open(TString(filetoopen),"read");
     t = (TTree *)f->Get("Events");
     r = (TTree *)f->Get("Runs");
     if (t==NULL) continue;
@@ -237,8 +242,8 @@ int main (int argc, char** argv) {
     }
 
     if(DEBUG) std::cout << "\t[INFO]: Start of event loop. " << std::endl;
-    // for (uint i=0; i < t->GetEntries(); i++) {
-    for (uint i=0; i < 1000; i++) {
+    for (uint i=0; i < t->GetEntries(); i++) {
+    // for (uint i=0; i < 1000; i++) {
       WVJJTree->clearVars();
       NanoReader_.GetEntry(i);
       totalCutFlow->Fill("Skim NanoAOD",1);
@@ -615,15 +620,15 @@ int main (int argc, char** argv) {
 
         if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] =====> JetIndex: " << j << std::endl;
         //jet energy scale variations
-        if ( isMC && ( NanoReader_.Jet_pt_nom[j] < AK4_PT_CUT ) ) continue;
-        else if ( !isMC && NanoReader_.Jet_pt_nom[j] < AK4_PT_CUT ) continue;
+        if ( isMC && ( NanoReader_.Jet_pt[j] < AK4_PT_CUT ) ) continue;
+        else if ( !isMC && NanoReader_.Jet_pt[j] < AK4_PT_CUT ) continue;
         if (fabs(NanoReader_.Jet_eta[j]) > AK4_MAX_ETA) continue;
         //jet ID
         // https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD#Jets
         // tight jet ID
         if ( NanoReader_.Jet_jetId[j] < 2 ) continue;
         // PU JET ID for jets pt > AK4_PT_CUT and < 50
-        if ( NanoReader_.Jet_pt_nom[j] < 50 && NanoReader_.Jet_puId[j] < 3 ) continue;
+        if ( NanoReader_.Jet_pt[j] < 50 && NanoReader_.Jet_puId[j] < 3 ) continue;
 
 
         if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] compute the btag eff." << std::endl;
@@ -676,17 +681,17 @@ int main (int argc, char** argv) {
 
 
         if ( isClean == false ) continue;
-        if (NanoReader_.Jet_pt_nom[j]>30) WVJJTree->nAK4Jet30++;
-        if (NanoReader_.Jet_pt_nom[j]>50) WVJJTree->nAK4Jet50++;
+        if (NanoReader_.Jet_pt[j]>30) WVJJTree->nAK4Jet30++;
+        if (NanoReader_.Jet_pt[j]>50) WVJJTree->nAK4Jet50++;
 
         if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] AK4 jets Passed all pre-selections" << std::endl;
         if (fabs(NanoReader_.Jet_eta[j]) < 2.5) {
 
           if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Within |eta|<2.5" << std::endl;
           if (isMC) {
-            btag_eff_loose = scaleFactor.GetBtagEff(NanoReader_.Jet_hadronFlavour[j], NanoReader_.Jet_pt_nom[j], NanoReader_.Jet_eta[j], "loose");
-            btag_eff_medium = scaleFactor.GetBtagEff(NanoReader_.Jet_hadronFlavour[j], NanoReader_.Jet_pt_nom[j], NanoReader_.Jet_eta[j], "medium");
-            btag_eff_tight = scaleFactor.GetBtagEff(NanoReader_.Jet_hadronFlavour[j], NanoReader_.Jet_pt_nom[j], NanoReader_.Jet_eta[j], "tight");
+            btag_eff_loose = scaleFactor.GetBtagEff(NanoReader_.Jet_hadronFlavour[j], NanoReader_.Jet_pt[j], NanoReader_.Jet_eta[j], "loose");
+            btag_eff_medium = scaleFactor.GetBtagEff(NanoReader_.Jet_hadronFlavour[j], NanoReader_.Jet_pt[j], NanoReader_.Jet_eta[j], "medium");
+            btag_eff_tight = scaleFactor.GetBtagEff(NanoReader_.Jet_hadronFlavour[j], NanoReader_.Jet_pt[j], NanoReader_.Jet_eta[j], "tight");
           }
 
           if (DEBUG) std::cout << "\t[INFO::AK4Jets] [" << i <<"/" << lineCount << "] btag_eff_loose = " << btag_eff_loose << std::endl;
