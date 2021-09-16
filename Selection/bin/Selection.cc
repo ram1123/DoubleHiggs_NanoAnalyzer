@@ -237,8 +237,8 @@ int main (int argc, char** argv) {
     }
 
     if(DEBUG) std::cout << "\t[INFO]: Start of event loop. " << std::endl;
-    // for (uint i=0; i < t->GetEntries(); i++) {
-    for (uint i=0; i < 1000; i++) {
+    for (uint i=0; i < t->GetEntries(); i++) {
+    // for (uint i=0; i < 1000; i++) {
       WVJJTree->clearVars();
       NanoReader_.GetEntry(i);
       totalCutFlow->Fill("Skim NanoAOD",1);
