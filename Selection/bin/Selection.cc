@@ -135,15 +135,16 @@ int main (int argc, char** argv) {
   TTree *ot = new TTree("Events","Events");
   WVJJData* WVJJTree = new WVJJData(ot);
   TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
-  TH1F *totalCutFlow = new TH1F("TotalCutFlow","TotalCutFlow",8,0,8);
+  TH1F *totalCutFlow = new TH1F("TotalCutFlow","TotalCutFlow",9,0,9);
   totalCutFlow->GetXaxis()->SetBinLabel(1,"MC Gen");
   totalCutFlow->GetXaxis()->SetBinLabel(2,"nEvent");
   totalCutFlow->GetXaxis()->SetBinLabel(3,"Skim NanoAOD");
   totalCutFlow->GetXaxis()->SetBinLabel(4,"Trigger");
-  totalCutFlow->GetXaxis()->SetBinLabel(5,"Lepton Selection");
-  totalCutFlow->GetXaxis()->SetBinLabel(6,"Photon Selection");
-  totalCutFlow->GetXaxis()->SetBinLabel(7,"nAK4 > 3");
-  totalCutFlow->GetXaxis()->SetBinLabel(8,"pT(#gamma,#gamma)>100 && nAK4>3");
+  totalCutFlow->GetXaxis()->SetBinLabel(5,"Photon Selection");
+  totalCutFlow->GetXaxis()->SetBinLabel(6,"Lepton Selection");
+  totalCutFlow->GetXaxis()->SetBinLabel(7,"nAK4 >= 4");
+  totalCutFlow->GetXaxis()->SetBinLabel(8,"pT/mgg cut");
+  totalCutFlow->GetXaxis()->SetBinLabel(9,"pT(#gamma,#gamma)>100");
 
   // TH1F *totalCutFlowPercentage = (TH1F*)totalCutFlow->Clone("totalCutFlowPercentage");
   // totalCutFlowPercentage->SetTitle("totalCutFlowPercentage");
@@ -196,17 +197,28 @@ int main (int argc, char** argv) {
     lineCount+=1;
 
     std::cout << "[INFO]: current file: " << filetoopen << std::endl;
-    // if(DEBUG) std::cout << "[INFO]: current file: " << filetoopen << std::endl;
+    if(DEBUG) std::cout << "[INFO]: current file: " << filetoopen << std::endl;
     // f = TFile::Open(TString("root://cmseos.fnal.gov/") + TString(filetoopen), "read");
     // f = TFile::Open(TString("root://xrootd-cms.infn.it/")+TString(filetoopen),"read");
-    // if (DOWNLOAD_LOCAL_COPY)
-    //   continue;
-    //   f = TFile::Open(TString(filetoopen),"read");
-    // else
+    if (DOWNLOAD_LOCAL_COPY) {
+      TString EOSFileDownloadCommand = TString("xrdcp ") + TString(filetoopen) + TString(" .");
+      if(DEBUG) std::cout << "EOS file download command: \n\t" << EOSFileDownloadCommand << std::endl;
+      system((std::string(EOSFileDownloadCommand)).c_str());
+      std::vector<std::string> fields;
+      const std::string delimiter = "\\";
+      Tokenize(filetoopen,fields); // TO-DO: Add the delimiter here.
+      // f = TFile::Open(TString(fields[9]),"read"); // TO-DO: instead of 9th element it should take last element
+      std::cout << "File to run: " << fields.back() << std::endl;
+      f = TFile::Open(TString(fields.back()),"read"); // TO-DO: instead of 9th element it should take last element
+    }
+    else {
       f = TFile::Open(TString(filetoopen),"read");
+    }
+    if(DEBUG) std::cout << "[INFO]: current file: " << filetoopen << std::endl;
     t = (TTree *)f->Get("Events");
     r = (TTree *)f->Get("Runs");
     if (t==NULL) continue;
+
 
     //std::cout << filetoopen << std::endl;
 
@@ -243,7 +255,7 @@ int main (int argc, char** argv) {
 
     if(DEBUG) std::cout << "\t[INFO]: Start of event loop. " << std::endl;
     for (uint i=0; i < t->GetEntries(); i++) {
-    // for (uint i=0; i < 1000; i++) {
+    // for (uint i=0; i < 10; i++) {
       WVJJTree->clearVars();
       NanoReader_.GetEntry(i);
       totalCutFlow->Fill("Skim NanoAOD",1);
@@ -288,6 +300,123 @@ int main (int argc, char** argv) {
 
       if (!(WVJJTree->trigger_2Pho)) continue;
       totalCutFlow->Fill("Trigger",1);
+
+      /* -------------------------------------------------------------------------- */
+      /*                              PHOTON SELECTION                              */
+      /* -------------------------------------------------------------------------- */
+      int nTightPhoton = 0;
+      int nVetoPhoton = 0;
+
+      for (UInt_t PhotonCount = 0; PhotonCount < *NanoReader_.nPhoton; ++PhotonCount)
+      {
+          if (!(NanoReader_.Photon_r9[PhotonCount] > PHO_R9_CUT)) continue;
+          if (!(NanoReader_.Photon_pfRelIso03_chg[PhotonCount] < PHOTON_PFRELISO03_CHG_CUT)) continue;
+          if (!(NanoReader_.Photon_hoe[PhotonCount] < HOVERE_CUT)) continue;
+
+          if ( !(abs(NanoReader_.Photon_eta[PhotonCount]) < PHO_ETA_CUT )) continue;
+          if (!(NanoReader_.Photon_isScEtaEB[PhotonCount] || NanoReader_.Photon_isScEtaEE[PhotonCount])) continue;
+          //using conservative uncertainty value of 3%
+          if ( 1.03*NanoReader_.Photon_pt[PhotonCount] < PHO_PT_VETO_CUT ) continue;
+
+          if (!NanoReader_.Photon_cutBased[PhotonCount]) continue;
+          if (NanoReader_.Photon_pfRelIso03_all[PhotonCount]>0.25) continue;
+          nVetoPhoton++;
+
+          //using conservative uncertainty value of 3%
+          if ( 1.03*NanoReader_.Photon_pt[PhotonCount] < PHO_PT_CUT ) continue;
+          if (!NanoReader_.Photon_cutBased[PhotonCount]) continue;
+          if (NanoReader_.Photon_pfRelIso03_all[PhotonCount]>0.15) continue;
+
+          nTightPhoton++;
+
+
+          /* ----------- push pt,eta,phi,ecorr in the TightPhoton last index ---------- */
+          tightPhoton.push_back(TLorentzVector(0,0,0,0));
+          tightPhoton.back().SetPtEtaPhiE( NanoReader_.Photon_pt[PhotonCount],
+                                          NanoReader_.Photon_eta[PhotonCount],
+                                          NanoReader_.Photon_phi[PhotonCount],
+                                          NanoReader_.Photon_eCorr[PhotonCount]
+                                          );
+          /* ------- sort and Leading_photon -> pho1  SubLeading_photon -> pho2  ------- */
+          if ( NanoReader_.Photon_pt[PhotonCount] > WVJJTree->pho1_pt ) {
+              WVJJTree->pho2_pt = WVJJTree->pho1_pt;
+              WVJJTree->pho2_eta = WVJJTree->pho1_eta;
+              WVJJTree->pho2_phi = WVJJTree->pho1_phi;
+              WVJJTree->pho2_m = WVJJTree->pho1_m;
+              WVJJTree->pho2_iso = WVJJTree->pho1_iso;
+              WVJJTree->pho2_q = WVJJTree->pho1_q;
+              WVJJTree->pho2_mvaIDFall17V2 = WVJJTree->pho1_mvaIDFall17V2;
+              WVJJTree->pho2_mvaIDFall17V1 = WVJJTree->pho1_mvaIDFall17V1;
+              WVJJTree->pho2_mvaID_WP80 = WVJJTree->pho1_mvaID_WP80;
+              WVJJTree->pho2_mvaID_WP90 = WVJJTree->pho1_mvaID_WP90;
+
+
+              WVJJTree->pho1_pt = NanoReader_.Photon_pt[PhotonCount];
+              WVJJTree->pho1_eta = NanoReader_.Photon_eta[PhotonCount];
+              WVJJTree->pho1_phi = NanoReader_.Photon_phi[PhotonCount];
+              WVJJTree->pho1_m = NanoReader_.Photon_mass[PhotonCount];
+              WVJJTree->pho1_iso = NanoReader_.Photon_pfRelIso03_all[PhotonCount];
+              WVJJTree->pho1_q = NanoReader_.Photon_charge[PhotonCount];
+              WVJJTree->pho1_mvaIDFall17V2 = NanoReader_.Photon_mvaID[PhotonCount];
+              WVJJTree->pho1_mvaIDFall17V1 = NanoReader_.Photon_mvaID_Fall17V1p1[PhotonCount];
+              WVJJTree->pho1_mvaID_WP80 = NanoReader_.Photon_mvaID_WP80[PhotonCount];
+              WVJJTree->pho1_mvaID_WP90 = NanoReader_.Photon_mvaID_WP90[PhotonCount];
+          }
+          else if ( NanoReader_.Photon_pt[PhotonCount] > WVJJTree->pho2_pt ) {
+              WVJJTree->pho2_pt = NanoReader_.Photon_pt[PhotonCount];
+              WVJJTree->pho2_eta = NanoReader_.Photon_eta[PhotonCount];
+              WVJJTree->pho2_phi = NanoReader_.Photon_phi[PhotonCount];
+              WVJJTree->pho2_m = NanoReader_.Photon_mass[PhotonCount];
+              WVJJTree->pho2_iso = NanoReader_.Photon_pfRelIso03_all[PhotonCount];
+              WVJJTree->pho2_q = NanoReader_.Photon_charge[PhotonCount];
+              WVJJTree->pho2_mvaIDFall17V2 = NanoReader_.Photon_mvaID[PhotonCount];
+              WVJJTree->pho2_mvaIDFall17V1 = NanoReader_.Photon_mvaID_Fall17V1p1[PhotonCount];
+              WVJJTree->pho2_mvaID_WP80 = NanoReader_.Photon_mvaID_WP80[PhotonCount];
+              WVJJTree->pho2_mvaID_WP90 = NanoReader_.Photon_mvaID_WP90[PhotonCount];
+          }
+      }
+      /* ----------------- Leading and SubLeading photon selection ---------------- */
+      if(!(WVJJTree->pho1_pt > PHO1_PT_CUT)) continue;
+      if(!(WVJJTree->pho2_pt > PHO2_PT_CUT)) continue;
+
+      if (!(nTightPhoton==2)) continue;
+      totalCutFlow->Fill("Photon Selection",1);
+      // totalCutFlowPercentage->Fill("Photon Selection",1./totalCutFlowPercentage);
+
+
+      // std::cout << "Exactly 2 photons found..." << std::endl;
+
+      /* -------------------------------------------------------------------------- */
+      /*                             photon m,pt,eta,phi                            */
+      /* -------------------------------------------------------------------------- */
+      TLorentzVector LV_pho1(0,0,0,0);
+      LV_pho1.SetPtEtaPhiM( WVJJTree->pho1_pt, WVJJTree->pho1_eta, WVJJTree->pho1_phi, WVJJTree->pho1_m );
+
+      TLorentzVector LV_pho2(0,0,0,0);
+      LV_pho2.SetPtEtaPhiM( WVJJTree->pho2_pt, WVJJTree->pho2_eta, WVJJTree->pho2_phi, WVJJTree->pho2_m );
+
+      TLorentzVector diphoton = LV_pho1+LV_pho2;
+
+      WVJJTree->diphoton_m = diphoton.M();
+      WVJJTree->diphoton_pt = diphoton.Pt();
+      WVJJTree->diphoton_eta = diphoton.Eta();
+      WVJJTree->diphoton_phi = diphoton.Phi();
+      WVJJTree->diphoton_E = diphoton.E();
+      WVJJTree->pho1_E = LV_pho1.E();
+      WVJJTree->pho2_E = LV_pho2.E();
+      WVJJTree->pho1_pt_byMgg = LV_pho1.Pt()/diphoton.M();
+      WVJJTree->pho2_pt_byMgg = LV_pho1.Pt()/diphoton.M();
+      WVJJTree->pho1_E_byMgg = LV_pho2.E()/diphoton.M();
+      WVJJTree->pho2_E_byMgg = LV_pho2.E()/diphoton.M();
+
+      // if(!(WVJJTree->pho1_pt_byMgg > 0.35)) continue;
+      // if(!(WVJJTree->pho2_pt_byMgg > 0.25)) continue;
+
+      // if(WVJJTree->diphoton_pt > 100.0) totalCutFlow->Fill("pT(#gamma,#gamma)>100",1);
+      // if(WVJJTree->diphoton_pt > 100.0) totalCutFlowPercentage->Fill("pT(#gamma,#gamma)>100",1./totalCutFlowPercentage);
+
+
+
       // totalCutFlowPercentage->Fill("Trigger",1./totalCutFlowPercentage);
       tightMuon.clear();
       tightEle.clear();
@@ -492,119 +621,6 @@ int main (int argc, char** argv) {
       totalCutFlow->Fill("Lepton Selection",1);
       // totalCutFlowPercentage->Fill("Lepton Selection",1./totalCutFlowPercentage);
 
-      /* -------------------------------------------------------------------------- */
-      /*                              PHOTON SELECTION                              */
-      /* -------------------------------------------------------------------------- */
-      int nTightPhoton = 0;
-      int nVetoPhoton = 0;
-
-      for (UInt_t PhotonCount = 0; PhotonCount < *NanoReader_.nPhoton; ++PhotonCount)
-      {
-          if (!(NanoReader_.Photon_r9[PhotonCount] > PHO_R9_CUT)) continue;
-          if (!(NanoReader_.Photon_pfRelIso03_chg[PhotonCount] < PHOTON_PFRELISO03_CHG_CUT)) continue;
-          if (!(NanoReader_.Photon_hoe[PhotonCount] < HOVERE_CUT)) continue;
-
-          if ( !(abs(NanoReader_.Photon_eta[PhotonCount]) < PHO_ETA_CUT )) continue;
-          if (!(NanoReader_.Photon_isScEtaEB[PhotonCount] || NanoReader_.Photon_isScEtaEE[PhotonCount])) continue;
-          //using conservative uncertainty value of 3%
-          if ( 1.03*NanoReader_.Photon_pt[PhotonCount] < PHO_PT_VETO_CUT ) continue;
-
-          if (!NanoReader_.Photon_cutBased[PhotonCount]) continue;
-          if (NanoReader_.Photon_pfRelIso03_all[PhotonCount]>0.25) continue;
-          nVetoPhoton++;
-
-          //using conservative uncertainty value of 3%
-          if ( 1.03*NanoReader_.Photon_pt[PhotonCount] < PHO_PT_CUT ) continue;
-          if (!NanoReader_.Photon_cutBased[PhotonCount]) continue;
-          if (NanoReader_.Photon_pfRelIso03_all[PhotonCount]>0.15) continue;
-
-          nTightPhoton++;
-
-
-          /* ----------- push pt,eta,phi,ecorr in the TightPhoton last index ---------- */
-          tightPhoton.push_back(TLorentzVector(0,0,0,0));
-          tightPhoton.back().SetPtEtaPhiE( NanoReader_.Photon_pt[PhotonCount],
-                                          NanoReader_.Photon_eta[PhotonCount],
-                                          NanoReader_.Photon_phi[PhotonCount],
-                                          NanoReader_.Photon_eCorr[PhotonCount]
-                                          );
-          /* ------- sort and Leading_photon -> pho1  SubLeading_photon -> pho2  ------- */
-          if ( NanoReader_.Photon_pt[PhotonCount] > WVJJTree->pho1_pt ) {
-              WVJJTree->pho2_pt = WVJJTree->pho1_pt;
-              WVJJTree->pho2_eta = WVJJTree->pho1_eta;
-              WVJJTree->pho2_phi = WVJJTree->pho1_phi;
-              WVJJTree->pho2_m = WVJJTree->pho1_m;
-              WVJJTree->pho2_iso = WVJJTree->pho1_iso;
-              WVJJTree->pho2_q = WVJJTree->pho1_q;
-              WVJJTree->pho2_mvaIDFall17V2 = WVJJTree->pho1_mvaIDFall17V2;
-              WVJJTree->pho2_mvaIDFall17V1 = WVJJTree->pho1_mvaIDFall17V1;
-              WVJJTree->pho2_mvaID_WP80 = WVJJTree->pho1_mvaID_WP80;
-              WVJJTree->pho2_mvaID_WP90 = WVJJTree->pho1_mvaID_WP90;
-
-
-              WVJJTree->pho1_pt = NanoReader_.Photon_pt[PhotonCount];
-              WVJJTree->pho1_eta = NanoReader_.Photon_eta[PhotonCount];
-              WVJJTree->pho1_phi = NanoReader_.Photon_phi[PhotonCount];
-              WVJJTree->pho1_m = NanoReader_.Photon_mass[PhotonCount];
-              WVJJTree->pho1_iso = NanoReader_.Photon_pfRelIso03_all[PhotonCount];
-              WVJJTree->pho1_q = NanoReader_.Photon_charge[PhotonCount];
-              WVJJTree->pho1_mvaIDFall17V2 = NanoReader_.Photon_mvaID[PhotonCount];
-              WVJJTree->pho1_mvaIDFall17V1 = NanoReader_.Photon_mvaID_Fall17V1p1[PhotonCount];
-              WVJJTree->pho1_mvaID_WP80 = NanoReader_.Photon_mvaID_WP80[PhotonCount];
-              WVJJTree->pho1_mvaID_WP90 = NanoReader_.Photon_mvaID_WP90[PhotonCount];
-          }
-          else if ( NanoReader_.Photon_pt[PhotonCount] > WVJJTree->pho2_pt ) {
-              WVJJTree->pho2_pt = NanoReader_.Photon_pt[PhotonCount];
-              WVJJTree->pho2_eta = NanoReader_.Photon_eta[PhotonCount];
-              WVJJTree->pho2_phi = NanoReader_.Photon_phi[PhotonCount];
-              WVJJTree->pho2_m = NanoReader_.Photon_mass[PhotonCount];
-              WVJJTree->pho2_iso = NanoReader_.Photon_pfRelIso03_all[PhotonCount];
-              WVJJTree->pho2_q = NanoReader_.Photon_charge[PhotonCount];
-              WVJJTree->pho2_mvaIDFall17V2 = NanoReader_.Photon_mvaID[PhotonCount];
-              WVJJTree->pho2_mvaIDFall17V1 = NanoReader_.Photon_mvaID_Fall17V1p1[PhotonCount];
-              WVJJTree->pho2_mvaID_WP80 = NanoReader_.Photon_mvaID_WP80[PhotonCount];
-              WVJJTree->pho2_mvaID_WP90 = NanoReader_.Photon_mvaID_WP90[PhotonCount];
-          }
-      }
-      /* ----------------- Leading and SubLeading photon selection ---------------- */
-      if(!(WVJJTree->pho1_pt > PHO1_PT_CUT)) continue;
-      if(!(WVJJTree->pho2_pt > PHO2_PT_CUT)) continue;
-
-      if (!(nTightPhoton==2)) continue;
-      totalCutFlow->Fill("Photon Selection",1);
-      // totalCutFlowPercentage->Fill("Photon Selection",1./totalCutFlowPercentage);
-
-
-      // std::cout << "Exactly 2 photons found..." << std::endl;
-
-      /* -------------------------------------------------------------------------- */
-      /*                             photon m,pt,eta,phi                            */
-      /* -------------------------------------------------------------------------- */
-      TLorentzVector LV_pho1(0,0,0,0);
-      LV_pho1.SetPtEtaPhiM( WVJJTree->pho1_pt, WVJJTree->pho1_eta, WVJJTree->pho1_phi, WVJJTree->pho1_m );
-
-      TLorentzVector LV_pho2(0,0,0,0);
-      LV_pho2.SetPtEtaPhiM( WVJJTree->pho2_pt, WVJJTree->pho2_eta, WVJJTree->pho2_phi, WVJJTree->pho2_m );
-
-      TLorentzVector diphoton = LV_pho1+LV_pho2;
-
-      WVJJTree->diphoton_m = diphoton.M();
-      WVJJTree->diphoton_pt = diphoton.Pt();
-      WVJJTree->diphoton_eta = diphoton.Eta();
-      WVJJTree->diphoton_phi = diphoton.Phi();
-      WVJJTree->diphoton_E = diphoton.E();
-      WVJJTree->pho1_E = LV_pho1.E();
-      WVJJTree->pho2_E = LV_pho2.E();
-      WVJJTree->pho1_pt_byMgg = LV_pho1.Pt()/diphoton.M();
-      WVJJTree->pho2_pt_byMgg = LV_pho1.Pt()/diphoton.M();
-      WVJJTree->pho1_E_byMgg = LV_pho2.E()/diphoton.M();
-      WVJJTree->pho2_E_byMgg = LV_pho2.E()/diphoton.M();
-
-      if(!(WVJJTree->pho1_pt_byMgg > 0.35)) continue;
-      if(!(WVJJTree->pho2_pt_byMgg > 0.25)) continue;
-
-      // if(WVJJTree->diphoton_pt > 100.0) totalCutFlow->Fill("pT(#gamma,#gamma)>100",1);
-      // if(WVJJTree->diphoton_pt > 100.0) totalCutFlowPercentage->Fill("pT(#gamma,#gamma)>100",1./totalCutFlowPercentage);
 
       /* -------------------------------------------------------------------------- */
       /*                                   AK4Jet                                   */
@@ -791,10 +807,13 @@ int main (int argc, char** argv) {
 
       if (nGoodAK4jets<4) continue;
       if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nJet>=4 conditon" << std::endl;
-      totalCutFlow->Fill("nAK4 > 3",1);
+      totalCutFlow->Fill("nAK4 >= 4",1);
       // totalCutFlowPercentage->Fill("nAK4 > 3",1./totalCutFlowPercentage);
-      if(WVJJTree->diphoton_pt > 100.0) totalCutFlow->Fill("pT(#gamma,#gamma)>100 && nAK4>3",1);
-      // if(WVJJTree->diphoton_pt > 100.0) totalCutFlowPercentage->Fill("pT(#gamma,#gamma)>100 && nAK4>3",1./totalCutFlowPercentage);
+
+      if((WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25))
+          totalCutFlow->Fill("pT/mgg cut",1);
+      if((WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0))
+          totalCutFlow->Fill("pT(#gamma,#gamma)>100",1);
 
       // if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] " << std::endl;
       if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nAK4 jets >= 4 condition" << std::endl;

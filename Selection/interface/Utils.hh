@@ -62,4 +62,48 @@ bool ends_with(const std::string & s, const std::string & suffix) {
     return s.rfind(suffix) == s.length() - suffix.length();
 }
 
+//======================================================================
+// Got this from
+// http://oopweb.com/CPP/Documents/CPPHOWTO/Volume/C++Programming-HOWTO-7.html
+// returns one token (the whole string) if none of the delimiters are found.
+//
+void Tokenize(const std::string& str,
+        std::vector<std::string>& tokens,
+        const std::string& delimiters = "/",
+        bool include_delimiters=false)
+{
+  std::string src=str;
+  tokens.clear();
+  // std::cout << "string: " << str << std::endl;
+  // std::cout << "delimiters: " << delimiters << std::endl;
+  // std::cout << "string: " << str << std::endl;
+
+  // Skip delimiters at beginning.
+  std::string::size_type lastPos = src.find_first_not_of(delimiters, 0);
+
+  if (include_delimiters && lastPos>0)
+    tokens.push_back(src.substr(0,lastPos));
+
+  // Find first delimiter.
+  std::string::size_type pos = src.find_first_of(delimiters, lastPos);
+
+  while (pos != std::string::npos || lastPos != std::string::npos) {
+    // Found a token, add it to the vector.
+    tokens.push_back(src.substr(lastPos, pos - lastPos));
+
+    lastPos = src.find_first_not_of(delimiters, pos);
+
+    if (include_delimiters && pos!=std::string::npos) {
+      tokens.push_back(src.substr(pos, lastPos-pos));
+    } //else skip delimiters.
+
+    // Find next delimiter
+    pos = src.find_first_of(delimiters, lastPos);
+
+  }
+  // std::cout << "tokens.size() = " << tokens.size() << std::endl;
+  // std::cout << "tokens[8] = " << tokens[8] << std::endl;
+  // std::cout << "tokens[8] = " << tokens[9] << std::endl;
+}                                                            // Tokenize
+
 #endif
