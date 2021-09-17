@@ -314,6 +314,12 @@ void WVJJData::init() {
   fTree->Branch("FullyResolved_FourJets_m", &FullyResolved_FourJets_m, "FullyResolved_FourJets_m/F");
   fTree->Branch("FullyResolved_FourJets_E", &FullyResolved_FourJets_E, "FullyResolved_FourJets_E/F");
 
+  fTree->Branch("FullyResolved_Radion_pt", &FullyResolved_Radion_pt, "FullyResolved_Radion_pt/F");
+  fTree->Branch("FullyResolved_Radion_eta", &FullyResolved_Radion_eta, "FullyResolved_Radion_eta/F");
+  fTree->Branch("FullyResolved_Radion_phi", &FullyResolved_Radion_phi, "FullyResolved_Radion_phi/F");
+  fTree->Branch("FullyResolved_Radion_m", &FullyResolved_Radion_m, "FullyResolved_Radion_m/F");
+  fTree->Branch("FullyResolved_Radion_E", &FullyResolved_Radion_E, "FullyResolved_Radion_E/F");
+
 };
 
 void WVJJData::clearVars() {
@@ -664,6 +670,12 @@ void WVJJData::clearVars() {
   FullyResolved_FourJets_phi = -999.0;
   FullyResolved_FourJets_m = -999.0;
   FullyResolved_FourJets_E = -999.0;
+
+  FullyResolved_Radion_pt = -999.0;
+  FullyResolved_Radion_eta = -999.0;
+  FullyResolved_Radion_phi = -999.0;
+  FullyResolved_Radion_m = -999.0;
+  FullyResolved_Radion_E = -999.0;
 
 };
 

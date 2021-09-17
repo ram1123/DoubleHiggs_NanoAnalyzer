@@ -7,6 +7,7 @@
 #include <sstream>
 #include <cstdio>
 #include <cstdlib>
+#include <stdlib.h>
 #include <stdint.h>
 #include <iomanip>
 #include <ctime>
@@ -69,6 +70,7 @@ int main (int argc, char** argv) {
   const float HOVERE_CUT = 0.08;
   const float PHO1_PT_CUT = 35;
   const float PHO2_PT_CUT = 25;
+  const float PHO_MVA_ID = -0.9;
 
   //ak8 jet cuts
   // const float AK8_MIN_PT = 200;
@@ -79,7 +81,7 @@ int main (int argc, char** argv) {
   //ak4 jet cuts
   //const float AK4_PT_VETO_CUT = 20;
   // const float AK4_ETA_CUT = 2.4;
-  const float AK4_PT_CUT = 30;
+  const float AK4_PT_CUT = 25;
   const float AK4_MAX_ETA = 2.4;
   // const float AK4_JJ_MIN_M = 40.0;
   // const float AK4_JJ_MAX_M = 250.0;
@@ -189,6 +191,12 @@ int main (int argc, char** argv) {
   assert(ifs.is_open());
   std::string line;
   int lineCount=0;
+
+  // Create a temporary directory to download the file from EOS
+  // if (DOWNLOAD_LOCAL_COPY) {
+    char test[] = "/tmp/rasharma/tmpdir_XXXXXX";
+    char *dir_name = mkdtemp(test);
+  // }
   while (getline(ifs,line)) {
     std::stringstream ss(line);
     std::string filetoopen;
@@ -201,7 +209,7 @@ int main (int argc, char** argv) {
     // f = TFile::Open(TString("root://cmseos.fnal.gov/") + TString(filetoopen), "read");
     // f = TFile::Open(TString("root://xrootd-cms.infn.it/")+TString(filetoopen),"read");
     if (DOWNLOAD_LOCAL_COPY) {
-      TString EOSFileDownloadCommand = TString("xrdcp ") + TString(filetoopen) + TString(" .");
+      TString EOSFileDownloadCommand = TString("xrdcp ") + TString(filetoopen) + TString("  ") + TString(dir_name);
       if(DEBUG) std::cout << "EOS file download command: \n\t" << EOSFileDownloadCommand << std::endl;
       system((std::string(EOSFileDownloadCommand)).c_str());
       std::vector<std::string> fields;
@@ -209,7 +217,7 @@ int main (int argc, char** argv) {
       Tokenize(filetoopen,fields); // TO-DO: Add the delimiter here.
       // f = TFile::Open(TString(fields[9]),"read"); // TO-DO: instead of 9th element it should take last element
       std::cout << "File to run: " << fields.back() << std::endl;
-      f = TFile::Open(TString(fields.back()),"read"); // TO-DO: instead of 9th element it should take last element
+      f = TFile::Open(TString(dir_name)+"/"+TString(fields.back()),"read"); // TO-DO: instead of 9th element it should take last element
     }
     else {
       f = TFile::Open(TString(filetoopen),"read");
@@ -310,6 +318,7 @@ int main (int argc, char** argv) {
       //std::cout << std::endl;
 
       if (!(WVJJTree->trigger_2Pho)) continue;
+      // if (WVJJTree->trigger_2Pho) totalCutFlow->Fill("Trigger",1);
       totalCutFlow->Fill("Trigger",1);
 
       /* -------------------------------------------------------------------------- */
@@ -317,30 +326,17 @@ int main (int argc, char** argv) {
       /* -------------------------------------------------------------------------- */
       tightPhoton.clear();
       int nTightPhoton = 0;
-      int nVetoPhoton = 0;
 
+      if (*NanoReader_.nPhoton < 2) continue;
       for (UInt_t PhotonCount = 0; PhotonCount < *NanoReader_.nPhoton; ++PhotonCount)
       {
-          if (!(NanoReader_.Photon_r9[PhotonCount] > PHO_R9_CUT)) continue;
-          if (!(NanoReader_.Photon_pfRelIso03_chg[PhotonCount] < PHOTON_PFRELISO03_CHG_CUT)) continue;
-          if (!(NanoReader_.Photon_hoe[PhotonCount] < HOVERE_CUT)) continue;
-
-          if ( !(abs(NanoReader_.Photon_eta[PhotonCount]) < PHO_ETA_CUT )) continue;
-          if (!(NanoReader_.Photon_isScEtaEB[PhotonCount] || NanoReader_.Photon_isScEtaEE[PhotonCount])) continue;
-          //using conservative uncertainty value of 3%
-          if ( 1.03*NanoReader_.Photon_pt[PhotonCount] < PHO_PT_VETO_CUT ) continue;
-
-          if (!NanoReader_.Photon_cutBased[PhotonCount]) continue;
-          if (NanoReader_.Photon_pfRelIso03_all[PhotonCount]>0.25) continue;
-          nVetoPhoton++;
-
-          //using conservative uncertainty value of 3%
-          // if ( NanoReader_.Photon_pt[PhotonCount] < PHO_PT_CUT ) continue;
-          if (!NanoReader_.Photon_cutBased[PhotonCount]) continue;
-          if (NanoReader_.Photon_pfRelIso03_all[PhotonCount]>0.15) continue;
-
-          nTightPhoton++;
-
+        if (!(NanoReader_.Photon_r9[PhotonCount] > PHO_R9_CUT || (NanoReader_.Photon_pfRelIso03_chg[PhotonCount]*NanoReader_.Photon_pt[PhotonCount]) < PHOTON_PFRELISO03_CHG_CUT || NanoReader_.Photon_pfRelIso03_chg[PhotonCount] < 0.3))
+        if (!(NanoReader_.Photon_hoe[PhotonCount] < HOVERE_CUT)) continue;
+        if (!(NanoReader_.Photon_pt[PhotonCount] > PHO_PT_VETO_CUT)) continue;
+        if (!(abs(NanoReader_.Photon_eta[PhotonCount]) < PHO_ETA_CUT )) continue;
+        if (!(NanoReader_.Photon_isScEtaEB[PhotonCount] || NanoReader_.Photon_isScEtaEE[PhotonCount])) continue;
+        if (!(NanoReader_.Photon_mvaID[PhotonCount] > PHO_MVA_ID)) continue;
+        nTightPhoton++;
 
           /* ----------- push pt,eta,phi,ecorr in the TightPhoton last index ---------- */
           tightPhoton.push_back(TLorentzVector(0,0,0,0));
@@ -437,8 +433,6 @@ int main (int argc, char** argv) {
       tightEle.clear();
       int nTightEle = 0;
       int nTightMu = 0;
-      int nVetoEle = 0;
-      int nVetoMu = 0;
 
       // if(DEBUG) std::cout << "[INFO]: nMuon: " << *NanoReader_.nMuon << std::endl;
       // if(DEBUG) std::cout << "[INFO]: nElectron: " << *NanoReader_.nElectron << std::endl;
@@ -448,7 +442,11 @@ int main (int argc, char** argv) {
         if ( NanoReader_.Muon_pt[j] < LEP_PT_VETO_CUT ) continue;
         if ( abs(NanoReader_.Muon_eta[j]) > MU_ETA_CUT ) continue;
 
+        // cut-based ID, tight WP
         if ( ! NanoReader_.Muon_tightId[j] ) continue;
+
+        // MiniIso ID from miniAOD selector (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)
+        if ( ! (NanoReader_.Muon_miniIsoId[j] > 2) ) continue;
 
         if (DEBUG) std::cout << "\t[INFO::Muons] [" << i <<"/" << lineCount << "] Clean Muons with photons" << std::endl;
 
@@ -475,6 +473,7 @@ int main (int argc, char** argv) {
 
         if ( NanoReader_.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
         if ( abs(NanoReader_.Electron_eta[j]) > EL_ETA_CUT ) continue;
+        if ( NanoReader_.Electron_convVeto[j] == false) continue;
 
         // cut-based ID (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)
         // Veto, 2016 -> cutbased HLT safe
@@ -528,15 +527,14 @@ int main (int argc, char** argv) {
 
         if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] =====> JetIndex: " << j << std::endl;
         //jet energy scale variations
-        if ( isMC && ( NanoReader_.Jet_pt[j] < AK4_PT_CUT ) ) continue;
-        else if ( !isMC && NanoReader_.Jet_pt[j] < AK4_PT_CUT ) continue;
-        if (fabs(NanoReader_.Jet_eta[j]) > AK4_MAX_ETA) continue;
+        if (!( NanoReader_.Jet_pt[j] > AK4_PT_CUT )) continue;
+        if (!(fabs(NanoReader_.Jet_eta[j]) < AK4_MAX_ETA)) continue;
         //jet ID
         // https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookNanoAOD#Jets
         // tight jet ID
-        if ( NanoReader_.Jet_jetId[j] < 2 ) continue;
+        if (!(NanoReader_.Jet_jetId[j] >= 2)) continue;
         // PU JET ID for jets pt > AK4_PT_CUT and < 50
-        if ( NanoReader_.Jet_pt[j] < 50 && NanoReader_.Jet_puId[j] < 3 ) continue;
+        if (NanoReader_.Jet_pt[j] < 50 && NanoReader_.Jet_puId[j] < 3) continue;
 
 
         if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] compute the btag eff." << std::endl;
@@ -746,6 +744,13 @@ int main (int argc, char** argv) {
       WVJJTree->FullyResolved_FourJets_phi = FourJets.Phi();
       WVJJTree->FullyResolved_FourJets_m = FourJets.M();
       WVJJTree->FullyResolved_FourJets_E = FourJets.E();
+
+      TLorentzVector Radion = FourJets + diphoton;
+      WVJJTree->FullyResolved_Radion_pt = Radion.Pt();
+      WVJJTree->FullyResolved_Radion_eta = Radion.Eta();
+      WVJJTree->FullyResolved_Radion_phi = Radion.Phi();
+      WVJJTree->FullyResolved_Radion_m = Radion.M();
+      WVJJTree->FullyResolved_Radion_E = Radion.E();
 
 
       if (isMC==1) {

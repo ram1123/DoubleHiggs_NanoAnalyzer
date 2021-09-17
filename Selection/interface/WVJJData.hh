@@ -382,6 +382,11 @@ public:
   float FullyResolved_FourJets_m = -999.0;
   float FullyResolved_FourJets_E = -999.0;
 
+  float FullyResolved_Radion_pt = -999.0;
+  float FullyResolved_Radion_eta  = -999.0;
+  float FullyResolved_Radion_phi  = -999.0;
+  float FullyResolved_Radion_m  = -999.0;
+  float FullyResolved_Radion_E  = -999.0;
 
 };
 

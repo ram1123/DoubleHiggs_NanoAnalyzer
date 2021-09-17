@@ -1,7 +1,7 @@
 import ROOT
 import sys
 
-ROOT.gROOT.SetBatch(0)
+ROOT.gROOT.SetBatch(True)
 
 if len(sys.argv) != 2:
     print "USAGE: %s <input file> <output file>"%(sys.argv[0])
