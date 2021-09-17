@@ -261,12 +261,23 @@ int main (int argc, char** argv) {
       totalCutFlow->Fill("Skim NanoAOD",1);
       // totalCutFlowPercentage->Fill("Skim NanoAOD",1./genEventSumw);
 
-      if (i%100000==0) std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
+      if (i%10000==0) std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
       // if (DEBUG)       std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
 
       if (isMC==1) {
         WVJJTree->genWeight=*NanoReader_.Generator_weight;
       }
+
+      WVJJTree->run = *NanoReader_.run;
+      WVJJTree->evt = *NanoReader_.event;
+      WVJJTree->ls = *NanoReader_.luminosityBlock;
+
+      // WVJJTree->nPV = *NanoReader_.PV_npvsGood;
+      if (isMC) WVJJTree->nPU_mean = *NanoReader_.Pileup_nPU;
+
+      WVJJTree->puWeight = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, 0);
+      WVJJTree->puWeight_Up = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, 1);
+      WVJJTree->puWeight_Down = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, -1);
 
       // filtering out particular event for sync
       //if (!(*NanoReader_.event==3073090041)) {
@@ -304,6 +315,7 @@ int main (int argc, char** argv) {
       /* -------------------------------------------------------------------------- */
       /*                              PHOTON SELECTION                              */
       /* -------------------------------------------------------------------------- */
+      tightPhoton.clear();
       int nTightPhoton = 0;
       int nVetoPhoton = 0;
 
@@ -323,7 +335,7 @@ int main (int argc, char** argv) {
           nVetoPhoton++;
 
           //using conservative uncertainty value of 3%
-          if ( 1.03*NanoReader_.Photon_pt[PhotonCount] < PHO_PT_CUT ) continue;
+          // if ( NanoReader_.Photon_pt[PhotonCount] < PHO_PT_CUT ) continue;
           if (!NanoReader_.Photon_cutBased[PhotonCount]) continue;
           if (NanoReader_.Photon_pfRelIso03_all[PhotonCount]>0.15) continue;
 
@@ -376,10 +388,11 @@ int main (int argc, char** argv) {
           }
       }
       /* ----------------- Leading and SubLeading photon selection ---------------- */
+
+      if (!(nTightPhoton==2)) continue;
       if(!(WVJJTree->pho1_pt > PHO1_PT_CUT)) continue;
       if(!(WVJJTree->pho2_pt > PHO2_PT_CUT)) continue;
 
-      if (!(nTightPhoton==2)) continue;
       totalCutFlow->Fill("Photon Selection",1);
       // totalCutFlowPercentage->Fill("Photon Selection",1./totalCutFlowPercentage);
 
@@ -415,30 +428,13 @@ int main (int argc, char** argv) {
       // if(WVJJTree->diphoton_pt > 100.0) totalCutFlow->Fill("pT(#gamma,#gamma)>100",1);
       // if(WVJJTree->diphoton_pt > 100.0) totalCutFlowPercentage->Fill("pT(#gamma,#gamma)>100",1./totalCutFlowPercentage);
 
-
-
-      // totalCutFlowPercentage->Fill("Trigger",1./totalCutFlowPercentage);
-      tightMuon.clear();
-      tightEle.clear();
-      tightPhoton.clear();
-      // Ak8Jets.clear();
-
-      WVJJTree->run = *NanoReader_.run;
-      WVJJTree->evt = *NanoReader_.event;
-      WVJJTree->ls = *NanoReader_.luminosityBlock;
-
-      // WVJJTree->nPV = *NanoReader_.PV_npvsGood;
-      if (isMC) WVJJTree->nPU_mean = *NanoReader_.Pileup_nPU;
-
-      WVJJTree->puWeight = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, 0);
-      WVJJTree->puWeight_Up = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, 1);
-      WVJJTree->puWeight_Down = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, -1);
-
       // LEPTON SELECTION
       /* -------------------------------------------------------------------------- */
       /*                      ele and muon Selection                                */
       /*             no electron and muon in fullyHadronic                          */
       /* -------------------------------------------------------------------------- */
+      tightMuon.clear();
+      tightEle.clear();
       int nTightEle = 0;
       int nTightMu = 0;
       int nVetoEle = 0;
@@ -449,185 +445,81 @@ int main (int argc, char** argv) {
 
       for (uint j=0; j < *NanoReader_.nMuon; j++) {
 
-        //using conservative uncertainty value of 3%
         if ( NanoReader_.Muon_pt[j] < LEP_PT_VETO_CUT ) continue;
         if ( abs(NanoReader_.Muon_eta[j]) > MU_ETA_CUT ) continue;
 
-        if ( ! NanoReader_.Muon_looseId[j] ) continue;
-        if ( NanoReader_.Muon_pfRelIso04_all[j] > 0.40 ) continue;
-        nVetoMu++;
-
-        //using conservative uncertainty value of 3%
-        if ( NanoReader_.Muon_pt[j] < MU_PT_CUT ) continue;
         if ( ! NanoReader_.Muon_tightId[j] ) continue;
-        if ( NanoReader_.Muon_pt[j] > 20 && abs(NanoReader_.Muon_dxy[j]) > 0.01 ) continue;
-        if ( NanoReader_.Muon_pt[j] < 20 && abs(NanoReader_.Muon_dxy[j]) > 0.02 ) continue;
-        if ( abs(NanoReader_.Muon_dz[j]) > 0.1 ) continue;
-        if ( NanoReader_.Muon_pfRelIso04_all[j] > 0.15 ) continue;
+
+        if (DEBUG) std::cout << "\t[INFO::Muons] [" << i <<"/" << lineCount << "] Clean Muons with photons" << std::endl;
+
+        bool isClean=true;
+        for ( std::size_t k=0; k<tightPhoton.size(); k++) {
+          if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                     NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j]) < 0.4) {
+            isClean = false;
+          }
+        }
+        if ( isClean == false ) continue;
+
+        TLorentzVector Mu(0,0,0,0);
+        Mu.SetPtEtaPhiM( NanoReader_.Muon_pt[j], NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j], NanoReader_.Muon_mass[j] );
+
+        // Electron and photon should not give the Z-mass
+        if( fabs((Mu+LV_pho1).M() - 91.187) < 5.0) continue;
+        if( fabs((Mu+LV_pho2).M() - 91.187) < 5.0) continue;
+
         nTightMu++;
-
-        tightMuon.push_back(TLorentzVector(0,0,0,0));
-        tightMuon.back().SetPtEtaPhiM(NanoReader_.Muon_pt[j], NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j], MUON_MASS);
-
-        if ( NanoReader_.Muon_pt[j] > WVJJTree->lep1_pt ) {
-          WVJJTree->lep2_pt = WVJJTree->lep1_pt;
-          WVJJTree->lep2_eta = WVJJTree->lep1_eta;
-          WVJJTree->lep2_phi = WVJJTree->lep1_phi;
-          WVJJTree->lep2_m = WVJJTree->lep1_m;
-          WVJJTree->lep2_iso = WVJJTree->lep1_iso;
-          WVJJTree->lep2_dxy = WVJJTree->lep1_dxy;
-          WVJJTree->lep2_dz = WVJJTree->lep1_dz;
-          WVJJTree->lep2_q = WVJJTree->lep1_q;
-
-          WVJJTree->lep1_pt = NanoReader_.Muon_pt[j];
-          WVJJTree->lep1_eta = NanoReader_.Muon_eta[j];
-          WVJJTree->lep1_phi = NanoReader_.Muon_phi[j];
-          WVJJTree->lep1_m = MUON_MASS;
-          WVJJTree->lep1_iso = NanoReader_.Muon_pfRelIso04_all[j];
-          WVJJTree->lep1_dxy = NanoReader_.Muon_dxy[j];
-          WVJJTree->lep1_dz = NanoReader_.Muon_dz[j];
-          WVJJTree->lep1_q = NanoReader_.Muon_charge[j];
-        }
-        else if ( NanoReader_.Muon_pt[j] > WVJJTree->lep2_pt ) {
-
-          // opposite sign
-          if ( WVJJTree->lep1_q*NanoReader_.Muon_charge[j] > 0 ) continue;
-
-          WVJJTree->lep2_pt = NanoReader_.Muon_pt[j];
-          WVJJTree->lep2_eta = NanoReader_.Muon_eta[j];
-          WVJJTree->lep2_phi = NanoReader_.Muon_phi[j];
-          WVJJTree->lep2_m = MUON_MASS;
-          WVJJTree->lep2_iso = NanoReader_.Muon_pfRelIso04_all[j];
-          WVJJTree->lep2_dxy = NanoReader_.Muon_dxy[j];
-          WVJJTree->lep2_dz = NanoReader_.Muon_dz[j];
-          WVJJTree->lep2_q = NanoReader_.Muon_charge[j];
-        }
       }
 
       for ( uint j=0; j < *NanoReader_.nElectron; j++ ) {
 
-        //don't try to select electrons unless we don't already have muons
-        // if ( WVJJTree->lep1_m == MUON_MASS ) continue;
-
-        if ( abs(NanoReader_.Electron_eta[j]) > EL_ETA_CUT ) continue;
-
-        // Veto pt cut, using conservative uncertainty value of 3%
         if ( NanoReader_.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
+        if ( abs(NanoReader_.Electron_eta[j]) > EL_ETA_CUT ) continue;
 
         // cut-based ID (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)
         // Veto, 2016 -> cutbased HLT safe
         // 2017, 2018 -> cutbased loost Fall17V2
         if ( era == 2016 ) {
           if ( NanoReader_.Electron_cutBased_HLTPreSel[j] == 0 ) continue;
-          if ( NanoReader_.Electron_lostHits[j] >= 1 ) continue;
+          // if ( NanoReader_.Electron_lostHits[j] >= 1 ) continue;
         }
         else {
           if ( NanoReader_.Electron_cutBased[j] < 2 ) continue;
-          if ( NanoReader_.Electron_convVeto[j] != 1) continue;
+          // if ( NanoReader_.Electron_convVeto[j] != 1) continue;
           // for 2017, 2018
-          if ( abs(NanoReader_.Electron_eta[j]) > 1.479 ) {
-            if (abs(NanoReader_.Electron_sieie[j]) > 0.03 ) continue;
-            if (abs(NanoReader_.Electron_eInvMinusPInv[j]) > 0.014 ) continue;
+          // if ( abs(NanoReader_.Electron_eta[j]) > 1.479 ) {
+            // if (abs(NanoReader_.Electron_sieie[j]) > 0.03 ) continue;
+            // if (abs(NanoReader_.Electron_eInvMinusPInv[j]) > 0.014 ) continue;
+          // }
+        }
+        bool isClean=true;
+        for ( std::size_t k=0; k<tightPhoton.size(); k++) {
+          if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                     NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j]) < 0.4) {
+            isClean = false;
           }
         }
-        // for 2016, 2017, 2018
-        if ( abs(NanoReader_.Electron_eta[j]) > 1.479 ) {
-          if ( abs(NanoReader_.Electron_dxy[j]) > 0.1 ) continue;
-          if ( abs(NanoReader_.Electron_dz[j]) > 0.2 ) continue;
-        }
-        else {
-          if ( abs(NanoReader_.Electron_dxy[j]) > 0.05 ) continue;
-          if ( abs(NanoReader_.Electron_dz[j]) > 0.1 ) continue;
-        }
-        nVetoEle++;
+        if ( isClean == false ) continue;
 
-        //Tight pt cut, using conservative uncertainty value of 3%
-        if ( NanoReader_.Electron_pt[j] < EL_PT_CUT ) continue;
+        TLorentzVector Ele(0,0,0,0);
+        Ele.SetPtEtaPhiM( NanoReader_.Electron_pt[j], NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j], NanoReader_.Electron_mass[j] );
 
-        // Tight, 2016 -> cutbased + MVA + isolation
-        // Tight, 2017, 2018 -> MVAIso + isolation
+        // Electron and photon should not give the Z-mass
+        if( fabs((Ele+LV_pho1).M() - 91.187) < 5.0) continue;
+        if( fabs((Ele+LV_pho2).M() - 91.187) < 5.0) continue;
 
-        if ( era == 2016 ) {
-          if ( ! NanoReader_.Electron_mvaSpring16GP_WP90[j] ) continue;
-
-          if ( abs(NanoReader_.Electron_eta[j]) > 1.479 ) {
-            if ( NanoReader_.Electron_pfRelIso03_all[j] > 0.0571) continue;
-          }
-          else {
-            if ( NanoReader_.Electron_pfRelIso03_all[j] > 0.05880) continue;
-          }
-        }
-        else {
-          if ( ! NanoReader_.Electron_mvaFall17V2Iso_WP90[j] ) continue;
-          if ( NanoReader_.Electron_pfRelIso03_all[j] > 0.06) continue;
-        }
         nTightEle++;
-
-        tightEle.push_back(TLorentzVector(0,0,0,0));
-        tightEle.back().SetPtEtaPhiM(NanoReader_.Electron_pt[j],NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j],ELE_MASS);
-
-        if ( NanoReader_.Electron_pt[j] > WVJJTree->lep1_pt ) {
-          WVJJTree->lep2_pt = WVJJTree->lep1_pt;
-          WVJJTree->lep2_eta = WVJJTree->lep1_eta;
-          WVJJTree->lep2_phi = WVJJTree->lep1_phi;
-          WVJJTree->lep2_m = WVJJTree->lep1_m;
-          WVJJTree->lep2_iso = WVJJTree->lep1_iso;
-          WVJJTree->lep2_dxy = WVJJTree->lep1_dxy;
-          WVJJTree->lep2_dz = WVJJTree->lep1_dz;
-          WVJJTree->lep2_sip3d = WVJJTree->lep1_sip3d;
-          WVJJTree->lep2_q = WVJJTree->lep1_q;
-
-          WVJJTree->lep1_pt = NanoReader_.Electron_pt[j];
-          WVJJTree->lep1_eta = NanoReader_.Electron_eta[j];
-          WVJJTree->lep1_phi = NanoReader_.Electron_phi[j];
-          WVJJTree->lep1_m = ELE_MASS;
-          WVJJTree->lep1_iso = NanoReader_.Electron_pfRelIso03_all[j];
-          WVJJTree->lep1_dxy = NanoReader_.Electron_dxy[j];
-          WVJJTree->lep1_dz = NanoReader_.Electron_dz[j];
-          WVJJTree->lep1_sip3d = NanoReader_.Electron_sip3d[j];
-          WVJJTree->lep1_q = NanoReader_.Electron_charge[j];
-        }
-        else if ( NanoReader_.Electron_pt[j] > WVJJTree->lep2_pt ) {
-
-          // opposite sign
-          if (WVJJTree->lep1_q*NanoReader_.Electron_charge[j]>0) continue;
-
-          WVJJTree->lep2_pt = NanoReader_.Electron_pt[j];
-          WVJJTree->lep2_eta = NanoReader_.Electron_eta[j];
-          WVJJTree->lep2_phi = NanoReader_.Electron_phi[j];
-          WVJJTree->lep2_m = ELE_MASS;
-          WVJJTree->lep2_iso = NanoReader_.Electron_pfRelIso03_all[j];
-          WVJJTree->lep2_dxy = NanoReader_.Electron_dxy[j];
-          WVJJTree->lep2_dz = NanoReader_.Electron_dz[j];
-          WVJJTree->lep2_sip3d = NanoReader_.Electron_sip3d[j];
-          WVJJTree->lep2_q = NanoReader_.Electron_charge[j];
-        }
       }
-
-      //check conditions
-      // bool passLepSel = true;
-      // only one tight and no vetoed lep -> WV
-      // if ((nTightMu + nTightEle) == 1 && (nVetoEle + nVetoMu) > (nTightMu + nTightEle)) passLepSel = false;
-      // only two tight and no vetoed lep -> ZV
-      // if ((nTightMu + nTightEle) == 2 && (nVetoEle + nVetoMu) > (nTightMu + nTightEle)) passLepSel = false;
 
       // if (DEBUG) std::cout << "\t[INFO] Number of leptons: " << nTightEle + nTightMu << std::endl;
 
-      // if (passLepSel) continue;
       if (nTightMu + nTightEle > 0) continue;
-      if (WVJJTree->lep1_pt>0) std::cout << "WVJJTree->lep1_pt = " << WVJJTree->lep1_pt << std::endl;
-      if (WVJJTree->lep2_pt>0) std::cout << "WVJJTree->lep2_pt = " << WVJJTree->lep2_pt << std::endl;
-      // if (!passLepSel && !WVJJTree->isAntiIso) continue;
       totalCutFlow->Fill("Lepton Selection",1);
-      // totalCutFlowPercentage->Fill("Lepton Selection",1./totalCutFlowPercentage);
-
 
       /* -------------------------------------------------------------------------- */
       /*                                   AK4Jet                                   */
       /* -------------------------------------------------------------------------- */
       goodAK4JetIndex.clear();
-      // goodAK4JetTem.clear();
-      // Ak4JetsTem.clear();
       Ak4Jets.clear();
 
       float allAK4JetsSum_pt = 0.0;
@@ -663,29 +555,13 @@ int main (int argc, char** argv) {
         //   }
         // }
 
-        if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with other AK4 jets" << std::endl;
-        for ( std::size_t k=0; k<goodAK4JetIndex.size(); k++) {
-          if (deltaR(NanoReader_.Jet_eta[goodAK4JetIndex.at(k)], NanoReader_.Jet_phi[goodAK4JetIndex.at(k)],
-                     NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK4_DR_CUT) {
-            isClean = false;
-          }
-        }
-
-        if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with electrons jets" << std::endl;
-        for ( std::size_t k=0; k<tightEle.size(); k++) {
-          if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
-                     NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_DR_CUT) {
-            isClean = false;
-          }
-        }
-
-        if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with muons jets" << std::endl;
-        for ( std::size_t k=0; k<tightMuon.size(); k++) {
-          if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
-                     NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_DR_CUT) {
-            isClean = false;
-          }
-        }
+        // if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with other AK4 jets" << std::endl;
+        // for ( std::size_t k=0; k<goodAK4JetIndex.size(); k++) {
+        //   if (deltaR(NanoReader_.Jet_eta[goodAK4JetIndex.at(k)], NanoReader_.Jet_phi[goodAK4JetIndex.at(k)],
+        //              NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK4_DR_CUT) {
+        //     isClean = false;
+        //   }
+        // }
 
         if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with photons jets" << std::endl;
         for ( std::size_t k=0; k<tightPhoton.size(); k++) {
@@ -694,7 +570,6 @@ int main (int argc, char** argv) {
             isClean = false;
           }
         }
-
 
         if ( isClean == false ) continue;
         if (NanoReader_.Jet_pt[j]>30) WVJJTree->nAK4Jet30++;
