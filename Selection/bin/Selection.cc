@@ -553,13 +553,13 @@ int main (int argc, char** argv) {
                 //   }
                 // }
 
-                // if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with other AK4 jets" << std::endl;
-                // for ( std::size_t k=0; k<goodAK4JetIndex.size(); k++) {
-                //   if (deltaR(NanoReader_.Jet_eta[goodAK4JetIndex.at(k)], NanoReader_.Jet_phi[goodAK4JetIndex.at(k)],
-                //              NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK4_DR_CUT) {
-                //     isClean = false;
-                //   }
-                // }
+                if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with other AK4 jets" << std::endl;
+                for ( std::size_t k=0; k<goodAK4JetIndex.size(); k++) {
+                  if (deltaR(NanoReader_.Jet_eta[goodAK4JetIndex.at(k)], NanoReader_.Jet_phi[goodAK4JetIndex.at(k)],
+                             NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK4_DR_CUT) {
+                    isClean = false;
+                  }
+                }
 
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with photons jets" << std::endl;
                 for ( std::size_t k=0; k<tightPhoton.size(); k++) {
