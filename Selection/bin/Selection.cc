@@ -137,19 +137,30 @@ int main (int argc, char** argv) {
     TTree *ot = new TTree("Events","Events");
     WVJJData* WVJJTree = new WVJJData(ot);
     TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
-    TH1F *totalCutFlow = new TH1F("TotalCutFlow","TotalCutFlow",9,0,9);
-    totalCutFlow->GetXaxis()->SetBinLabel(1,"MC Gen");
-    totalCutFlow->GetXaxis()->SetBinLabel(2,"nEvent");
-    totalCutFlow->GetXaxis()->SetBinLabel(3,"Skim NanoAOD");
-    totalCutFlow->GetXaxis()->SetBinLabel(4,"Trigger");
-    totalCutFlow->GetXaxis()->SetBinLabel(5,"Photon Selection");
-    totalCutFlow->GetXaxis()->SetBinLabel(6,"Lepton Selection");
-    totalCutFlow->GetXaxis()->SetBinLabel(7,"nAK4 >= 4");
-    totalCutFlow->GetXaxis()->SetBinLabel(8,"pT/mgg cut");
-    totalCutFlow->GetXaxis()->SetBinLabel(9,"pT(#gamma,#gamma)>100");
+    TH1F *totalCutFlow_FH = new TH1F("TotalCutFlow_FH","TotalCutFlow_FH",9,0,9);
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(1,"MC Gen");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(2,"nEvent");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(3,"Skim NanoAOD");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(4,"Trigger");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(5,"Photon Selection");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(6,"Lepton Selection");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(7,"nAK4 >= 4");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(8,"pT/mgg cut");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(9,"pT(#gamma,#gamma)>100");
 
-    // TH1F *totalCutFlowPercentage = (TH1F*)totalCutFlow->Clone("totalCutFlowPercentage");
-    // totalCutFlowPercentage->SetTitle("totalCutFlowPercentage");
+    // TH1F *totalCutFlow_SL = (TH1F*)totalCutFlow_FH->Clone("totalCutFlow_SL");
+    // totalCutFlow_SL->SetTitle("totalCutFlow_SL");
+    TH1F *totalCutFlow_SL = new TH1F("totalCutFlow_SL","totalCutFlow_SL",9,0,9);
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(1,"MC Gen");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(2,"nEvent");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(3,"Skim NanoAOD");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(4,"Trigger");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(5,"Photon Selection");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(6,"Lepton Selection");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(7,"nAK4 >= 2");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(8,"pT/mgg cut");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(9,"pT(#gamma,#gamma)>100");
+
 
     TFile *f=0;
     TTree *t=0, *r=0;
@@ -245,10 +256,10 @@ int main (int argc, char** argv) {
             genEventCount = *NanoWeightReader.genEventCount;
         }
         totalEvents->SetBinContent(2,totalEvents->GetBinContent(2)+genEventSumw);
-        totalCutFlow->Fill("MC Gen",genEventCount);
-        totalCutFlow->Fill("nEvent",genEventSumw);
-        // totalCutFlowPercentage->Fill("MC Gen",genEventCount/genEventSumw);
-        // totalCutFlowPercentage->Fill("nEvent",genEventSumw/genEventSumw);
+        totalCutFlow_FH->Fill("MC Gen",genEventCount);
+        totalCutFlow_FH->Fill("nEvent",genEventSumw);
+        totalCutFlow_SL->Fill("MC Gen",genEventCount);
+        totalCutFlow_SL->Fill("nEvent",genEventSumw);
         //check if tree has these hlt branches
         if (lineCount == 1){
             has_HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 = t->GetBranchStatus("HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90");
@@ -266,8 +277,8 @@ int main (int argc, char** argv) {
             // for (uint i=0; i < 10; i++) {
             WVJJTree->clearVars();
             NanoReader_.GetEntry(i);
-            totalCutFlow->Fill("Skim NanoAOD",1);
-            // totalCutFlowPercentage->Fill("Skim NanoAOD",1./genEventSumw);
+            totalCutFlow_FH->Fill("Skim NanoAOD",1);
+            totalCutFlow_SL->Fill("Skim NanoAOD",1);
 
             if (i%10000==0) std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
             // if (DEBUG)       std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
@@ -288,24 +299,24 @@ int main (int argc, char** argv) {
             WVJJTree->puWeight_Down = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, -1);
 
             // std::cout << *NanoReader_.LHEPart << std::endl;
-            std::cout << "*NanoReader_.nLHEPart = " << *NanoReader_.nLHEPart << std::endl;
+       //      std::cout << "*NanoReader_.nLHEPart = " << *NanoReader_.nLHEPart << std::endl;
 
-            for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nLHEPart; ++LHEPartCount)
-            {
-                std::cout << "NanoReader_.nLHEPart = " << NanoReader_.LHEPart_pdgId[LHEPartCount] << "\t" << NanoReader_.LHEPart_status[LHEPartCount] << "\t" << NanoReader_.LHEPart_mass[LHEPartCount] << std::endl;
-            }
+       //      for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nLHEPart; ++LHEPartCount)
+       //      {
+       //          std::cout << "NanoReader_.nLHEPart = " << NanoReader_.LHEPart_pdgId[LHEPartCount] << "\t" << NanoReader_.LHEPart_status[LHEPartCount] << "\t" << NanoReader_.LHEPart_mass[LHEPartCount] << std::endl;
+       //      }
 
-            std::cout << "*NanoReader_.nGenPart = " << *NanoReader_.nGenPart << std::endl;
+       //      std::cout << "*NanoReader_.nGenPart = " << *NanoReader_.nGenPart << std::endl;
 
-            for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nGenPart; ++LHEPartCount)
-            {
-                if ((NanoReader_.GenPart_statusFlags[i] >> 0  & 1) && (NanoReader_.GenPart_statusFlags[i] >> 7  & 1) )
-                std::cout << "NanoReader_.nGenPart = " << NanoReader_.GenPart_pdgId[LHEPartCount] << "\t" << NanoReader_.GenPart_status[LHEPartCount] << "\t" << NanoReader_.GenPart_statusFlags[LHEPartCount] << "\t" <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[LHEPartCount]] <<  std::endl;
-       // if (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 ) std::cout << "Status Flags is Prompt "  << std::endl;
-       // if (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 ) std::cout << "Status Flags is HardProcess "  << std::endl;
-       // if (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 ) std::cout << "Status Flags is from HardProcess "  << std::endl;
-       // if (NanoReader_.GenPart_statusFlags[i] >> 11 & 1 ) std::cout << "Status Flags is from HardProcessBeforeFSR "  << std::endl;
-            }
+       //      for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nGenPart; ++LHEPartCount)
+       //      {
+       //          if ((NanoReader_.GenPart_statusFlags[i] >> 0  & 1) && (NanoReader_.GenPart_statusFlags[i] >> 7  & 1) )
+       //          std::cout << "NanoReader_.nGenPart = " << NanoReader_.GenPart_pdgId[LHEPartCount] << "\t" << NanoReader_.GenPart_status[LHEPartCount] << "\t" << NanoReader_.GenPart_statusFlags[LHEPartCount] << "\t" <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[LHEPartCount]] <<  std::endl;
+       // // if (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 ) std::cout << "Status Flags is Prompt "  << std::endl;
+       // // if (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 ) std::cout << "Status Flags is HardProcess "  << std::endl;
+       // // if (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 ) std::cout << "Status Flags is from HardProcess "  << std::endl;
+       // // if (NanoReader_.GenPart_statusFlags[i] >> 11 & 1 ) std::cout << "Status Flags is from HardProcessBeforeFSR "  << std::endl;
+       //      }
             // exit(0);
             // continue;
             // filtering out particular event for sync
@@ -338,9 +349,10 @@ int main (int argc, char** argv) {
             // }
             //std::cout << std::endl;
 
-            if (!(WVJJTree->trigger_2Pho)) continue;
-            // if (WVJJTree->trigger_2Pho) totalCutFlow->Fill("Trigger",1);
-            totalCutFlow->Fill("Trigger",1);
+            // if (!(WVJJTree->trigger_2Pho)) continue;
+            // totalCutFlow_FH->Fill("Trigger",1);
+            if (WVJJTree->trigger_2Pho) totalCutFlow_FH->Fill("Trigger",1);
+            if (WVJJTree->trigger_2Pho) totalCutFlow_SL->Fill("Trigger",1);
 
             /* -------------------------------------------------------------------------- */
             /*                              PHOTON SELECTION                              */
@@ -410,8 +422,8 @@ int main (int argc, char** argv) {
             if(!(WVJJTree->pho1_pt > PHO1_PT_CUT)) continue;
             if(!(WVJJTree->pho2_pt > PHO2_PT_CUT)) continue;
 
-            totalCutFlow->Fill("Photon Selection",1);
-            // totalCutFlowPercentage->Fill("Photon Selection",1./totalCutFlowPercentage);
+            totalCutFlow_FH->Fill("Photon Selection",1);
+            totalCutFlow_SL->Fill("Photon Selection",1);
 
 
             // std::cout << "Exactly 2 photons found..." << std::endl;
@@ -442,8 +454,8 @@ int main (int argc, char** argv) {
             // if(!(WVJJTree->pho1_pt_byMgg > 0.35)) continue;
             // if(!(WVJJTree->pho2_pt_byMgg > 0.25)) continue;
 
-            // if(WVJJTree->diphoton_pt > 100.0) totalCutFlow->Fill("pT(#gamma,#gamma)>100",1);
-            // if(WVJJTree->diphoton_pt > 100.0) totalCutFlowPercentage->Fill("pT(#gamma,#gamma)>100",1./totalCutFlowPercentage);
+            // if(WVJJTree->diphoton_pt > 100.0) totalCutFlow_FH->Fill("pT(#gamma,#gamma)>100",1);
+            // if(WVJJTree->diphoton_pt > 100.0) totalCutFlow_SL->Fill("pT(#gamma,#gamma)>100",1./totalCutFlow_SL);
 
             // LEPTON SELECTION
             /* -------------------------------------------------------------------------- */
@@ -533,8 +545,9 @@ int main (int argc, char** argv) {
 
             // if (DEBUG) std::cout << "\t[INFO] Number of leptons: " << nTightEle + nTightMu << std::endl;
 
-            if (nTightMu + nTightEle > 0) continue;
-            totalCutFlow->Fill("Lepton Selection",1);
+            if (nTightMu + nTightEle > 1) continue;
+            if (nTightMu + nTightEle == 0) totalCutFlow_FH->Fill("Lepton Selection",1);
+            if (nTightMu + nTightEle == 1) totalCutFlow_SL->Fill("Lepton Selection",1);
 
             /* -------------------------------------------------------------------------- */
             /*                                   AK4Jet                                   */
@@ -585,6 +598,19 @@ int main (int argc, char** argv) {
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with photons jets" << std::endl;
                 for ( std::size_t k=0; k<tightPhoton.size(); k++) {
                     if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                               NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_DR_CUT) {
+                        isClean = false;
+                    }
+                }
+
+                for ( std::size_t k=0; k<tightEle.size(); k++) {
+                    if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+                               NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_DR_CUT) {
+                        isClean = false;
+                    }
+                }
+                for ( std::size_t k=0; k<tightMuon.size(); k++) {
+                    if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
                                NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_DR_CUT) {
                         isClean = false;
                     }
@@ -699,19 +725,26 @@ int main (int argc, char** argv) {
 
             int nGoodAK4jets = goodAK4JetIndex.size();
 
-            if (nGoodAK4jets<4) continue;
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nJet>=4 conditon" << std::endl;
-            totalCutFlow->Fill("nAK4 >= 4",1);
-            // totalCutFlowPercentage->Fill("nAK4 > 3",1./totalCutFlowPercentage);
+            if ((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 ) totalCutFlow_FH->Fill("nAK4 >= 4",1);
+            if ((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 ) totalCutFlow_SL->Fill("nAK4 >= 2",1);
 
-            if((WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25))
-                totalCutFlow->Fill("pT/mgg cut",1);
-            if((WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0))
-                totalCutFlow->Fill("pT(#gamma,#gamma)>100",1);
+            if(((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25))
+                totalCutFlow_FH->Fill("pT/mgg cut",1);
+            if(((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0))
+                totalCutFlow_FH->Fill("pT(#gamma,#gamma)>100",1);
+
+            if(((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25))
+                totalCutFlow_SL->Fill("pT/mgg cut",1);
+            if(((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0))
+                totalCutFlow_SL->Fill("pT(#gamma,#gamma)>100",1);
 
             // if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] " << std::endl;
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nAK4 jets >= 4 condition" << std::endl;
             /* ----------------------- output the AK4 jet ----------------------- */
+
+            if (nGoodAK4jets>=4)
+            {
 
             /* ------------------- cout four pt to make sure in order ------------------- */
             WVJJTree->nGoodAK4jets = nGoodAK4jets;
@@ -772,7 +805,7 @@ int main (int argc, char** argv) {
             WVJJTree->FullyResolved_Radion_phi = Radion.Phi();
             WVJJTree->FullyResolved_Radion_m = Radion.M();
             WVJJTree->FullyResolved_Radion_E = Radion.E();
-
+            }
 
             if (isMC==1) {
                 WVJJTree->nScaleWeight = *NanoReader_.nLHEScaleWeight;

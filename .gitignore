@@ -14,6 +14,7 @@ condor_logs/
 treeplot/
 Selection/*tree*
 screenlog.*
+*.csv
 
 *.root
 Selection/output.root
