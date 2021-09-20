@@ -287,6 +287,27 @@ int main (int argc, char** argv) {
             WVJJTree->puWeight_Up = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, 1);
             WVJJTree->puWeight_Down = scaleFactor.GetPUWeight(WVJJTree->nPU_mean, -1);
 
+            // std::cout << *NanoReader_.LHEPart << std::endl;
+            std::cout << "*NanoReader_.nLHEPart = " << *NanoReader_.nLHEPart << std::endl;
+
+            for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nLHEPart; ++LHEPartCount)
+            {
+                std::cout << "NanoReader_.nLHEPart = " << NanoReader_.LHEPart_pdgId[LHEPartCount] << "\t" << NanoReader_.LHEPart_status[LHEPartCount] << "\t" << NanoReader_.LHEPart_mass[LHEPartCount] << std::endl;
+            }
+
+            std::cout << "*NanoReader_.nGenPart = " << *NanoReader_.nGenPart << std::endl;
+
+            for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nGenPart; ++LHEPartCount)
+            {
+                if ((NanoReader_.GenPart_statusFlags[i] >> 0  & 1) && (NanoReader_.GenPart_statusFlags[i] >> 7  & 1) )
+                std::cout << "NanoReader_.nGenPart = " << NanoReader_.GenPart_pdgId[LHEPartCount] << "\t" << NanoReader_.GenPart_status[LHEPartCount] << "\t" << NanoReader_.GenPart_statusFlags[LHEPartCount] << "\t" <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[LHEPartCount]] <<  std::endl;
+       // if (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 ) std::cout << "Status Flags is Prompt "  << std::endl;
+       // if (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 ) std::cout << "Status Flags is HardProcess "  << std::endl;
+       // if (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 ) std::cout << "Status Flags is from HardProcess "  << std::endl;
+       // if (NanoReader_.GenPart_statusFlags[i] >> 11 & 1 ) std::cout << "Status Flags is from HardProcessBeforeFSR "  << std::endl;
+            }
+            // exit(0);
+            // continue;
             // filtering out particular event for sync
             //if (!(*NanoReader_.event==3073090041)) {
             //  continue;
