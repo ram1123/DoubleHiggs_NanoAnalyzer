@@ -45,11 +45,11 @@ int main (int argc, char** argv) {
     bool DEBUG = atoi(argv[6]);
     bool DOWNLOAD_LOCAL_COPY = atoi(argv[7]);
 
-    // const float H_MASS = 125.10;
+    const float H_MASS = 125.10;
 
     // const float W_MASS = 80.379;
     // const float Z_MASS = 91.1876;
-    // const float V_MASS = 85.7863;
+    const float V_MASS = 85.7863;
 
     const float MUON_MASS = 0.1056583745;
     const float ELE_MASS  = 0.000511;
@@ -73,10 +73,10 @@ int main (int argc, char** argv) {
     const float PHO_MVA_ID = -0.9;
 
     //ak8 jet cuts
-    // const float AK8_MIN_PT = 200;
-    // const float AK8_MAX_ETA = 2.4;
-    // const float AK8_MIN_SDM = 40;
-    // const float AK8_MAX_SDM = 250;
+    const float AK8_MIN_PT = 200;
+    const float AK8_MAX_ETA = 2.4;
+    const float AK8_MIN_SDM = 40;
+    const float AK8_MAX_SDM = 250;
 
     //ak4 jet cuts
     //const float AK4_PT_VETO_CUT = 20;
@@ -87,9 +87,9 @@ int main (int argc, char** argv) {
     // const float AK4_JJ_MAX_M = 250.0;
 
     //cleaning cuts
-    // const float AK8_LEP_DR_CUT = 0.8;
+    const float AK8_LEP_DR_CUT = 0.8;
     // const float AK4_LEP_DR_CUT = 0.8;
-    // const float AK4_AK8_DR_CUT = 1.2;
+    const float AK4_AK8_DR_CUT = 1.2;
     const float AK4_AK4_DR_CUT = 0.8;
     const float AK4_DR_CUT = 0.4;
 
@@ -126,6 +126,8 @@ int main (int argc, char** argv) {
     // std::vector<TLorentzVector> Ak4JetsTem;
     // std::vector<TLorentzVector> Ak8Jets;
     std::vector<int> goodAK4JetIndex;
+    std::vector<int> goodWJetIndex;
+    std::vector<int> goodHJetIndex;
     // std::vector<int> goodAK4JetTem;
     //
     //
@@ -137,16 +139,21 @@ int main (int argc, char** argv) {
     TTree *ot = new TTree("Events","Events");
     WVJJData* WVJJTree = new WVJJData(ot);
     TH1F *totalEvents = new TH1F("TotalEvents","TotalEvents",2,-1,1);
-    TH1F *totalCutFlow_FH = new TH1F("TotalCutFlow_FH","TotalCutFlow_FH",9,0,9);
+    TH1F *totalCutFlow_FH = new TH1F("totalCutFlow_FH","totalCutFlow_FH",14,0,14);
     totalCutFlow_FH->GetXaxis()->SetBinLabel(1,"MC Gen");
     totalCutFlow_FH->GetXaxis()->SetBinLabel(2,"nEvent");
     totalCutFlow_FH->GetXaxis()->SetBinLabel(3,"Skim NanoAOD");
     totalCutFlow_FH->GetXaxis()->SetBinLabel(4,"Trigger");
     totalCutFlow_FH->GetXaxis()->SetBinLabel(5,"Photon Selection");
     totalCutFlow_FH->GetXaxis()->SetBinLabel(6,"Lepton Selection");
-    totalCutFlow_FH->GetXaxis()->SetBinLabel(7,"nAK4 >= 4");
-    totalCutFlow_FH->GetXaxis()->SetBinLabel(8,"pT/mgg cut");
-    totalCutFlow_FH->GetXaxis()->SetBinLabel(9,"pT(#gamma,#gamma)>100");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(7,"nAK8_Higgs >= 1");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(8,"nAK8_W >= 1");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(9,"nAK4>=2 & nAK8_W>=1");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(10,"nAK8=0 & nAK4>=4");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(11,"nAK4 >= 4");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(12,"1Jet3Jet4Jet");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(13,"pT/mgg cut");
+    totalCutFlow_FH->GetXaxis()->SetBinLabel(14,"pT(#gamma,#gamma)>100");
 
     // TH1F *totalCutFlow_SL = (TH1F*)totalCutFlow_FH->Clone("totalCutFlow_SL");
     // totalCutFlow_SL->SetTitle("totalCutFlow_SL");
@@ -351,6 +358,7 @@ int main (int argc, char** argv) {
 
             // if (!(WVJJTree->trigger_2Pho)) continue;
             // totalCutFlow_FH->Fill("Trigger",1);
+            // totalCutFlow_SL->Fill("Trigger",1);
             if (WVJJTree->trigger_2Pho) totalCutFlow_FH->Fill("Trigger",1);
             if (WVJJTree->trigger_2Pho) totalCutFlow_SL->Fill("Trigger",1);
 
@@ -545,9 +553,108 @@ int main (int argc, char** argv) {
 
             // if (DEBUG) std::cout << "\t[INFO] Number of leptons: " << nTightEle + nTightMu << std::endl;
 
-            if (nTightMu + nTightEle > 1) continue;
+            if (nTightMu + nTightEle > 0) continue;
             if (nTightMu + nTightEle == 0) totalCutFlow_FH->Fill("Lepton Selection",1);
             if (nTightMu + nTightEle == 1) totalCutFlow_SL->Fill("Lepton Selection",1);
+
+
+            /* -------------------------------------------------------------------------- */
+            /*                                   AK8Jet   Higgs Jet                       */
+            /* -------------------------------------------------------------------------- */
+            // AK8
+            goodHJetIndex.clear();
+            float dmV = 0.0;
+            int nGood_Higgs_FatJet = 0;
+            // int fj_idx = -1;
+
+            for (uint j=0; j<*NanoReader_.nFatJet; j++)
+            {
+
+                if ( fabs(NanoReader_.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
+                if ( NanoReader_.FatJet_pt[j]<400 ) continue;
+
+                if ( NanoReader_.FatJet_msoftdrop[j]<AK8_MIN_SDM ) continue;
+                if ( NanoReader_.FatJet_msoftdrop[j]>AK8_MAX_SDM ) continue;
+
+                bool isClean=true;
+
+                //lepton cleaning
+                for ( std::size_t k=0; k<tightEle.size(); k++)
+                {
+                    if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+                         NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
+                    isClean = false;
+                }
+                for ( std::size_t k=0; k<tightMuon.size(); k++)
+                {
+                    if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
+                         NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
+                    isClean = false;
+                }
+
+                if ( NanoReader_.FatJet_tau4[j]/NanoReader_.FatJet_tau2[j] > 0.55) isClean = false;
+
+                if ( isClean == false ) continue;
+
+                if ( nGood_Higgs_FatJet == 0 ) dmV = fabs(NanoReader_.FatJet_msoftdrop[j] - H_MASS);
+
+                if ( fabs(NanoReader_.FatJet_msoftdrop[j] - H_MASS) > dmV ) continue;
+                dmV = fabs(NanoReader_.FatJet_msoftdrop[j] - H_MASS);
+                // fj_idx = j;
+                nGood_Higgs_FatJet++;
+                goodHJetIndex.push_back(j);
+            }
+            if (nGood_Higgs_FatJet) totalCutFlow_FH->Fill("nAK8_Higgs >= 1",1);
+
+            /* -------------------------------------------------------------------------- */
+            /*                                   AK8Jet   W Jet                       */
+            /* -------------------------------------------------------------------------- */
+            // AK8
+            goodWJetIndex.clear();
+            dmV = 0.0;
+            int nGood_W_FatJet = 0;
+            // fj_idx = -1;
+
+            for (uint j=0; j<*NanoReader_.nFatJet; j++)
+            {
+
+                if ( fabs(NanoReader_.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
+                if ( NanoReader_.FatJet_pt[j]>400 ) continue;
+                if ( NanoReader_.FatJet_pt[j]<200 ) continue;
+
+                if ( NanoReader_.FatJet_msoftdrop[j]<AK8_MIN_SDM ) continue;
+                if ( NanoReader_.FatJet_msoftdrop[j]>AK8_MAX_SDM ) continue;
+
+                bool isClean=true;
+
+                //lepton cleaning
+                for ( std::size_t k=0; k<tightEle.size(); k++)
+                {
+                    if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+                         NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
+                    isClean = false;
+                }
+                for ( std::size_t k=0; k<tightMuon.size(); k++)
+                {
+                    if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
+                         NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
+                    isClean = false;
+                }
+
+                if ( NanoReader_.FatJet_tau2[j]/NanoReader_.FatJet_tau1[j] > 0.55) isClean = false;
+
+                if ( isClean == false ) continue;
+
+                if ( nGood_W_FatJet == 0 ) dmV = fabs(NanoReader_.FatJet_msoftdrop[j] - V_MASS);
+
+                if ( fabs(NanoReader_.FatJet_msoftdrop[j] - V_MASS) > dmV ) continue;
+                dmV = fabs(NanoReader_.FatJet_msoftdrop[j] - V_MASS);
+                // fj_idx = j;
+                nGood_W_FatJet++;
+                goodWJetIndex.push_back(j);
+            }
+
+            if (nGood_W_FatJet) totalCutFlow_FH->Fill("nAK8_W >= 1",1);
 
             /* -------------------------------------------------------------------------- */
             /*                                   AK4Jet                                   */
@@ -557,7 +664,8 @@ int main (int argc, char** argv) {
 
             float allAK4JetsSum_pt = 0.0;
             if (DEBUG) std::cout << "Starting AK4 jet loop" << std::endl;
-            for (uint j=0; j<*NanoReader_.nJet; j++) {
+            for (uint j=0; j<*NanoReader_.nJet; j++)
+            {
 
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] =====> JetIndex: " << j << std::endl;
                 //jet energy scale variations
@@ -580,12 +688,20 @@ int main (int argc, char** argv) {
                 bool isClean=true;
 
                 // object cleaning
-                // if (nGoodFatJet > 0) {
-                //   if (deltaR(WVJJTree->bos_PuppiAK8_eta, WVJJTree->bos_PuppiAK8_phi,
-                //              NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK8_DR_CUT) {
-                //     isClean = false;
-                //   }
-                // }
+                if (nGood_W_FatJet > 0 || nGood_Higgs_FatJet > 0) {
+                    for ( std::size_t k=0; k<goodWJetIndex.size(); k++) {
+                        if (deltaR(NanoReader_.FatJet_eta[goodWJetIndex.at(k)], NanoReader_.FatJet_phi[goodWJetIndex.at(k)],
+                             NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK8_DR_CUT) {
+                            isClean = false;
+                        }
+                    }
+                    for ( std::size_t k=0; k<goodHJetIndex.size(); k++) {
+                        if (deltaR(NanoReader_.FatJet_eta[goodHJetIndex.at(k)], NanoReader_.FatJet_phi[goodHJetIndex.at(k)],
+                             NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK8_DR_CUT) {
+                            isClean = false;
+                        }
+                    }
+                }
 
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with other AK4 jets" << std::endl;
                 for ( std::size_t k=0; k<goodAK4JetIndex.size(); k++) {
@@ -725,9 +841,22 @@ int main (int argc, char** argv) {
 
             int nGoodAK4jets = goodAK4JetIndex.size();
 
+            if (nGoodAK4jets>= 2 && nGood_W_FatJet>=1) totalCutFlow_FH->Fill("nAK4>=2 & nAK8_W>=1",1);
+            if (nGood_Higgs_FatJet<1 && nGood_W_FatJet < 1 && nGoodAK4jets>=4 )
+                totalCutFlow_FH->Fill("nAK8=0 & nAK4>=4",1);
+
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nJet>=4 conditon" << std::endl;
             if ((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 ) totalCutFlow_FH->Fill("nAK4 >= 4",1);
             if ((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 ) totalCutFlow_SL->Fill("nAK4 >= 2",1);
+
+            // Found 1 Higgs jet or
+            // Fount 1 fat Wjet and 2 AK4 jets or
+            // If we don't find any fat jet then choose 4 AK4 jets
+            if ( (nGood_Higgs_FatJet>=1) ||
+                 (nGood_W_FatJet>=1 && nGoodAK4jets>= 2) ||
+                 (nGood_Higgs_FatJet<1 && nGood_W_FatJet < 1 && nGoodAK4jets>=4)
+                )
+                totalCutFlow_FH->Fill("1Jet3Jet4Jet",1);
 
             if(((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25))
                 totalCutFlow_FH->Fill("pT/mgg cut",1);

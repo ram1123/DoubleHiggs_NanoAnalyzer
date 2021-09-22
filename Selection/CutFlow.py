@@ -3,7 +3,8 @@ import ROOT
 
 ROOT.gROOT.SetBatch(True)
 
-Hist = ["GluGluToRadionToHHTo2G4Q_M250.root",
+Hist = [
+        "GluGluToRadionToHHTo2G4Q_M250.root",
         "GluGluToRadionToHHTo2G4Q_M1000.root",
         "GluGluToRadionToHHTo2G4Q_M3000.root",
         "GluGluToRadionToHHTo2G4Q_M500.root",
@@ -11,6 +12,16 @@ Hist = ["GluGluToRadionToHHTo2G4Q_M250.root",
         "GluGluToRadionToHHTo2G4Q_M1500.root",
         "GluGluToRadionToHHTo2G4Q_M2000.root",
         "GluGluToRadionToHHTo2G4Q_M2500.root"
+
+
+        # "GluGluToRadionToHHTo2G2Qlnu_M250.root",
+        # "GluGluToRadionToHHTo2G2Qlnu_M1000.root",
+        # "GluGluToRadionToHHTo2G2Qlnu_M3000.root",
+        # "GluGluToRadionToHHTo2G2Qlnu_M500.root",
+        # "GluGluToRadionToHHTo2G2Qlnu_M800.root",
+        # "GluGluToRadionToHHTo2G2Qlnu_M1500.root",
+        # "GluGluToRadionToHHTo2G2Qlnu_M2000.root",
+        # "GluGluToRadionToHHTo2G2Qlnu_M2500.root"
         ]
 
 info = {"SampleName": [],
@@ -18,11 +29,15 @@ info = {"SampleName": [],
         "Trigger": [],
         "Photon Selection": [],
         "Lepton Selection": [],
+        "nAK8_Higgs >= 1": [],
+        "nAK4>=2 & nAK8_W>=1": [],
         "nAK4 >= 4": [],
+        "1Jet3Jet4Jet": [],
         "pT/mgg cut": [],
         "pT(#gamma,#gamma)>100": [],
         "DiPhoton (%)": [],
         "Good >= 4 jets(%)": [],
+        "All cat jets(%)": [],
         "Pt/mgg && Photon pT > 100 (%)": []
         }
 
@@ -33,17 +48,24 @@ for files_ in Hist:
 
     inFileNameSplit = inFileName.split("_")
     if len(inFileNameSplit) == 1:
-        outputFile = inFileName.replace(".root", "")
+        Title = inFileName.replace(".root", "")
     else:
-        outputFile = inFileName.split("_")[1].replace(".root", "")
-    info["SampleName"].append(outputFile)
+        Title = inFileName.split("_")[1].replace(".root", "")
+    info["SampleName"].append(Title)
     inFile = ROOT.TFile.Open(inFileName, "READ")
 
     # print("Number of bins: {}".format(inFile.GetXaxis().GetNbinsX()))
 
-    h1 = inFile.Get("TotalCutFlow_FH")
+    h1 = inFile.Get("totalCutFlow_FH")
+    h1.SetTitle(Title)
+    h1.GetXaxis().SetTitle(Title)
+
+    c1 = ROOT.TCanvas()
+    h1.Draw("TEXT")
+    c1.SaveAs(inFileName.replace(".root", ".pdf"))
+
     # print("Number of bins: {}".format(h1.GetNbinsX()))
-    for x in range(9):
+    for x in range(14):
         # print("x: {}".format(x+1))
         # print('Bin content of bin {} is {} and the label is "{}"'.format(x+1,h1.GetBinContent(x+1),h1.GetXaxis().GetBinLabel(x+1)))
         if h1.GetXaxis().GetBinLabel(x + 1) not in info:
@@ -51,19 +73,13 @@ for files_ in Hist:
         info[h1.GetXaxis().GetBinLabel(x + 1)].append(int(h1.GetBinContent(x + 1)))
 
     info["DiPhoton (%)"].append((float(info["Photon Selection"][count]) / info["MC Gen"][count]) * 100.0)
+    # print("test: ",info["nAK4 >= 4"][count])
+    # print("test: ",info["MC Gen"][count])
     info["Good >= 4 jets(%)"].append((float(info["nAK4 >= 4"][count]) / info["MC Gen"][count]) * 100.0)
+    info["All cat jets(%)"].append((float(info["1Jet3Jet4Jet"][count]) / info["MC Gen"][count]) * 100.0)
     info["Pt/mgg && Photon pT > 100 (%)"].append((float(info["pT(#gamma,#gamma)>100"][count]) / info["MC Gen"][count]) * 100.0)
 
-    h1.SetTitle(outputFile)
-
-    c1 = ROOT.TCanvas()
-    h1.Draw("TEXT")
-    if outputFile == "":
-        outputFile = inFileName.replace(".root", "")
-    # c1.SaveAs(outputFile+".png")
-    c1.SaveAs(outputFile + ".pdf")
     count += 1
-    # print(info)
 
 print("\n\n\n")
 # print "| SampleName |",'|'.join(str(e) for e in info["SampleName"])
@@ -74,7 +90,7 @@ print("\n\n\n")
 # print "Trigger |",'|'.join(str(e) for e in info["Trigger"])
 # print "Photon Selection |",'|'.join(str(e) for e in info["Photon Selection"])
 # print "Lepton Selection |",'|'.join(str(e) for e in info["Lepton Selection"])
-# print "nAK4 >= 4 |",'|'.join(str(e) for e in info["nAK4 >= 4"])
+# print "nAK4 >= 4",'|'.join(str(e) for e in info["nAK4 >= 4"])
 # print "pT/mgg cut |",'|'.join(str(e) for e in info["pT/mgg cut"])
 # print "pT(#gamma,#gamma)>100 |",'|'.join(str(e) for e in info["pT(#gamma,#gamma)>100"])
 # print "DiPhoton (%) |",'|'.join(str(float("{:.2f}".format(e))) for e in info["DiPhoton (%)"])
@@ -96,7 +112,9 @@ print("\n\n\n")
 # df = df.reindex([5, 8, 6, 3, 2, 7, 0, 1, 4, 9])
 # print(df)
 
-df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK4 >= 4", "pT/mgg cut", "pT(#gamma,#gamma)>100", "DiPhoton (%)", "Good >= 4 jets(%)", "Pt/mgg && Photon pT > 100 (%)"])
+# df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK4 >= 4", "1Jet3Jet4Jet", "pT/mgg cut", "pT(#gamma,#gamma)>100", "DiPhoton (%)", "Good >= 4 jets(%)", "All cat jets(%)", "Pt/mgg && Photon pT > 100 (%)"])
+# df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK4 >= 4", "1Jet3Jet4Jet", "DiPhoton (%)", "Good >= 4 jets(%)", "All cat jets(%)"])
+df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8_Higgs >= 1", "nAK4>=2 & nAK8_W>=1", "nAK4 >= 4", "1Jet3Jet4Jet", "DiPhoton (%)", "Good >= 4 jets(%)", "All cat jets(%)"])
 
 print(df)
 

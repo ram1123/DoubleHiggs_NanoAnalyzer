@@ -3,7 +3,7 @@ import os
 
 InputFileFromWhereReadDASNames = '/afs/cern.ch/user/r/rasharma/work/doubleHiggs/ResonantAnalysis/nanoAODSetup/CMSSW_10_6_20/src/PhysicsTools/NanoAODTools/python/postprocessing/analysis/nanoAOD_vvVBS/input_data_Files/HH_sample_list_v7_2017_campaign.txt'
 
-ifData = 1
+ifData = 0
 with open(InputFileFromWhereReadDASNames) as in_file:
     for lines in in_file:
         if not lines.startswith("#"):
