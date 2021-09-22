@@ -604,7 +604,7 @@ int main (int argc, char** argv) {
                 nGood_Higgs_FatJet++;
                 goodHJetIndex.push_back(j);
             }
-            if (nGood_Higgs_FatJet) totalCutFlow_FH->Fill("nAK8_Higgs >= 1",1);
+            if (nGood_Higgs_FatJet>=1) totalCutFlow_FH->Fill("nAK8_Higgs >= 1",1);
 
             /* -------------------------------------------------------------------------- */
             /*                                   AK8Jet   W Jet                       */
@@ -654,7 +654,7 @@ int main (int argc, char** argv) {
                 goodWJetIndex.push_back(j);
             }
 
-            if (nGood_W_FatJet) totalCutFlow_FH->Fill("nAK8_W >= 1",1);
+            if (nGood_W_FatJet>=1) totalCutFlow_FH->Fill("nAK8_W >= 1",1);
 
             /* -------------------------------------------------------------------------- */
             /*                                   AK4Jet                                   */
@@ -841,22 +841,23 @@ int main (int argc, char** argv) {
 
             int nGoodAK4jets = goodAK4JetIndex.size();
 
-            if (nGoodAK4jets>= 2 && nGood_W_FatJet>=1) totalCutFlow_FH->Fill("nAK4>=2 & nAK8_W>=1",1);
-            if (nGood_Higgs_FatJet<1 && nGood_W_FatJet < 1 && nGoodAK4jets>=4 )
+            if (nGood_Higgs_FatJet == 0 && nGoodAK4jets>= 2 && nGood_W_FatJet>=1)
+                totalCutFlow_FH->Fill("nAK4>=2 & nAK8_W>=1",1);
+            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets>=4 )
                 totalCutFlow_FH->Fill("nAK8=0 & nAK4>=4",1);
-
-            if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nJet>=4 conditon" << std::endl;
-            if ((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 ) totalCutFlow_FH->Fill("nAK4 >= 4",1);
-            if ((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 ) totalCutFlow_SL->Fill("nAK4 >= 2",1);
 
             // Found 1 Higgs jet or
             // Fount 1 fat Wjet and 2 AK4 jets or
             // If we don't find any fat jet then choose 4 AK4 jets
             if ( (nGood_Higgs_FatJet>=1) ||
-                 (nGood_W_FatJet>=1 && nGoodAK4jets>= 2) ||
-                 (nGood_Higgs_FatJet<1 && nGood_W_FatJet < 1 && nGoodAK4jets>=4)
+                 (nGood_Higgs_FatJet == 0 && nGood_W_FatJet>=1 && nGoodAK4jets>= 2) ||
+                 (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets>=4)
                 )
                 totalCutFlow_FH->Fill("1Jet3Jet4Jet",1);
+
+            if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nJet>=4 conditon" << std::endl;
+            if ((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 ) totalCutFlow_FH->Fill("nAK4 >= 4",1);
+            if ((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 ) totalCutFlow_SL->Fill("nAK4 >= 2",1);
 
             if(((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25))
                 totalCutFlow_FH->Fill("pT/mgg cut",1);
@@ -998,6 +999,9 @@ int main (int argc, char** argv) {
 
     of->Write();
     of->Close();
+    TString removeCommand = TString("rm ") + TString(dir_name);
+    std::cout << "Delete the temp directory: " << removeCommand << std::endl;
+    system((std::string(removeCommand)).c_str());
 
     return 0;
 
