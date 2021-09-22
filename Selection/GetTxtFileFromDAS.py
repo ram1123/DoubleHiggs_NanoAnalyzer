@@ -1,5 +1,6 @@
 import os
-
+import ROOT
+ROOT.gROOT.SetBatch(True)
 
 InputFileFromWhereReadDASNames = '/afs/cern.ch/user/r/rasharma/work/doubleHiggs/ResonantAnalysis/nanoAODSetup/CMSSW_10_6_20/src/PhysicsTools/NanoAODTools/python/postprocessing/analysis/nanoAOD_vvVBS/input_data_Files/HH_sample_list_v7_2017_campaign.txt'
 

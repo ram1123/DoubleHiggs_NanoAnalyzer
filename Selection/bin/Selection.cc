@@ -56,15 +56,15 @@ int main (int argc, char** argv) {
 
     //lepton cuts
     const float LEP_PT_VETO_CUT = 10;
-    const float EL_PT_CUT = 10;
+    // const float EL_PT_CUT = 10;
     const float EL_ETA_CUT = 2.5;
-    const float MU_PT_CUT = 10;
+    // const float MU_PT_CUT = 10;
     const float MU_ETA_CUT = 2.4;
 
     //photon cuts
     const float PHO_ETA_CUT = 2.5;
     const float PHO_PT_VETO_CUT = 10.0;
-    const float PHO_PT_CUT = 25.0;
+    // const float PHO_PT_CUT = 25.0;
     const float PHO_R9_CUT = 0.8;
     const float PHOTON_PFRELISO03_CHG_CUT = 20;
     const float HOVERE_CUT = 0.08;
@@ -73,7 +73,7 @@ int main (int argc, char** argv) {
     const float PHO_MVA_ID = -0.9;
 
     //ak8 jet cuts
-    const float AK8_MIN_PT = 200;
+    // const float AK8_MIN_PT = 200;
     const float AK8_MAX_ETA = 2.4;
     const float AK8_MIN_SDM = 40;
     const float AK8_MAX_SDM = 250;
@@ -127,6 +127,7 @@ int main (int argc, char** argv) {
     // std::vector<TLorentzVector> Ak8Jets;
     std::vector<int> goodAK4JetIndex;
     std::vector<int> goodWJetIndex;
+    std::vector<int> goodWLepJetIndex;
     std::vector<int> goodHJetIndex;
     // std::vector<int> goodAK4JetTem;
     //
@@ -157,16 +158,18 @@ int main (int argc, char** argv) {
 
     // TH1F *totalCutFlow_SL = (TH1F*)totalCutFlow_FH->Clone("totalCutFlow_SL");
     // totalCutFlow_SL->SetTitle("totalCutFlow_SL");
-    TH1F *totalCutFlow_SL = new TH1F("totalCutFlow_SL","totalCutFlow_SL",9,0,9);
+    TH1F *totalCutFlow_SL = new TH1F("totalCutFlow_SL","totalCutFlow_SL",11,0,11);
     totalCutFlow_SL->GetXaxis()->SetBinLabel(1,"MC Gen");
     totalCutFlow_SL->GetXaxis()->SetBinLabel(2,"nEvent");
     totalCutFlow_SL->GetXaxis()->SetBinLabel(3,"Skim NanoAOD");
     totalCutFlow_SL->GetXaxis()->SetBinLabel(4,"Trigger");
     totalCutFlow_SL->GetXaxis()->SetBinLabel(5,"Photon Selection");
     totalCutFlow_SL->GetXaxis()->SetBinLabel(6,"Lepton Selection");
-    totalCutFlow_SL->GetXaxis()->SetBinLabel(7,"nAK4 >= 2");
-    totalCutFlow_SL->GetXaxis()->SetBinLabel(8,"pT/mgg cut");
-    totalCutFlow_SL->GetXaxis()->SetBinLabel(9,"pT(#gamma,#gamma)>100");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(7,"nAK8_W >= 1");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(8,"nAK4 >= 2");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(9,"1Jet+2Jet");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(10,"pT/mgg cut");
+    totalCutFlow_SL->GetXaxis()->SetBinLabel(11,"pT(#gamma,#gamma)>100");
 
 
     TFile *f=0;
@@ -501,7 +504,8 @@ int main (int argc, char** argv) {
                 if ( isClean == false ) continue;
 
                 TLorentzVector Mu(0,0,0,0);
-                Mu.SetPtEtaPhiM( NanoReader_.Muon_pt[j], NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j], NanoReader_.Muon_mass[j] );
+                // Mu.SetPtEtaPhiM( NanoReader_.Muon_pt[j], NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j], NanoReader_.Muon_mass[j] );
+                Mu.SetPtEtaPhiM( NanoReader_.Muon_pt[j], NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j], MUON_MASS );
 
                 // Electron and photon should not give the Z-mass
                 if( fabs((Mu+LV_pho1).M() - 91.187) < 5.0) continue;
@@ -542,7 +546,8 @@ int main (int argc, char** argv) {
                 if ( isClean == false ) continue;
 
                 TLorentzVector Ele(0,0,0,0);
-                Ele.SetPtEtaPhiM( NanoReader_.Electron_pt[j], NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j], NanoReader_.Electron_mass[j] );
+                // Ele.SetPtEtaPhiM( NanoReader_.Electron_pt[j], NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j], NanoReader_.Electron_mass[j] );
+                Ele.SetPtEtaPhiM( NanoReader_.Electron_pt[j], NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j], ELE_MASS );
 
                 // Electron and photon should not give the Z-mass
                 if( fabs((Ele+LV_pho1).M() - 91.187) < 5.0) continue;
@@ -590,6 +595,12 @@ int main (int argc, char** argv) {
                     if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
                          NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
                     isClean = false;
+                }
+                for ( std::size_t k=0; k<tightPhoton.size(); k++) {
+                    if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                               NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK4_DR_CUT) {
+                        isClean = false;
+                    }
                 }
 
                 if ( NanoReader_.FatJet_tau4[j]/NanoReader_.FatJet_tau2[j] > 0.55) isClean = false;
@@ -640,6 +651,12 @@ int main (int argc, char** argv) {
                          NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
                     isClean = false;
                 }
+                for ( std::size_t k=0; k<tightPhoton.size(); k++) {
+                    if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                               NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK4_DR_CUT) {
+                        isClean = false;
+                    }
+                }
 
                 if ( NanoReader_.FatJet_tau2[j]/NanoReader_.FatJet_tau1[j] > 0.55) isClean = false;
 
@@ -655,6 +672,61 @@ int main (int argc, char** argv) {
             }
 
             if (nGood_W_FatJet>=1) totalCutFlow_FH->Fill("nAK8_W >= 1",1);
+
+            /* -------------------------------------------------------------------------- */
+            /*                                   AK8Jet   W Jet (leptonic)                      */
+            /* -------------------------------------------------------------------------- */
+            // AK8
+            goodWLepJetIndex.clear();
+            dmV = 0.0;
+            int nGood_WLep_FatJet = 0;
+            // fj_idx = -1;
+
+            for (uint j=0; j<*NanoReader_.nFatJet; j++)
+            {
+
+                if ( fabs(NanoReader_.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
+                if ( NanoReader_.FatJet_pt[j]<200 ) continue;
+
+                if ( NanoReader_.FatJet_msoftdrop[j]<AK8_MIN_SDM ) continue;
+                if ( NanoReader_.FatJet_msoftdrop[j]>AK8_MAX_SDM ) continue;
+
+                bool isClean=true;
+
+                //lepton cleaning
+                for ( std::size_t k=0; k<tightEle.size(); k++)
+                {
+                    if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+                         NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
+                    isClean = false;
+                }
+                for ( std::size_t k=0; k<tightMuon.size(); k++)
+                {
+                    if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
+                         NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
+                    isClean = false;
+                }
+
+                for ( std::size_t k=0; k<tightPhoton.size(); k++) {
+                    if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                               NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK4_DR_CUT) {
+                        isClean = false;
+                    }
+                }
+
+                if ( NanoReader_.FatJet_tau2[j]/NanoReader_.FatJet_tau1[j] > 0.55) isClean = false;
+
+                if ( isClean == false ) continue;
+
+                if ( nGood_WLep_FatJet == 0 ) dmV = fabs(NanoReader_.FatJet_msoftdrop[j] - V_MASS);
+
+                if ( fabs(NanoReader_.FatJet_msoftdrop[j] - V_MASS) > dmV ) continue;
+                dmV = fabs(NanoReader_.FatJet_msoftdrop[j] - V_MASS);
+                // fj_idx = j;
+                nGood_WLep_FatJet++;
+                goodWLepJetIndex.push_back(j);
+            }
+            if (nGood_WLep_FatJet>=1) totalCutFlow_SL->Fill("nAK8_W >= 1",1);
 
             /* -------------------------------------------------------------------------- */
             /*                                   AK4Jet                                   */
@@ -688,19 +760,29 @@ int main (int argc, char** argv) {
                 bool isClean=true;
 
                 // object cleaning
-                if (nGood_W_FatJet > 0 || nGood_Higgs_FatJet > 0) {
-                    for ( std::size_t k=0; k<goodWJetIndex.size(); k++) {
+                if (nGood_W_FatJet > 0 || nGood_Higgs_FatJet > 0 || nGood_WLep_FatJet > 0)
+                {
+                    for ( std::size_t k=0; k<goodWJetIndex.size(); k++)
+                    {
                         if (deltaR(NanoReader_.FatJet_eta[goodWJetIndex.at(k)], NanoReader_.FatJet_phi[goodWJetIndex.at(k)],
                              NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK8_DR_CUT) {
                             isClean = false;
                         }
                     }
-                    for ( std::size_t k=0; k<goodHJetIndex.size(); k++) {
+                    for ( std::size_t k=0; k<goodHJetIndex.size(); k++)
+                    {
                         if (deltaR(NanoReader_.FatJet_eta[goodHJetIndex.at(k)], NanoReader_.FatJet_phi[goodHJetIndex.at(k)],
                              NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK8_DR_CUT) {
                             isClean = false;
                         }
                     }
+                    // for ( std::size_t k=0; k<goodWLepJetIndex.size(); k++)
+                    // {
+                    //     if (deltaR(NanoReader_.FatJet_eta[goodWLepJetIndex.at(k)], NanoReader_.FatJet_phi[goodWLepJetIndex.at(k)],
+                    //          NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK8_DR_CUT) {
+                    //         isClean = false;
+                    //     }
+                    // }
                 }
 
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with other AK4 jets" << std::endl;
@@ -999,7 +1081,7 @@ int main (int argc, char** argv) {
 
     of->Write();
     of->Close();
-    TString removeCommand = TString("rm ") + TString(dir_name);
+    TString removeCommand = TString("rm -rf ") + TString(dir_name);
     std::cout << "Delete the temp directory: " << removeCommand << std::endl;
     system((std::string(removeCommand)).c_str());
 

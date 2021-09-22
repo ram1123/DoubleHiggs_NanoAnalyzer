@@ -6,6 +6,8 @@ if [ $# -eq 1 ]
     RunFH=0
 fi
 
+
+
 if [ ${RunFH} -eq 1 ]
   then
     echo "Running for fully-hadronic.."
@@ -17,6 +19,7 @@ if [ ${RunFH} -eq 1 ]
     nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G4Q_M-1500_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt GluGluToRadionToHHTo2G4Q_M1500.root 1 2017  7 0 1 >& GluGluToRadionToHHTo2G4Q_M1500.log &
     nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G4Q_M-2000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt GluGluToRadionToHHTo2G4Q_M2000.root 1 2017  7 0 1 >& GluGluToRadionToHHTo2G4Q_M2000.log &
     nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G4Q_M-2500_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt GluGluToRadionToHHTo2G4Q_M2500.root 1 2017  7 0 1 >& GluGluToRadionToHHTo2G4Q_M2500.log &
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH1.root 1 2017  7 0 1 >& GluGluToHHTo2G4Q_node-cHHH1.log &
 fi
 
 if [ ${RunFH} -eq 0 ]

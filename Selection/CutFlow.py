@@ -11,7 +11,8 @@ Hist = [
         "GluGluToRadionToHHTo2G4Q_M800.root",
         "GluGluToRadionToHHTo2G4Q_M1500.root",
         "GluGluToRadionToHHTo2G4Q_M2000.root",
-        "GluGluToRadionToHHTo2G4Q_M2500.root"
+        "GluGluToRadionToHHTo2G4Q_M2500.root",
+        "GluGluToHHTo2G4Q_node-cHHH1.root"
 
 
         # "GluGluToRadionToHHTo2G2Qlnu_M250.root",
