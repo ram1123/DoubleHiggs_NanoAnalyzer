@@ -30,8 +30,15 @@ Description of arguments in above command:
 Run code over all mass points for FH/SL samples using nohup command:
 
 ```bash
-bash SubmitAllJobs_Using_nohup.sh
+bash SubmitAllJobs_Using_nohup.sh <WhichProcess>
+```
+- Argument
+    - `WhichProcess` = 0 for SL,
+    - `WhichProcess` = 1 for few important FH mass points
+    - `WhichProcess` = 2 for all FH mass points.
 
+
+```bash
 # check if jobs are done or not
 ps -f
 ```

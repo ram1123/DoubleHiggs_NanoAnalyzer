@@ -4,14 +4,42 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 
 Hist = [
+        # "GluGluToRadionToHHTo2G4Q_M250.root",
+        # "GluGluToRadionToHHTo2G4Q_M1000.root",
+        # "GluGluToRadionToHHTo2G4Q_M3000.root",
+        # "GluGluToRadionToHHTo2G4Q_M500.root",
+        # "GluGluToRadionToHHTo2G4Q_M800.root",
+        # "GluGluToRadionToHHTo2G4Q_M1500.root",
+        # "GluGluToRadionToHHTo2G4Q_M2000.root",
+        # "GluGluToRadionToHHTo2G4Q_M2500.root",
+        # "GluGluToHHTo2G4Q_node-cHHH1.root"
+
+
         "GluGluToRadionToHHTo2G4Q_M250.root",
-        "GluGluToRadionToHHTo2G4Q_M1000.root",
-        "GluGluToRadionToHHTo2G4Q_M3000.root",
+        "GluGluToRadionToHHTo2G4Q_M260.root",
+        "GluGluToRadionToHHTo2G4Q_M270.root",
+        "GluGluToRadionToHHTo2G4Q_M280.root",
+        "GluGluToRadionToHHTo2G4Q_M300.root",
+        "GluGluToRadionToHHTo2G4Q_M320.root",
+        "GluGluToRadionToHHTo2G4Q_M350.root",
+        "GluGluToRadionToHHTo2G4Q_M400.root",
+        "GluGluToRadionToHHTo2G4Q_M450.root",
         "GluGluToRadionToHHTo2G4Q_M500.root",
+        "GluGluToRadionToHHTo2G4Q_M550.root",
+        "GluGluToRadionToHHTo2G4Q_M600.root",
+        "GluGluToRadionToHHTo2G4Q_M650.root",
+        "GluGluToRadionToHHTo2G4Q_M700.root",
+        "GluGluToRadionToHHTo2G4Q_M750.root",
         "GluGluToRadionToHHTo2G4Q_M800.root",
+        "GluGluToRadionToHHTo2G4Q_M850.root",
+        "GluGluToRadionToHHTo2G4Q_M900.root",
+        "GluGluToRadionToHHTo2G4Q_M1000.root",
+        "GluGluToRadionToHHTo2G4Q_M1250.root",
         "GluGluToRadionToHHTo2G4Q_M1500.root",
+        "GluGluToRadionToHHTo2G4Q_M1750.root",
         "GluGluToRadionToHHTo2G4Q_M2000.root",
         "GluGluToRadionToHHTo2G4Q_M2500.root",
+        "GluGluToRadionToHHTo2G4Q_M3000.root",
         "GluGluToHHTo2G4Q_node-cHHH1.root"
 
 
