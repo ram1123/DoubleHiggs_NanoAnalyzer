@@ -15,7 +15,7 @@ To run the code:
 
 ```bash
 cd $CMSSW_BASE/src/DoubleHiggs/Selection
-Selection inputFiles.txt output.root 1 2017  7 1
+Selection inputFiles.txt output.root 1 2017  7 0 1
 ```
 Description of arguments in above command:
 
@@ -23,9 +23,28 @@ Description of arguments in above command:
 - Second argument is the name of output root file
 - Third argument: for MC = 1, for Data = 0
 - Fourth argument: Year
-- Fifth argument: DEBUG (0/1); If its 1 then it prints many outputs.
+- Fifth argument: nanoAOD version
+- Sixth argument: DEBUG (0/1); If its 1 then it prints many outputs.
+- Seventh argument (0/1): When using EOS files, wants to download a local copy then run it as interactive or not.
 
-## Get workspace from reduced ntuples
+Run code over all mass points for FH/SL samples using nohup command:
+
+```bash
+bash SubmitAllJobs_Using_nohup.sh
+
+# check if jobs are done or not
+ps -f
+```
+
+## Get cut-flow table
+
+```bash
+python CutFlow.py
+```
+This also give you the histogram (in pdf) for each mass point having cut-flow information.
+
+
+## Get workspace from reduced ntuples (Not working now)
 
 ```bash
 cd $CMSSW_BASE/src/DoubleHiggs/Selection
