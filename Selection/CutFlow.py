@@ -40,7 +40,10 @@ Hist = [
         "GluGluToRadionToHHTo2G4Q_M2000.root",
         "GluGluToRadionToHHTo2G4Q_M2500.root",
         "GluGluToRadionToHHTo2G4Q_M3000.root",
-        "GluGluToHHTo2G4Q_node-cHHH1.root"
+        "GluGluToHHTo2G4Q_node-cHHH0.root",
+        "GluGluToHHTo2G4Q_node-cHHH1.root",
+        "GluGluToHHTo2G4Q_node-cHHH2p45.root",
+        "GluGluToHHTo2G4Q_node-cHHH5.root"
 
 
         # "GluGluToRadionToHHTo2G2Qlnu_M250.root",

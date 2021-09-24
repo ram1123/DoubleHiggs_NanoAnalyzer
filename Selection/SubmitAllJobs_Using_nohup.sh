@@ -75,8 +75,24 @@ if [ ${WhichSamples} -eq 2 ]
     nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G4Q_M-750_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt GluGluToRadionToHHTo2G4Q_M750.root 1 2017 7 0 1 &> GluGluToRadionToHHTo2G4Q_M750.log &
     nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G4Q_M-850_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt GluGluToRadionToHHTo2G4Q_M850.root 1 2017 7 0 1 &> GluGluToRadionToHHTo2G4Q_M850.log &
     nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G4Q_M-900_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt GluGluToRadionToHHTo2G4Q_M900.root 1 2017 7 0 1 &> GluGluToRadionToHHTo2G4Q_M900.log &
+    ps -f
+    sleep 2m
     nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH1.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH1.log &
+    echo "Running for SM fully-hadronic samples.."
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH0.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH0.log &
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH2p45_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH2p45.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH2p45.log &
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH1.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH1.log &
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH5.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH5.log &
     ps -f
 
+fi
+
+if [ ${WhichSamples} -eq 3 ]
+  then
+    echo "Running for SM fully-hadronic samples.."
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH0_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH0.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH0.log &
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH2p45_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH2p45.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH2p45.log &
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH1_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH1.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH1.log &
+    nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH5.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH5.log &
 fi
 # python CutFlow.py

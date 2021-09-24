@@ -1,0 +1,3 @@
+root://cms-xrd-global.cern.ch//store/mc/RunIIFall17NanoAODv7/GluGluToHHTo2G4Q_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8/NANOAODSIM/PU2017_12Apr2018_Nano02Apr2020_102X_mc2017_realistic_v8-v1/260000/1FA46368-B0FF-1846-A328-F2F32859FF8C.root
+root://cms-xrd-global.cern.ch//store/mc/RunIIFall17NanoAODv7/GluGluToHHTo2G4Q_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8/NANOAODSIM/PU2017_12Apr2018_Nano02Apr2020_102X_mc2017_realistic_v8-v1/250000/9C3BD581-1CB8-F742-A8CE-7A1CD27B71F8.root
+root://cms-xrd-global.cern.ch//store/mc/RunIIFall17NanoAODv7/GluGluToHHTo2G4Q_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8/NANOAODSIM/PU2017_12Apr2018_Nano02Apr2020_102X_mc2017_realistic_v8-v1/260000/35CE8F01-F613-124E-A3B4-B8637B4D6ED1.root

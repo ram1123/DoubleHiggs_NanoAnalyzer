@@ -630,7 +630,7 @@ int main (int argc, char** argv) {
             {
 
                 if ( fabs(NanoReader_.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
-                if ( NanoReader_.FatJet_pt[j]>400 ) continue;
+                // if ( NanoReader_.FatJet_pt[j]>400 ) continue;
                 if ( NanoReader_.FatJet_pt[j]<200 ) continue;
 
                 if ( NanoReader_.FatJet_msoftdrop[j]<AK8_MIN_SDM ) continue;
