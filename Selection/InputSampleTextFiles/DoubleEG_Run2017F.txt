@@ -1,7 +1,7 @@
+root://cms-xrd-global.cern.ch//store/data/Run2017F/DoubleEG/NANOAOD/02Apr2020-v1/50000/921E1077-07F9-5A4A-839C-6EE63E218D58.root
 root://cms-xrd-global.cern.ch//store/data/Run2017F/DoubleEG/NANOAOD/02Apr2020-v1/2510000/442B5B68-C822-CB4D-8255-F35679C90C72.root
 root://cms-xrd-global.cern.ch//store/data/Run2017F/DoubleEG/NANOAOD/02Apr2020-v1/250000/7CB92873-8DAD-2949-A284-F893855C7E12.root
 root://cms-xrd-global.cern.ch//store/data/Run2017F/DoubleEG/NANOAOD/02Apr2020-v1/250000/10AB9980-3A9E-0245-A4DB-4E407056F5A0.root
-root://cms-xrd-global.cern.ch//store/data/Run2017F/DoubleEG/NANOAOD/02Apr2020-v1/50000/921E1077-07F9-5A4A-839C-6EE63E218D58.root
 root://cms-xrd-global.cern.ch//store/data/Run2017F/DoubleEG/NANOAOD/02Apr2020-v1/50000/25A929BE-336A-8246-90BA-857A1E098185.root
 root://cms-xrd-global.cern.ch//store/data/Run2017F/DoubleEG/NANOAOD/02Apr2020-v1/50000/7B5D623B-EAAD-DC4C-95A1-22028E57CB91.root
 root://cms-xrd-global.cern.ch//store/data/Run2017F/DoubleEG/NANOAOD/02Apr2020-v1/50000/482A0141-B4E4-674C-9A74-78FD272C9C71.root
