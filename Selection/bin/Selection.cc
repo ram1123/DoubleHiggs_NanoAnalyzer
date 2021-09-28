@@ -73,13 +73,15 @@ int main (int argc, char** argv) {
     const float PHO_MVA_ID = -0.9;
 
     //ak8 jet cuts
-    const float AK8_HJET_MIN_PT = 400;
+    const float AK8_HJET_MIN_PT = 300;
     const float AK8_WJET_MIN_PT = 200;
     const float AK8_MAX_ETA = 2.4;
-    const float AK8_HJet_MIN_SDM = 40;
-    const float AK8_HJet_MAX_SDM = 250;
+
+    // Mass window cuts
+    const float AK8_HJet_MIN_SDM = 90;
+    const float AK8_HJet_MAX_SDM = 170;
     const float AK8_WJet_MIN_SDM = 40;
-    const float AK8_WJet_MAX_SDM = 250;
+    const float AK8_WJet_MAX_SDM = 130;
 
     //ak4 jet cuts
     //const float AK4_PT_VETO_CUT = 20;
@@ -691,6 +693,8 @@ int main (int argc, char** argv) {
 
                 bool isClean=true;
 
+                if ( NanoReader_.FatJet_tau2[j]/NanoReader_.FatJet_tau1[j] > TAU21) isClean = false;
+
                 // cleaning jet from electron
                 for ( std::size_t k=0; k<tightEle.size(); k++)
                 {
@@ -713,14 +717,12 @@ int main (int argc, char** argv) {
                     }
                 }
                 // cleaning fat jet with all other fat jets
-                // for ( std::size_t k=0; k<goodWJetIndex.size(); k++) {
-                //   if (deltaR(NanoReader_.FatJet_eta[goodWJetIndex.at(k)], NanoReader_.FatJet_phi[goodWJetIndex.at(k)],
-                //              NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_AK8_DR_CUT) {
-                //     isClean = false;
-                //   }
-                // }
-
-                if ( NanoReader_.FatJet_tau2[j]/NanoReader_.FatJet_tau1[j] > TAU21) isClean = false;
+                for ( std::size_t k=0; k<goodWJetIndex.size(); k++) {
+                  if (deltaR(NanoReader_.FatJet_eta[goodWJetIndex.at(k)], NanoReader_.FatJet_phi[goodWJetIndex.at(k)],
+                             NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_AK8_DR_CUT) {
+                    isClean = false;
+                  }
+                }
 
                 if ( isClean == false ) continue;
 
@@ -771,7 +773,8 @@ int main (int argc, char** argv) {
                 bool isClean=true;
 
                 // object cleaning
-                if (nGood_W_FatJet > 0 && nGood_Higgs_FatJet > 0)
+                // if (nGood_W_FatJet > 0 || nGood_Higgs_FatJet > 0)
+                if (nGood_W_FatJet == 1)
                 {
                     for ( std::size_t k=0; k<goodWJetIndex.size(); k++)
                     {
