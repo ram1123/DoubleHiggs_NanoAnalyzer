@@ -85,6 +85,15 @@ if [ ${WhichSamples} -eq 2 ]
     nohup Selection InputSampleTextFiles/GluGluToHHTo2G4Q_node_cHHH5_TuneCP5_PSWeights_13TeV-powheg-pythia8.txt GluGluToHHTo2G4Q_node-cHHH5.root 1 2017 7 0 1 &> GluGluToHHTo2G4Q_node_cHHH5.log &
     ps -f
     sleep 2m
+    echo "Running for Data..."
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017B.txt DoubleEG_Run2017B.root 0 2017 7 0 1 &> DoubleEG_Run2017B.log &
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017C.txt DoubleEG_Run2017C.root 0 2017 7 0 1 &> DoubleEG_Run2017C.log &
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017D.txt DoubleEG_Run2017D.root 0 2017 7 0 1 &> DoubleEG_Run2017D.log &
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017E.txt DoubleEG_Run2017E.root 0 2017 7 0 1 &> DoubleEG_Run2017E.log &
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017F.txt DoubleEG_Run2017F.root 0 2017 7 0 1 &> DoubleEG_Run2017F.log &
+    ps -f
+    echo "To prevent too many background jobs, sleeping for 2 mins"
+    sleep 2m
     ps -f
 fi
 
@@ -99,6 +108,17 @@ if [ ${WhichSamples} -eq 3 ]
 fi
 
 if [ ${WhichSamples} -eq 4 ]
+  then
+    echo "Running on data."
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017B.txt DoubleEG_Run2017B.root 0 2017 7 0 1 &> DoubleEG_Run2017B.log &
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017C.txt DoubleEG_Run2017C.root 0 2017 7 0 1 &> DoubleEG_Run2017C.log &
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017D.txt DoubleEG_Run2017D.root 0 2017 7 0 1 &> DoubleEG_Run2017D.log &
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017E.txt DoubleEG_Run2017E.root 0 2017 7 0 1 &> DoubleEG_Run2017E.log &
+    nohup Selection InputSampleTextFiles/DoubleEG_Run2017F.txt DoubleEG_Run2017F.root 0 2017 7 0 1 &> DoubleEG_Run2017F.log &
+    ps -f
+fi
+
+if [ ${WhichSamples} -eq 5 ]
   then
     echo "Running a test job.."
     # Selection InputSampleTextFiles/inputFiles.txt test.root 1 2017 7 0 1

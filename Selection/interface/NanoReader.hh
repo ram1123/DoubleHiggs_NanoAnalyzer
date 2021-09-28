@@ -755,6 +755,7 @@ public :
   TTreeReaderArray<Float_t> FatJet_deepTag_TvsQCD = {tree_->GetBranchStatus("FatJet_deepTag_TvsQCD") ? fReader : fReaderNull, "FatJet_deepTag_TvsQCD"};
   TTreeReaderArray<Float_t> FatJet_deepTag_WvsQCD = {tree_->GetBranchStatus("FatJet_deepTag_WvsQCD") ? fReader : fReaderNull, "FatJet_deepTag_WvsQCD"};
   TTreeReaderArray<Float_t> FatJet_deepTag_ZvsQCD = {tree_->GetBranchStatus("FatJet_deepTag_ZvsQCD") ? fReader : fReaderNull, "FatJet_deepTag_ZvsQCD"};
+  
   TTreeReaderArray<Float_t> FatJet_eta = {tree_->GetBranchStatus("FatJet_eta") ? fReader : fReaderNull, "FatJet_eta"};
   TTreeReaderArray<Float_t> FatJet_mass = {tree_->GetBranchStatus("FatJet_mass") ? fReader : fReaderNull, "FatJet_mass"};
   TTreeReaderArray<Float_t> FatJet_msoftdrop = {tree_->GetBranchStatus("FatJet_msoftdrop") ? fReader : fReaderNull, "FatJet_msoftdrop"};

@@ -15,39 +15,39 @@ Hist = [
         # "GluGluToRadionToHHTo2G4Q_M2500.root",
         # "GluGluToHHTo2G4Q_node-cHHH1.root"
 
-        "GluGluToRadionToHHTo2G4Q_M250.root",
-        "GluGluToRadionToHHTo2G4Q_M1000.root",
-        "GluGluToRadionToHHTo2G4Q_M3000.root",
-
         # "GluGluToRadionToHHTo2G4Q_M250.root",
-        # "GluGluToRadionToHHTo2G4Q_M260.root",
-        # "GluGluToRadionToHHTo2G4Q_M270.root",
-        # "GluGluToRadionToHHTo2G4Q_M280.root",
-        # "GluGluToRadionToHHTo2G4Q_M300.root",
-        # "GluGluToRadionToHHTo2G4Q_M320.root",
-        # "GluGluToRadionToHHTo2G4Q_M350.root",
-        # "GluGluToRadionToHHTo2G4Q_M400.root",
-        # "GluGluToRadionToHHTo2G4Q_M450.root",
-        # "GluGluToRadionToHHTo2G4Q_M500.root",
-        # "GluGluToRadionToHHTo2G4Q_M550.root",
-        # "GluGluToRadionToHHTo2G4Q_M600.root",
-        # "GluGluToRadionToHHTo2G4Q_M650.root",
-        # "GluGluToRadionToHHTo2G4Q_M700.root",
-        # "GluGluToRadionToHHTo2G4Q_M750.root",
-        # "GluGluToRadionToHHTo2G4Q_M800.root",
-        # "GluGluToRadionToHHTo2G4Q_M850.root",
-        # "GluGluToRadionToHHTo2G4Q_M900.root",
         # "GluGluToRadionToHHTo2G4Q_M1000.root",
-        # "GluGluToRadionToHHTo2G4Q_M1250.root",
-        # "GluGluToRadionToHHTo2G4Q_M1500.root",
-        # "GluGluToRadionToHHTo2G4Q_M1750.root",
-        # "GluGluToRadionToHHTo2G4Q_M2000.root",
-        # "GluGluToRadionToHHTo2G4Q_M2500.root",
         # "GluGluToRadionToHHTo2G4Q_M3000.root",
-        # "GluGluToHHTo2G4Q_node-cHHH0.root",
-        # "GluGluToHHTo2G4Q_node-cHHH1.root",
-        # "GluGluToHHTo2G4Q_node-cHHH2p45.root",
-        # "GluGluToHHTo2G4Q_node-cHHH5.root"
+
+        "GluGluToRadionToHHTo2G4Q_M250.root",
+        "GluGluToRadionToHHTo2G4Q_M260.root",
+        "GluGluToRadionToHHTo2G4Q_M270.root",
+        "GluGluToRadionToHHTo2G4Q_M280.root",
+        "GluGluToRadionToHHTo2G4Q_M300.root",
+        "GluGluToRadionToHHTo2G4Q_M320.root",
+        "GluGluToRadionToHHTo2G4Q_M350.root",
+        "GluGluToRadionToHHTo2G4Q_M400.root",
+        "GluGluToRadionToHHTo2G4Q_M450.root",
+        "GluGluToRadionToHHTo2G4Q_M500.root",
+        "GluGluToRadionToHHTo2G4Q_M550.root",
+        "GluGluToRadionToHHTo2G4Q_M600.root",
+        "GluGluToRadionToHHTo2G4Q_M650.root",
+        "GluGluToRadionToHHTo2G4Q_M700.root",
+        "GluGluToRadionToHHTo2G4Q_M750.root",
+        "GluGluToRadionToHHTo2G4Q_M800.root",
+        "GluGluToRadionToHHTo2G4Q_M850.root",
+        "GluGluToRadionToHHTo2G4Q_M900.root",
+        "GluGluToRadionToHHTo2G4Q_M1000.root",
+        "GluGluToRadionToHHTo2G4Q_M1250.root",
+        "GluGluToRadionToHHTo2G4Q_M1500.root",
+        "GluGluToRadionToHHTo2G4Q_M1750.root",
+        "GluGluToRadionToHHTo2G4Q_M2000.root",
+        "GluGluToRadionToHHTo2G4Q_M2500.root",
+        "GluGluToRadionToHHTo2G4Q_M3000.root",
+        "GluGluToHHTo2G4Q_node-cHHH0.root",
+        "GluGluToHHTo2G4Q_node-cHHH1.root",
+        "GluGluToHHTo2G4Q_node-cHHH2p45.root",
+        "GluGluToHHTo2G4Q_node-cHHH5.root"
 
 
         # "GluGluToRadionToHHTo2G2Qlnu_M250.root",
@@ -160,7 +160,7 @@ print("\n\n\n")
 
 # df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8H=0 & nAK8W=0 & nAK4>=4", "1Jet2Jet3Jet4Jet", "pT/mgg cut", "pT(#gamma #gamma)>100", "DiPhoton (%)", "1Jet Category", "All cat jets(%)", "Pt/mgg && Photon pT > 100 (%)"])
 # df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8H=0 & nAK8W=0 & nAK4>=4", "1Jet2Jet3Jet4Jet", "DiPhoton (%)", "1Jet Category", "All cat jets(%)"])
-df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8_Higgs >= 1", "nAK8H=0 & nAK8_W >= 2", "nAK8H=0 & nAK8_W=1 & nAK4>=2", "nAK8H=0 & nAK8W=0 & nAK4>=4", "1Jet2Jet3Jet4Jet", "DiPhoton (%)", "1Jet Category", "2Jet Category", "3Jet Category(in)", "3Jet Category", "4Jet Category", "All cat jets(%)"])
+df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8_Higgs >= 1", "nAK8H=0 & nAK8_W >= 2", "nAK8H=0 & nAK8_W>=1 & nAK4>=2", "nAK8H=0 & nAK8_W=1 & nAK4>=2", "nAK8H=0 & nAK8W=0 & nAK4>=4", "1Jet2Jet3Jet4Jet", "DiPhoton (%)", "1Jet Category", "2Jet Category", "3Jet Category(in)", "3Jet Category", "4Jet Category", "All cat jets(%)"])
 
 print(df)
 

@@ -134,7 +134,9 @@ int main (int argc, char** argv) {
 
     std::vector<TLorentzVector> Ak4Jets;
     // std::vector<TLorentzVector> Ak4JetsTem;
-    std::vector<TLorentzVector> Ak8Jets;
+    std::vector<TLorentzVector> Ak8WZJets;
+    std::vector<TLorentzVector> Ak8HiggsJets;
+
     std::vector<int> goodAK4JetIndex;
     std::vector<int> goodWJetIndex;
     std::vector<int> goodWLepJetIndex;
@@ -215,7 +217,7 @@ int main (int argc, char** argv) {
         inputFile = "InputRootFileList.txt";
     }
 
-    if(DEBUG) std::cout << "[INFO]: inputFile: " << inputFile << std::endl;
+    if(DEBUG) std::cout << "[INFO]: inputTextFile: " << inputFile << std::endl;
     if(DEBUG) std::cout << "[INFO]: outputFile: " << outputFile << std::endl;
 
     std::ifstream ifs;
@@ -281,7 +283,7 @@ int main (int argc, char** argv) {
             genEventSumw = *NanoWeightReader.genEventSumw_;
             genEventCount = *NanoWeightReader.genEventCount_;
         }
-        else if (isMC && nanoVersion == 7) {
+        else if (isMC && nanoVersion >= 7) {
             genEventSumw = *NanoWeightReader.genEventSumw;
             genEventCount = *NanoWeightReader.genEventCount;
         }
@@ -312,7 +314,7 @@ int main (int argc, char** argv) {
             totalCutFlow_SL->Fill("Skim NanoAOD",1);
 
             if (i%10000==0) std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
-            // if (DEBUG)       std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
+            if (DEBUG)       std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
 
             if (isMC==1) {
                 WVJJTree->genWeight=*NanoReader_.Generator_weight;
@@ -624,6 +626,7 @@ int main (int argc, char** argv) {
             /*                                   AK8Jet   Higgs Jet                       */
             /* -------------------------------------------------------------------------- */
             // AK8
+            Ak8HiggsJets.clear();
             goodHJetIndex.clear();
             float dmV = 0.0;
             int nGood_Higgs_FatJet = 0;
@@ -670,14 +673,102 @@ int main (int argc, char** argv) {
                 // fj_idx = j;
                 nGood_Higgs_FatJet++;
                 goodHJetIndex.push_back(j);
+
+                Ak8HiggsJets.push_back(TLorentzVector(0,0,0,0));
+                Ak8HiggsJets.back().SetPtEtaPhiM(NanoReader_.FatJet_pt[j],
+                                            NanoReader_.FatJet_eta[j],
+                                            NanoReader_.FatJet_phi[j],
+                                            NanoReader_.FatJet_msoftdrop[j]
+                                            );
             }
             if (nGood_Higgs_FatJet>=1) totalCutFlow_FH->Fill("nAK8_Higgs >= 1",1);
+
+            /*  ------------------------------------------------------------------------- */
+            /*                              One Jet case variables                        */
+            /*  ------------------------------------------------------------------------- */
+            if (nGood_Higgs_FatJet>=1)
+            {
+                if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] Passed One jet condition" << std::endl;
+                WVJJTree->OneJet_FatJet_area = NanoReader_.FatJet_area[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagCMVA = NanoReader_.FatJet_btagCMVA[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagCSVV2 = NanoReader_.FatJet_btagCSVV2[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagDDBvL = NanoReader_.FatJet_btagDDBvL[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagDDBvL_noMD = NanoReader_.FatJet_btagDDBvL_noMD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagDDCvB = NanoReader_.FatJet_btagDDCvB[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagDDCvB_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagDDCvL = NanoReader_.FatJet_btagDDCvB_noMD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagDDCvL_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagDeepB = NanoReader_.FatJet_btagDDCvB_noMD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_btagHbb = NanoReader_.FatJet_btagHbb[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_H4qvsQCD = NanoReader_.FatJet_deepTagMD_H4qvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_HbbvsQCD = NanoReader_.FatJet_deepTagMD_HbbvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_TvsQCD = NanoReader_.FatJet_deepTagMD_TvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_WvsQCD = NanoReader_.FatJet_deepTagMD_WvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_ZHbbvsQCD = NanoReader_.FatJet_deepTagMD_ZHbbvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_ZHccvsQCD = NanoReader_.FatJet_deepTagMD_ZHccvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_ZbbvsQCD = NanoReader_.FatJet_deepTagMD_ZbbvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_ZvsQCD = NanoReader_.FatJet_deepTagMD_ZvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_bbvsLight = NanoReader_.FatJet_deepTagMD_bbvsLight[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTagMD_ccvsLight = NanoReader_.FatJet_deepTagMD_ccvsLight[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTag_H = NanoReader_.FatJet_deepTag_H[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTag_QCD = NanoReader_.FatJet_deepTag_QCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTag_QCDothers = NanoReader_.FatJet_deepTag_QCDothers[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTag_TvsQCD = NanoReader_.FatJet_deepTag_TvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTag_WvsQCD = NanoReader_.FatJet_deepTag_WvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_deepTag_ZvsQCD = NanoReader_.FatJet_deepTag_ZvsQCD[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_electronIdx3SJ = NanoReader_.FatJet_electronIdx3SJ[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_eta = NanoReader_.FatJet_eta[goodHJetIndex[0]];
+                if (isMC) WVJJTree->OneJet_FatJet_genJetAK8Idx = NanoReader_.FatJet_genJetAK8Idx[goodHJetIndex[0]];
+                if (isMC) WVJJTree->OneJet_FatJet_hadronFlavour = NanoReader_.FatJet_hadronFlavour[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_jetId=NanoReader_.FatJet_jetId[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_lsf3=NanoReader_.FatJet_lsf3[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_mass=NanoReader_.FatJet_mass[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_msoftdrop=NanoReader_.FatJet_msoftdrop[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_muonIdx3SJ=NanoReader_.FatJet_muonIdx3SJ[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_n2b1=NanoReader_.FatJet_n2b1[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_n3b1=NanoReader_.FatJet_n3b1[goodHJetIndex[0]];
+                if (isMC) WVJJTree->OneJet_FatJet_nBHadrons=NanoReader_.FatJet_nBHadrons[goodHJetIndex[0]];
+                if (isMC) WVJJTree->OneJet_FatJet_nCHadrons=NanoReader_.FatJet_nCHadrons[goodHJetIndex[0]];
+                //! todo: add this variable but not find in root file
+                // if (nanoVersion == 8) {
+                //     WVJJTree->OneJet_FatJet_particleNetMD_QCD=NanoReader_.FatJet_particleNetMD_QCD[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNetMD_Xbb=NanoReader_.FatJet_particleNetMD_Xbb[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNetMD_Xcc=NanoReader_.FatJet_particleNetMD_Xcc[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNetMD_Xqq=NanoReader_.FatJet_particleNetMD_Xqq[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNet_H4qvsQCD=NanoReader_.FatJet_particleNet_H4qvsQCD[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNet_HbbvsQCD=NanoReader_.FatJet_particleNet_HbbvsQCD[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNet_HccvsQCD=NanoReader_.FatJet_particleNet_HccvsQCD[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNet_QCD=NanoReader_.FatJet_particleNet_QCD[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNet_TvsQCD=NanoReader_.FatJet_particleNet_TvsQCD[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNet_WvsQCD=NanoReader_.FatJet_particleNet_WvsQCD[goodHJetIndex[0]];
+                //     WVJJTree->OneJet_FatJet_particleNet_ZvsQCD=NanoReader_.FatJet_particleNet_ZvsQCD[goodHJetIndex[0]];
+                // }
+                WVJJTree->OneJet_FatJet_phi=NanoReader_.FatJet_phi[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_pt=NanoReader_.FatJet_pt[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_rawFactor=NanoReader_.FatJet_rawFactor[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_subJetIdx1=NanoReader_.FatJet_subJetIdx1[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_subJetIdx2=NanoReader_.FatJet_subJetIdx2[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_tau1=NanoReader_.FatJet_tau1[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_tau2=NanoReader_.FatJet_tau2[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_tau3=NanoReader_.FatJet_tau3[goodHJetIndex[0]];
+                WVJJTree->OneJet_FatJet_tau4=NanoReader_.FatJet_tau4[goodHJetIndex[0]];
+                WVJJTree->OneJet_nFatJet=nGood_Higgs_FatJet;
+
+                TLorentzVector OneJet_Radion_LV = Ak8HiggsJets[0] + diphoton;
+
+                WVJJTree->OneJet_Radion_pt = OneJet_Radion_LV.Pt();
+                WVJJTree->OneJet_Radion_eta = OneJet_Radion_LV.Eta();
+                WVJJTree->OneJet_Radion_phi = OneJet_Radion_LV.Phi();
+                WVJJTree->OneJet_Radion_m = OneJet_Radion_LV.M();
+                WVJJTree->OneJet_Radion_E = OneJet_Radion_LV.E();
+            }
+            if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After one jet if condition" << std::endl;
 
             /* -------------------------------------------------------------------------- */
             /*                                   AK8Jet   W Jet                       */
             /* -------------------------------------------------------------------------- */
             // AK8
-            Ak8Jets.clear();
+            Ak8WZJets.clear();
             goodWJetIndex.clear();
             dmV = 0.0;
             int nGood_W_FatJet = 0;
@@ -733,8 +824,8 @@ int main (int argc, char** argv) {
                 // fj_idx = j;
                 nGood_W_FatJet++;
                 goodWJetIndex.push_back(j);
-                Ak8Jets.push_back(TLorentzVector(0,0,0,0));
-                Ak8Jets.back().SetPtEtaPhiM(NanoReader_.FatJet_pt[j],
+                Ak8WZJets.push_back(TLorentzVector(0,0,0,0));
+                Ak8WZJets.back().SetPtEtaPhiM(NanoReader_.FatJet_pt[j],
                                             NanoReader_.FatJet_eta[j],
                                             NanoReader_.FatJet_phi[j],
                                             NanoReader_.FatJet_msoftdrop[j]
@@ -748,6 +839,7 @@ int main (int argc, char** argv) {
             /* -------------------------------------------------------------------------- */
             goodAK4JetIndex.clear();
             Ak4Jets.clear();
+            int nGood_AK4Jet = 0;
 
             float allAK4JetsSum_pt = 0.0;
             if (DEBUG) std::cout << "Starting AK4 jet loop" << std::endl;
@@ -926,6 +1018,7 @@ int main (int argc, char** argv) {
                                             );
                 goodAK4JetIndex.push_back(j);
                 allAK4JetsSum_pt += NanoReader_.Jet_pt[j];
+                nGood_AK4Jet++;
             }
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Outside of AK4 jet loop." << std::endl;
 
@@ -949,7 +1042,9 @@ int main (int argc, char** argv) {
 
             // FH: 3 jet category  (excluding events with 2 or more good AK8 jet)
             if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2)
+            {
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8_W=1 & nAK4>=2",1);
+            }
 
             // FH: 4 jet category
             if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4 )
@@ -980,73 +1075,300 @@ int main (int argc, char** argv) {
                 totalCutFlow_SL->Fill("pT(#gamma #gamma)>100",1);
 
             // if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] " << std::endl;
-            if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nAK4 jets >= 4 condition" << std::endl;
-            /* ----------------------- output the AK4 jet ----------------------- */
 
-            // if (nGoodAK4jets>=4)
+            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2)
+            {
+                if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] Passed two jet condition" << std::endl;
+                WVJJTree->TwoJet_LeadFatJet_area = NanoReader_.FatJet_area[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagCMVA = NanoReader_.FatJet_btagCMVA[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagCSVV2 = NanoReader_.FatJet_btagCSVV2[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagDDBvL = NanoReader_.FatJet_btagDDBvL[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagDDBvL_noMD = NanoReader_.FatJet_btagDDBvL_noMD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagDDCvB = NanoReader_.FatJet_btagDDCvB[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagDDCvB_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagDDCvL = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagDDCvL_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagDeepB = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_btagHbb = NanoReader_.FatJet_btagHbb[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_H4qvsQCD = NanoReader_.FatJet_deepTagMD_H4qvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_HbbvsQCD = NanoReader_.FatJet_deepTagMD_HbbvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_TvsQCD = NanoReader_.FatJet_deepTagMD_TvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_WvsQCD = NanoReader_.FatJet_deepTagMD_WvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ZHbbvsQCD = NanoReader_.FatJet_deepTagMD_ZHbbvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ZHccvsQCD = NanoReader_.FatJet_deepTagMD_ZHccvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ZbbvsQCD = NanoReader_.FatJet_deepTagMD_ZbbvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ZvsQCD = NanoReader_.FatJet_deepTagMD_ZvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_bbvsLight = NanoReader_.FatJet_deepTagMD_bbvsLight[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ccvsLight = NanoReader_.FatJet_deepTagMD_ccvsLight[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTag_H = NanoReader_.FatJet_deepTag_H[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTag_QCD = NanoReader_.FatJet_deepTag_QCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTag_QCDothers = NanoReader_.FatJet_deepTag_QCDothers[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTag_TvsQCD = NanoReader_.FatJet_deepTag_TvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTag_WvsQCD = NanoReader_.FatJet_deepTag_WvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_deepTag_ZvsQCD = NanoReader_.FatJet_deepTag_ZvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_electronIdx3SJ = NanoReader_.FatJet_electronIdx3SJ[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_eta = NanoReader_.FatJet_eta[goodWJetIndex[0]];
+                if (isMC) WVJJTree->TwoJet_LeadFatJet_genJetAK8Idx = NanoReader_.FatJet_genJetAK8Idx[goodWJetIndex[0]];
+                if (isMC) WVJJTree->TwoJet_LeadFatJet_hadronFlavour = NanoReader_.FatJet_hadronFlavour[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_jetId=NanoReader_.FatJet_jetId[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_lsf3=NanoReader_.FatJet_lsf3[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_mass=NanoReader_.FatJet_mass[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_msoftdrop=NanoReader_.FatJet_msoftdrop[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_muonIdx3SJ=NanoReader_.FatJet_muonIdx3SJ[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_n2b1=NanoReader_.FatJet_n2b1[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_n3b1=NanoReader_.FatJet_n3b1[goodWJetIndex[0]];
+                if (isMC) WVJJTree->TwoJet_LeadFatJet_nBHadrons=NanoReader_.FatJet_nBHadrons[goodWJetIndex[0]];
+                if (isMC) WVJJTree->TwoJet_LeadFatJet_nCHadrons=NanoReader_.FatJet_nCHadrons[goodWJetIndex[0]];
+                //! todo: add this variable but not find in root file
+                // WVJJTree->FatJet_particleNetMD_QCD=NanoReader_.FatJet_particleNetMD_QCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNetMD_Xbb=NanoReader_.FatJet_particleNetMD_Xbb[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNetMD_Xcc=NanoReader_.FatJet_particleNetMD_Xcc[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNetMD_Xqq=NanoReader_.FatJet_particleNetMD_Xqq[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_H4qvsQCD=NanoReader_.FatJet_particleNet_H4qvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_HbbvsQCD=NanoReader_.FatJet_particleNet_HbbvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_HccvsQCD=NanoReader_.FatJet_particleNet_HccvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_QCD=NanoReader_.FatJet_particleNet_QCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_TvsQCD=NanoReader_.FatJet_particleNet_TvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_WvsQCD=NanoReader_.FatJet_particleNet_WvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_ZvsQCD=NanoReader_.FatJet_particleNet_ZvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_phi=NanoReader_.FatJet_phi[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_pt=NanoReader_.FatJet_pt[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_rawFactor=NanoReader_.FatJet_rawFactor[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_subJetIdx1=NanoReader_.FatJet_subJetIdx1[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_subJetIdx2=NanoReader_.FatJet_subJetIdx2[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_tau1=NanoReader_.FatJet_tau1[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_tau2=NanoReader_.FatJet_tau2[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_tau3=NanoReader_.FatJet_tau3[goodWJetIndex[0]];
+                WVJJTree->TwoJet_LeadFatJet_tau4=NanoReader_.FatJet_tau4[goodWJetIndex[0]];
+                WVJJTree->TwoJet_nFatJet=nGood_W_FatJet;
+
+
+                WVJJTree->TwoJet_SubLeadFatJet_area = NanoReader_.FatJet_area[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagCMVA = NanoReader_.FatJet_btagCMVA[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagCSVV2 = NanoReader_.FatJet_btagCSVV2[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagDDBvL = NanoReader_.FatJet_btagDDBvL[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagDDBvL_noMD = NanoReader_.FatJet_btagDDBvL_noMD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagDDCvB = NanoReader_.FatJet_btagDDCvB[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagDDCvB_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagDDCvL = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagDDCvL_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagDeepB = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_btagHbb = NanoReader_.FatJet_btagHbb[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_H4qvsQCD = NanoReader_.FatJet_deepTagMD_H4qvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_HbbvsQCD = NanoReader_.FatJet_deepTagMD_HbbvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_TvsQCD = NanoReader_.FatJet_deepTagMD_TvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_WvsQCD = NanoReader_.FatJet_deepTagMD_WvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ZHbbvsQCD = NanoReader_.FatJet_deepTagMD_ZHbbvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ZHccvsQCD = NanoReader_.FatJet_deepTagMD_ZHccvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ZbbvsQCD = NanoReader_.FatJet_deepTagMD_ZbbvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ZvsQCD = NanoReader_.FatJet_deepTagMD_ZvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_bbvsLight = NanoReader_.FatJet_deepTagMD_bbvsLight[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ccvsLight = NanoReader_.FatJet_deepTagMD_ccvsLight[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTag_H = NanoReader_.FatJet_deepTag_H[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTag_QCD = NanoReader_.FatJet_deepTag_QCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTag_QCDothers = NanoReader_.FatJet_deepTag_QCDothers[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTag_TvsQCD = NanoReader_.FatJet_deepTag_TvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTag_WvsQCD = NanoReader_.FatJet_deepTag_WvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_deepTag_ZvsQCD = NanoReader_.FatJet_deepTag_ZvsQCD[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_electronIdx3SJ = NanoReader_.FatJet_electronIdx3SJ[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_eta = NanoReader_.FatJet_eta[goodWJetIndex[1]];
+                if (isMC) WVJJTree->TwoJet_SubLeadFatJet_genJetAK8Idx = NanoReader_.FatJet_genJetAK8Idx[goodWJetIndex[1]];
+                if (isMC) WVJJTree->TwoJet_SubLeadFatJet_hadronFlavour = NanoReader_.FatJet_hadronFlavour[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_jetId=NanoReader_.FatJet_jetId[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_lsf3=NanoReader_.FatJet_lsf3[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_mass=NanoReader_.FatJet_mass[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_msoftdrop=NanoReader_.FatJet_msoftdrop[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_muonIdx3SJ=NanoReader_.FatJet_muonIdx3SJ[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_n2b1=NanoReader_.FatJet_n2b1[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_n3b1=NanoReader_.FatJet_n3b1[goodWJetIndex[1]];
+                if (isMC) WVJJTree->TwoJet_SubLeadFatJet_nBHadrons=NanoReader_.FatJet_nBHadrons[goodWJetIndex[1]];
+                if (isMC) WVJJTree->TwoJet_SubLeadFatJet_nCHadrons=NanoReader_.FatJet_nCHadrons[goodWJetIndex[1]];
+                //! todo: add this variable but not find in root file
+                // WVJJTree->FatJet_particleNetMD_QCD=NanoReader_.FatJet_particleNetMD_QCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNetMD_Xbb=NanoReader_.FatJet_particleNetMD_Xbb[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNetMD_Xcc=NanoReader_.FatJet_particleNetMD_Xcc[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNetMD_Xqq=NanoReader_.FatJet_particleNetMD_Xqq[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_H4qvsQCD=NanoReader_.FatJet_particleNet_H4qvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_HbbvsQCD=NanoReader_.FatJet_particleNet_HbbvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_HccvsQCD=NanoReader_.FatJet_particleNet_HccvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_QCD=NanoReader_.FatJet_particleNet_QCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_TvsQCD=NanoReader_.FatJet_particleNet_TvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_WvsQCD=NanoReader_.FatJet_particleNet_WvsQCD[goodWJetIndex[0]];
+                // WVJJTree->FatJet_particleNet_ZvsQCD=NanoReader_.FatJet_particleNet_ZvsQCD[goodWJetIndex[0]];
+                WVJJTree->TwoJet_SubLeadFatJet_phi=NanoReader_.FatJet_phi[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_pt=NanoReader_.FatJet_pt[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_rawFactor=NanoReader_.FatJet_rawFactor[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_subJetIdx1=NanoReader_.FatJet_subJetIdx1[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_subJetIdx2=NanoReader_.FatJet_subJetIdx2[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_tau1=NanoReader_.FatJet_tau1[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_tau2=NanoReader_.FatJet_tau2[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_tau3=NanoReader_.FatJet_tau3[goodWJetIndex[1]];
+                WVJJTree->TwoJet_SubLeadFatJet_tau4=NanoReader_.FatJet_tau4[goodWJetIndex[1]];
+
+                TLorentzVector TwoJet_Radion_LV = Ak8WZJets[0] + Ak8WZJets[1] + diphoton;
+
+                WVJJTree->TwoJet_Radion_pt = TwoJet_Radion_LV.Pt();
+                WVJJTree->TwoJet_Radion_eta = TwoJet_Radion_LV.Eta();
+                WVJJTree->TwoJet_Radion_phi = TwoJet_Radion_LV.Phi();
+                WVJJTree->TwoJet_Radion_m = TwoJet_Radion_LV.M();
+                WVJJTree->TwoJet_Radion_E = TwoJet_Radion_LV.E();
+
+            }
+            if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After two jet if condition" << std::endl;
+
+            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2)
+            {
+                if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed three jet condition" << std::endl;
+                WVJJTree->ThreeJet_FatJet_area = NanoReader_.FatJet_area[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagCMVA = NanoReader_.FatJet_btagCMVA[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagCSVV2 = NanoReader_.FatJet_btagCSVV2[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagDDBvL = NanoReader_.FatJet_btagDDBvL[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagDDBvL_noMD = NanoReader_.FatJet_btagDDBvL_noMD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagDDCvB = NanoReader_.FatJet_btagDDCvB[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagDDCvB_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagDDCvL = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagDDCvL_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagDeepB = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_btagHbb = NanoReader_.FatJet_btagHbb[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_H4qvsQCD = NanoReader_.FatJet_deepTagMD_H4qvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_HbbvsQCD = NanoReader_.FatJet_deepTagMD_HbbvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_TvsQCD = NanoReader_.FatJet_deepTagMD_TvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_WvsQCD = NanoReader_.FatJet_deepTagMD_WvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_ZHbbvsQCD = NanoReader_.FatJet_deepTagMD_ZHbbvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_ZHccvsQCD = NanoReader_.FatJet_deepTagMD_ZHccvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_ZbbvsQCD = NanoReader_.FatJet_deepTagMD_ZbbvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_ZvsQCD = NanoReader_.FatJet_deepTagMD_ZvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_bbvsLight = NanoReader_.FatJet_deepTagMD_bbvsLight[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTagMD_ccvsLight = NanoReader_.FatJet_deepTagMD_ccvsLight[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTag_H = NanoReader_.FatJet_deepTag_H[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTag_QCD = NanoReader_.FatJet_deepTag_QCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTag_QCDothers = NanoReader_.FatJet_deepTag_QCDothers[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTag_TvsQCD = NanoReader_.FatJet_deepTag_TvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTag_WvsQCD = NanoReader_.FatJet_deepTag_WvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_deepTag_ZvsQCD = NanoReader_.FatJet_deepTag_ZvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_electronIdx3SJ = NanoReader_.FatJet_electronIdx3SJ[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_eta = NanoReader_.FatJet_eta[goodWJetIndex[0]];
+                if (isMC) WVJJTree->ThreeJet_FatJet_genJetAK8Idx = NanoReader_.FatJet_genJetAK8Idx[goodWJetIndex[0]];
+                if (isMC) WVJJTree->ThreeJet_FatJet_hadronFlavour = NanoReader_.FatJet_hadronFlavour[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_jetId=NanoReader_.FatJet_jetId[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_lsf3=NanoReader_.FatJet_lsf3[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_mass=NanoReader_.FatJet_mass[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_msoftdrop=NanoReader_.FatJet_msoftdrop[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_muonIdx3SJ=NanoReader_.FatJet_muonIdx3SJ[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_n2b1=NanoReader_.FatJet_n2b1[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_n3b1=NanoReader_.FatJet_n3b1[goodWJetIndex[0]];
+                if (isMC) WVJJTree->ThreeJet_FatJet_nBHadrons=NanoReader_.FatJet_nBHadrons[goodWJetIndex[0]];
+                if (isMC) WVJJTree->ThreeJet_FatJet_nCHadrons=NanoReader_.FatJet_nCHadrons[goodWJetIndex[0]];
+                //! todo: add this variable but not find in root file
+                // WVJJTree->ThreeJet_FatJet_particleNetMD_QCD=NanoReader_.FatJet_particleNetMD_QCD[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNetMD_Xbb=NanoReader_.FatJet_particleNetMD_Xbb[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNetMD_Xcc=NanoReader_.FatJet_particleNetMD_Xcc[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNetMD_Xqq=NanoReader_.FatJet_particleNetMD_Xqq[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNet_H4qvsQCD=NanoReader_.FatJet_particleNet_H4qvsQCD[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNet_HbbvsQCD=NanoReader_.FatJet_particleNet_HbbvsQCD[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNet_HccvsQCD=NanoReader_.FatJet_particleNet_HccvsQCD[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNet_QCD=NanoReader_.FatJet_particleNet_QCD[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNet_TvsQCD=NanoReader_.FatJet_particleNet_TvsQCD[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNet_WvsQCD=NanoReader_.FatJet_particleNet_WvsQCD[goodWJetIndex[0]];
+                // WVJJTree->ThreeJet_FatJet_particleNet_ZvsQCD=NanoReader_.FatJet_particleNet_ZvsQCD[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_phi=NanoReader_.FatJet_phi[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_pt=NanoReader_.FatJet_pt[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_rawFactor=NanoReader_.FatJet_rawFactor[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_subJetIdx1=NanoReader_.FatJet_subJetIdx1[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_subJetIdx2=NanoReader_.FatJet_subJetIdx2[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_tau1=NanoReader_.FatJet_tau1[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_tau2=NanoReader_.FatJet_tau2[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_tau3=NanoReader_.FatJet_tau3[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_FatJet_tau4=NanoReader_.FatJet_tau4[goodWJetIndex[0]];
+                WVJJTree->ThreeJet_nFatJet=nGood_W_FatJet;
+                WVJJTree->ThreeJet_nAK4Jet=nGood_AK4Jet;
+
+                WVJJTree->ThreeJet_LeadingAK4_pT = NanoReader_.Jet_pt[goodAK4JetIndex[0]];
+                WVJJTree->ThreeJet_LeadingAK4_eta = NanoReader_.Jet_eta[goodAK4JetIndex[0]];
+                WVJJTree->ThreeJet_LeadingAK4_phi = NanoReader_.Jet_phi[goodAK4JetIndex[0]];
+                WVJJTree->ThreeJet_LeadingAK4_mass = NanoReader_.Jet_mass[goodAK4JetIndex[0]];
+
+                WVJJTree->ThreeJet_SubLeadingAK4_pT = NanoReader_.Jet_pt[goodAK4JetIndex[1]];
+                WVJJTree->ThreeJet_SubLeadingAK4_eta = NanoReader_.Jet_eta[goodAK4JetIndex[1]];
+                WVJJTree->ThreeJet_SubLeadingAK4_phi = NanoReader_.Jet_phi[goodAK4JetIndex[1]];
+                WVJJTree->ThreeJet_SubLeadingAK4_mass = NanoReader_.Jet_mass[goodAK4JetIndex[1]];
+
+                TLorentzVector ThreeJet_Radion_LV = Ak8WZJets[0] + Ak4Jets[0] + Ak4Jets[1] + diphoton;
+
+                WVJJTree->ThreeJet_Radion_pt = ThreeJet_Radion_LV.Pt();
+                WVJJTree->ThreeJet_Radion_eta = ThreeJet_Radion_LV.Eta();
+                WVJJTree->ThreeJet_Radion_phi = ThreeJet_Radion_LV.Phi();
+                WVJJTree->ThreeJet_Radion_m = ThreeJet_Radion_LV.M();
+                WVJJTree->ThreeJet_Radion_E = ThreeJet_Radion_LV.E();
+            }
+            if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] After three jet if condition" << std::endl;
+
+            /* ----------------------- output the AK4 jet ----------------------- */
             if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4 )
             {
+                if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nAK4 jets >= 4 condition" << std::endl;
 
-            /* ------------------- cout four pt to make sure in order ------------------- */
-            WVJJTree->nGoodAK4jets = nGoodAK4jets;
-            WVJJTree->FullyResolved_allAK4JetsSum_pt = allAK4JetsSum_pt;
+                /* ------------------- cout four pt to make sure in order ------------------- */
+                WVJJTree->nGoodAK4jets = nGoodAK4jets;
+                WVJJTree->FullyResolved_allAK4JetsSum_pt = allAK4JetsSum_pt;
 
-            WVJJTree->FullyResolved_Jet1_pt = NanoReader_.Jet_pt[goodAK4JetIndex[0]];
-            WVJJTree->FullyResolved_Jet2_pt = NanoReader_.Jet_pt[goodAK4JetIndex[1]];
-            WVJJTree->FullyResolved_Jet3_pt = NanoReader_.Jet_pt[goodAK4JetIndex[2]];
-            WVJJTree->FullyResolved_Jet4_pt = NanoReader_.Jet_pt[goodAK4JetIndex[3]];
+                WVJJTree->FullyResolved_Jet1_pt = NanoReader_.Jet_pt[goodAK4JetIndex[0]];
+                WVJJTree->FullyResolved_Jet2_pt = NanoReader_.Jet_pt[goodAK4JetIndex[1]];
+                WVJJTree->FullyResolved_Jet3_pt = NanoReader_.Jet_pt[goodAK4JetIndex[2]];
+                WVJJTree->FullyResolved_Jet4_pt = NanoReader_.Jet_pt[goodAK4JetIndex[3]];
 
-            WVJJTree->FullyResolved_Jet1_eta = NanoReader_.Jet_eta[goodAK4JetIndex[0]];
-            WVJJTree->FullyResolved_Jet2_eta = NanoReader_.Jet_eta[goodAK4JetIndex[1]];
-            WVJJTree->FullyResolved_Jet3_eta = NanoReader_.Jet_eta[goodAK4JetIndex[2]];
-            WVJJTree->FullyResolved_Jet4_eta = NanoReader_.Jet_eta[goodAK4JetIndex[3]];
+                WVJJTree->FullyResolved_Jet1_eta = NanoReader_.Jet_eta[goodAK4JetIndex[0]];
+                WVJJTree->FullyResolved_Jet2_eta = NanoReader_.Jet_eta[goodAK4JetIndex[1]];
+                WVJJTree->FullyResolved_Jet3_eta = NanoReader_.Jet_eta[goodAK4JetIndex[2]];
+                WVJJTree->FullyResolved_Jet4_eta = NanoReader_.Jet_eta[goodAK4JetIndex[3]];
 
-            WVJJTree->FullyResolved_Jet1_phi = NanoReader_.Jet_phi[goodAK4JetIndex[0]];
-            WVJJTree->FullyResolved_Jet2_phi = NanoReader_.Jet_phi[goodAK4JetIndex[1]];
-            WVJJTree->FullyResolved_Jet3_phi = NanoReader_.Jet_phi[goodAK4JetIndex[2]];
-            WVJJTree->FullyResolved_Jet4_phi = NanoReader_.Jet_phi[goodAK4JetIndex[3]];
+                WVJJTree->FullyResolved_Jet1_phi = NanoReader_.Jet_phi[goodAK4JetIndex[0]];
+                WVJJTree->FullyResolved_Jet2_phi = NanoReader_.Jet_phi[goodAK4JetIndex[1]];
+                WVJJTree->FullyResolved_Jet3_phi = NanoReader_.Jet_phi[goodAK4JetIndex[2]];
+                WVJJTree->FullyResolved_Jet4_phi = NanoReader_.Jet_phi[goodAK4JetIndex[3]];
 
-            WVJJTree->FullyResolved_Jet1_M = NanoReader_.Jet_mass[goodAK4JetIndex[0]];
-            WVJJTree->FullyResolved_Jet2_M = NanoReader_.Jet_mass[goodAK4JetIndex[1]];
-            WVJJTree->FullyResolved_Jet3_M = NanoReader_.Jet_mass[goodAK4JetIndex[2]];
-            WVJJTree->FullyResolved_Jet4_M = NanoReader_.Jet_mass[goodAK4JetIndex[3]];
+                WVJJTree->FullyResolved_Jet1_M = NanoReader_.Jet_mass[goodAK4JetIndex[0]];
+                WVJJTree->FullyResolved_Jet2_M = NanoReader_.Jet_mass[goodAK4JetIndex[1]];
+                WVJJTree->FullyResolved_Jet3_M = NanoReader_.Jet_mass[goodAK4JetIndex[2]];
+                WVJJTree->FullyResolved_Jet4_M = NanoReader_.Jet_mass[goodAK4JetIndex[3]];
 
-            WVJJTree->FullyResolved_Jet1_E = Ak4Jets.at(0).E();
-            WVJJTree->FullyResolved_Jet2_E = Ak4Jets.at(1).E();
-            WVJJTree->FullyResolved_Jet3_E = Ak4Jets.at(2).E();
-            WVJJTree->FullyResolved_Jet4_E = Ak4Jets.at(3).E();
+                WVJJTree->FullyResolved_Jet1_E = Ak4Jets.at(0).E();
+                WVJJTree->FullyResolved_Jet2_E = Ak4Jets.at(1).E();
+                WVJJTree->FullyResolved_Jet3_E = Ak4Jets.at(2).E();
+                WVJJTree->FullyResolved_Jet4_E = Ak4Jets.at(3).E();
 
-            /* -------------------------- Sum of 2 leading jets ------------------------- */
-            TLorentzVector TwoLeadingJets = Ak4Jets.at(0) + Ak4Jets.at(1);
-            WVJJTree->FullyResolved_TwoLeadingJets_pt = TwoLeadingJets.Pt();
-            WVJJTree->FullyResolved_TwoLeadingJets_eta = TwoLeadingJets.Eta();
-            WVJJTree->FullyResolved_TwoLeadingJets_phi = TwoLeadingJets.Phi();
-            WVJJTree->FullyResolved_TwoLeadingJets_m = TwoLeadingJets.M();
-            WVJJTree->FullyResolved_TwoLeadingJets_E = TwoLeadingJets.E();
+                /* -------------------------- Sum of 2 leading jets ------------------------- */
+                TLorentzVector TwoLeadingJets = Ak4Jets.at(0) + Ak4Jets.at(1);
+                WVJJTree->FullyResolved_TwoLeadingJets_pt = TwoLeadingJets.Pt();
+                WVJJTree->FullyResolved_TwoLeadingJets_eta = TwoLeadingJets.Eta();
+                WVJJTree->FullyResolved_TwoLeadingJets_phi = TwoLeadingJets.Phi();
+                WVJJTree->FullyResolved_TwoLeadingJets_m = TwoLeadingJets.M();
+                WVJJTree->FullyResolved_TwoLeadingJets_E = TwoLeadingJets.E();
 
-            /* -------------------------- Sum of 3rd 4th  jets -------------------------- */
-            TLorentzVector ThirdFourthJets = Ak4Jets.at(2) + Ak4Jets.at(3);
-            WVJJTree->FullyResolved_ThirdFourthJets_pt = ThirdFourthJets.Pt();
-            WVJJTree->FullyResolved_ThirdFourthJets_eta = ThirdFourthJets.Eta();
-            WVJJTree->FullyResolved_ThirdFourthJets_phi = ThirdFourthJets.Phi();
-            WVJJTree->FullyResolved_ThirdFourthJets_m = ThirdFourthJets.M();
-            WVJJTree->FullyResolved_ThirdFourthJets_E = ThirdFourthJets.E();
+                /* -------------------------- Sum of 3rd 4th  jets -------------------------- */
+                TLorentzVector ThirdFourthJets = Ak4Jets.at(2) + Ak4Jets.at(3);
+                WVJJTree->FullyResolved_ThirdFourthJets_pt = ThirdFourthJets.Pt();
+                WVJJTree->FullyResolved_ThirdFourthJets_eta = ThirdFourthJets.Eta();
+                WVJJTree->FullyResolved_ThirdFourthJets_phi = ThirdFourthJets.Phi();
+                WVJJTree->FullyResolved_ThirdFourthJets_m = ThirdFourthJets.M();
+                WVJJTree->FullyResolved_ThirdFourthJets_E = ThirdFourthJets.E();
 
-            /* ------------------------------ Sum of 4 jets ----------------------------- */
-            TLorentzVector FourJets = Ak4Jets.at(0) + Ak4Jets.at(1)+ Ak4Jets.at(2) + Ak4Jets.at(3);
-            WVJJTree->FullyResolved_FourJets_pt = FourJets.Pt();
-            WVJJTree->FullyResolved_FourJets_eta = FourJets.Eta();
-            WVJJTree->FullyResolved_FourJets_phi = FourJets.Phi();
-            WVJJTree->FullyResolved_FourJets_m = FourJets.M();
-            WVJJTree->FullyResolved_FourJets_E = FourJets.E();
+                /* ------------------------------ Sum of 4 jets ----------------------------- */
+                TLorentzVector FourJets = Ak4Jets.at(0) + Ak4Jets.at(1)+ Ak4Jets.at(2) + Ak4Jets.at(3);
+                WVJJTree->FullyResolved_FourJets_pt = FourJets.Pt();
+                WVJJTree->FullyResolved_FourJets_eta = FourJets.Eta();
+                WVJJTree->FullyResolved_FourJets_phi = FourJets.Phi();
+                WVJJTree->FullyResolved_FourJets_m = FourJets.M();
+                WVJJTree->FullyResolved_FourJets_E = FourJets.E();
 
-            TLorentzVector Radion = FourJets + diphoton;
-            WVJJTree->FullyResolved_Radion_pt = Radion.Pt();
-            WVJJTree->FullyResolved_Radion_eta = Radion.Eta();
-            WVJJTree->FullyResolved_Radion_phi = Radion.Phi();
-            WVJJTree->FullyResolved_Radion_m = Radion.M();
-            WVJJTree->FullyResolved_Radion_E = Radion.E();
+                TLorentzVector Radion = FourJets + diphoton;
+                WVJJTree->FullyResolved_Radion_pt = Radion.Pt();
+                WVJJTree->FullyResolved_Radion_eta = Radion.Eta();
+                WVJJTree->FullyResolved_Radion_phi = Radion.Phi();
+                WVJJTree->FullyResolved_Radion_m = Radion.M();
+                WVJJTree->FullyResolved_Radion_E = Radion.E();
             }
+            if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] After four jet if condition" << std::endl;
 
             if (isMC==1) {
                 WVJJTree->nScaleWeight = *NanoReader_.nLHEScaleWeight;
