@@ -4,17 +4,11 @@ import os
 
 ROOT.gROOT.SetBatch(True)
 
-Hist = [
-        # "GluGluToRadionToHHTo2G4Q_M250.root",
-        # "GluGluToRadionToHHTo2G4Q_M1000.root",
-        # "GluGluToRadionToHHTo2G4Q_M3000.root",
-        # "GluGluToRadionToHHTo2G4Q_M500.root",
-        # "GluGluToRadionToHHTo2G4Q_M800.root",
-        # "GluGluToRadionToHHTo2G4Q_M1500.root",
-        # "GluGluToRadionToHHTo2G4Q_M2000.root",
-        # "GluGluToRadionToHHTo2G4Q_M2500.root",
-        # "GluGluToHHTo2G4Q_node-cHHH1.root"
+plotDir = "CutFlowTables_FH"
+if not os.path.isdir(plotDir):
+    os.makedirs(plotDir)
 
+Hist = [
         "GluGluToRadionToHHTo2G4Q_M250.root",
         "GluGluToRadionToHHTo2G4Q_M1000.root",
         "GluGluToRadionToHHTo2G4Q_M3000.root",
@@ -49,15 +43,6 @@ Hist = [
         # "GluGluToHHTo2G4Q_node-cHHH2p45.root",
         # "GluGluToHHTo2G4Q_node-cHHH5.root"
 
-
-        # "GluGluToRadionToHHTo2G2Qlnu_M250.root",
-        # "GluGluToRadionToHHTo2G2Qlnu_M1000.root",
-        # "GluGluToRadionToHHTo2G2Qlnu_M3000.root",
-        # "GluGluToRadionToHHTo2G2Qlnu_M500.root",
-        # "GluGluToRadionToHHTo2G2Qlnu_M800.root",
-        # "GluGluToRadionToHHTo2G2Qlnu_M1500.root",
-        # "GluGluToRadionToHHTo2G2Qlnu_M2000.root",
-        # "GluGluToRadionToHHTo2G2Qlnu_M2500.root"
         ]
 
 info = {"SampleName": [],
@@ -104,7 +89,7 @@ for files_ in Hist:
 
     c1 = ROOT.TCanvas()
     h1.Draw("TEXT")
-    c1.SaveAs(inFileName.replace(".root", ".pdf"))
+    c1.SaveAs(plotDir+"/"+inFileName.replace(".root", ".pdf"))
 
     print("Number of bins: {}".format(h1.GetNbinsX()))
     for x in range(h1.GetNbinsX()):
@@ -164,9 +149,9 @@ df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton 
 
 print(df)
 
-df.to_csv("test.csv")
+df.to_csv(plotDir + "/test.csv")
 
-os.system('cat test.csv')
+os.system('cat '+ plotDir+ '/test.csv')
 
 # df = pd.DataFrame(columns=info["SampleName"],dtype="string")
 # df.loc[0] = info["MC Gen"]

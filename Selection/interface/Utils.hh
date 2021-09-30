@@ -3,6 +3,7 @@
 
 #include "TMath.h"
 #include "../interface/WVJJData.hh"
+#include "TLorentzVector.h"
 
 //float deltaR(float eta1, float phi1, float eta2, float phi2) {
 //
@@ -25,12 +26,67 @@ float deltaR(float eta1, float phi1, float eta2, float phi2) {
   return TMath::Sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 }
 
+float deltaR(TLorentzVector vec1, TLorentzVector vec2) {
+  float eta1 = vec1.Eta();
+  float eta2 = vec2.Eta();
+  float phi1 = vec1.Phi();
+  float phi2 = vec2.Phi();
+  float deltaPhi = TMath::Abs(phi1-phi2);
+  float deltaEta = eta1-eta2;
+  if(deltaPhi > TMath::Pi()) {
+    deltaPhi = TMath::TwoPi() - deltaPhi;
+  }
+  return TMath::Sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+}
+
+float MinDeltaRFromReferenceLV(TLorentzVector ReferenceVec, TLorentzVector Check1, TLorentzVector Check2)
+{
+  float deltaR1 = deltaR(ReferenceVec, Check1);
+  float deltaR2 = deltaR(ReferenceVec, Check2);
+  return TMath::Min(deltaR1,deltaR2);
+}
+
+float MinDeltaRFromReferenceLV(TLorentzVector ReferenceVec, TLorentzVector Check1, TLorentzVector Check2, TLorentzVector Check3, TLorentzVector Check4)
+{
+  float deltaR1 = deltaR(ReferenceVec, Check1);
+  float deltaR2 = deltaR(ReferenceVec, Check2);
+  float deltaR3 = deltaR(ReferenceVec, Check3);
+  float deltaR4 = deltaR(ReferenceVec, Check4);
+  float minOf12 = TMath::Min(deltaR1,deltaR2);
+  float minOf34 = TMath::Min(deltaR3,deltaR4);
+  return TMath::Min(minOf12,minOf34);
+}
+
+float MinDeltaR(TLorentzVector Check1, TLorentzVector Check2, TLorentzVector Check3, TLorentzVector Check4)
+{
+  float deltaR1 = deltaR(Check1, Check2);
+  float deltaR2 = deltaR(Check3, Check4);
+  return TMath::Min(deltaR1,deltaR2);
+}
+
 float deltaPhi(float phi1, float phi2) {
   float deltaphi_ = TMath::Abs(phi1-phi2);
   if(deltaphi_ > TMath::Pi()) {
     deltaphi_ = TMath::TwoPi() - deltaphi_;
   }
   return deltaphi_;
+}
+
+float deltaPhi(TLorentzVector vec1, TLorentzVector vec2) {
+  float phi1 = vec1.Phi();
+  float phi2 = vec2.Phi();
+  float deltaphi_ = TMath::Abs(phi1-phi2);
+  if(deltaphi_ > TMath::Pi()) {
+    deltaphi_ = TMath::TwoPi() - deltaphi_;
+  }
+  return deltaphi_;
+}
+
+float deltaEta(TLorentzVector vec1, TLorentzVector vec2) {
+  float eta1 = vec1.Eta();
+  float eta2 = vec2.Eta();
+  float deltaeta_ = eta1-eta2;
+  return deltaeta_;
 }
 
 float GetBinTH2_value(float x, float y, TH2* h2) {
