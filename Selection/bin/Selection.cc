@@ -129,11 +129,10 @@ int main (int argc, char** argv) {
     ScaleFactors scaleFactor(era);
 
     std::vector<TLorentzVector> LV_LHE_Higgs;
+    std::vector<TLorentzVector> LV_GEN_Higgs;
+    std::vector<TLorentzVector> LV_GEN_WBosons;
     std::vector<TLorentzVector> LV_GEN_photons;
-    TLorentzVector LV_GEN_HiggsGG(0,0,0,0);
-    TLorentzVector LV_GEN_HiggsWW(0,0,0,0);
-    TLorentzVector LV_GEN_LeadingW(0,0,0,0);
-    TLorentzVector LV_GEN_SubLeadingW(0,0,0,0);
+    std::vector<TLorentzVector> LV_GEN_quarks;
 
     std::vector<TLorentzVector> LV_tightMuon;
     std::vector<TLorentzVector> LV_tightEle;
@@ -237,6 +236,7 @@ int main (int argc, char** argv) {
     // if (DOWNLOAD_LOCAL_COPY) {
     char test[] = "/tmp/rasharma/tmpdir_XXXXXX";
     char *dir_name = mkdtemp(test);
+    int CountEvents = 0;
     // }
     while (getline(ifs,line)) {
         std::stringstream ss(line);
@@ -345,15 +345,13 @@ int main (int argc, char** argv) {
                 LV_LHE_Higgs.clear();
                 for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nLHEPart; ++LHEPartCount)
                 {
+                    // if (NanoReader_.LHEPart_status[LHEPartCount] == 1)
                     // std::cout <<  "Event No. " << i << "/" << lineCount
-                    //             << "\tNanoReader_.nLHEPart: pdgID = " << NanoReader_.LHEPart_pdgId[LHEPartCount]
+                    //             << "\tLHE: pdgID = " << NanoReader_.LHEPart_pdgId[LHEPartCount]
                     //             << "\t Status = " << NanoReader_.LHEPart_status[LHEPartCount]
+                    //             << "\t mass = " << NanoReader_.LHEPart_mass[LHEPartCount]
                     //             << "\t pT = " << NanoReader_.LHEPart_pt[LHEPartCount]
-                    //             << "\t mass = " << NanoReader_.LHEPart_mass[LHEPartCount] << std::endl;
-                    // To-Do:
-                    // Grab Higgs with status 1 and fill it in branch:
-                    // branch name: LHE_Leading_Higgs_pT, LHE_Subleading_Higgs_pT
-                    // TLorentzVector LHE_Higgs
+                    //             << std::endl;
                     if (NanoReader_.LHEPart_pdgId[LHEPartCount] == 25 && NanoReader_.LHEPart_status[LHEPartCount] == 1)
                     {
                         LV_LHE_Higgs.push_back(TLorentzVector(0,0,0,0));
@@ -363,7 +361,12 @@ int main (int argc, char** argv) {
                                                          NanoReader_.LHEPart_mass[LHEPartCount]);
                     }
                 }
-                if (LV_LHE_Higgs.size() != 2) continue;
+                if (LV_LHE_Higgs.size() != 2)
+                {
+                    std::cout << "Higgs size = " << LV_LHE_Higgs.size() << std::endl;
+                    std::cout << "LHE Higgs bosons are not equal to 2. Please check..." << std::endl;
+                    exit(0);
+                }
                 WVJJTree->LHE_deltaR_HH = deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi());
                 WVJJTree->LHE_deltaEta_HH = LV_LHE_Higgs[0].Eta() - LV_LHE_Higgs[1].Eta();
                 WVJJTree->LHE_deltaPhi_HH = deltaPhi(LV_LHE_Higgs[0].Phi(),LV_LHE_Higgs[1].Phi());
@@ -374,18 +377,46 @@ int main (int argc, char** argv) {
             //
             if (isMC==1)
             {
+                LV_GEN_Higgs.clear();
+                LV_GEN_WBosons.clear();
+                LV_GEN_photons.clear();
+                LV_GEN_quarks.clear();
                 for (UInt_t GENPartCount = 0; GENPartCount < *NanoReader_.nGenPart; ++GENPartCount)
                 {
-                    if (abs(NanoReader_.GenPart_pdgId[GENPartCount]) == 22 &&
-                        (NanoReader_.GenPart_status[GENPartCount]==1 ||
-                            NanoReader_.GenPart_status[GENPartCount] == 23) &&
-                        NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]==25)
+                    int pdgid = NanoReader_.GenPart_pdgId[GENPartCount];
+                    int status = NanoReader_.GenPart_status[GENPartCount];
+                    int motherPDGid = NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]];
+
+                    // bool isPrompt = (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 );
+                    // bool isHardProcess = (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 );
+                    // bool isFromHardProcess = (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 );
+                    // bool isFromHardProcessBeforeFSR = (NanoReader_.GenPart_statusFlags[i] >> 11  & 1 );
+                    // if (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 ) std::cout << "Status Flags is Prompt "  << std::endl;
+                    // if (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 ) std::cout << "Status Flags is HardProcess "  << std::endl;
+                    // if (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 ) std::cout << "Status Flags is from HardProcess "  << std::endl;
+                    // if (NanoReader_.GenPart_statusFlags[i] >> 11 & 1 ) std::cout << "Status Flags is from HardProcessBeforeFSR "  << std::endl;
+
+                    // Get Higgs bosons
+                    if (pdgid == 25)
                     {
-                        // std::cout << "Event No. " << i << "/" << lineCount
-                        //           << ":\tpdgID: " << NanoReader_.GenPart_pdgId[GENPartCount]
-                        //           << "\tstatus: " << NanoReader_.GenPart_status[GENPartCount]
-                        //           << "\tMother pdgID: " <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]
-                        //           <<  std::endl;
+                        // std::cout << "\tEvent No. " << i << "/" << lineCount << ":\tHiggs: pdgID: " << pdgid
+                                  // << "\tstatus: " << status << "\tMother pdgID: " <<  motherPDGid
+                                  // << "\tpT: " << NanoReader_.GenPart_pt[GENPartCount] << std::endl;
+                        LV_GEN_Higgs.push_back(TLorentzVector(0,0,0,0));
+                        LV_GEN_Higgs.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
+                                                           NanoReader_.GenPart_eta[GENPartCount],
+                                                           NanoReader_.GenPart_phi[GENPartCount],
+                                                           NanoReader_.GenPart_mass[GENPartCount]);
+                    }
+
+                    // Get GEN photons
+                    // status 1 and 23 => final state particles
+                    // check status code here: http://th-www.if.uj.edu.pl/~erichter/TauAnalFrame/external/pythia8185/htmldoc/ParticleProperties.html
+                    if (abs(pdgid) == 22 && (status==1 || status == 23) && motherPDGid==25)
+                    {
+                        // std::cout << "Event No. " << i << "/" << lineCount << ":\tpdgID: " << pdgid
+                                  // << "\tstatus: " << status << "\tMother pdgID: " <<  motherPDGid
+                                  // <<  std::endl;
 
                         LV_GEN_photons.push_back(TLorentzVector(0,0,0,0));
                         LV_GEN_photons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
@@ -394,50 +425,156 @@ int main (int argc, char** argv) {
                                                            NanoReader_.GenPart_mass[GENPartCount]);
                     }
 
-                    if (LV_GEN_photons.size() == 2)
+                    // Get W-bosons from Higgs
+                    if (abs(pdgid) == 24 && motherPDGid == 25)
                     {
-                        LV_GEN_HiggsGG = TLorentzVector(0,0,0,0);
-                        LV_GEN_HiggsGG = LV_GEN_photons[0] + LV_GEN_photons[1];
-                        if (LV_LHE_Higgs.size() == 2)
-                            WVJJTree->LHEGEN_deltaR_HH = TMath::Min(deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_GEN_HiggsGG.Eta(),LV_GEN_HiggsGG.Phi()),
-                                                                    deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),LV_GEN_HiggsGG.Eta(),LV_GEN_HiggsGG.Phi()));
+                        // std::cout << "\tEvent No. " << i << "/" << lineCount << ":\tWBoson: pdgID: " << pdgid
+                                  // << "\tstatus: " << status << "\tMother pdgID: " <<  motherPDGid
+                                  // << "\tpT: " << NanoReader_.GenPart_pt[GENPartCount] << std::endl;
+                        LV_GEN_WBosons.push_back(TLorentzVector(0,0,0,0));
+                        LV_GEN_WBosons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
+                                                           NanoReader_.GenPart_eta[GENPartCount],
+                                                           NanoReader_.GenPart_phi[GENPartCount],
+                                                           NanoReader_.GenPart_mass[GENPartCount]);
                     }
 
-                    // if (abs(NanoReader_.GenPart_pdgId[GENPartCount]) == 24 &&
-                    //     (NanoReader_.GenPart_status[GENPartCount]==1) &&
-                    //     NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]==25)
-                    // {
-                    //     std::cout << "Event No. " << i << "/" << lineCount
-                    //               << ":\tpdgID: " << NanoReader_.GenPart_pdgId[GENPartCount]
-                    //               << "\tstatus: " << NanoReader_.GenPart_status[GENPartCount]
-                    //               << "\tMother pdgID: " <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]
-                    //               << "\n" << std::endl;
-
-                    //     // LV_GEN_photons.push_back(TLorentzVector(0,0,0,0));
-                    //     // LV_GEN_photons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
-                    //     //                                    NanoReader_.GenPart_eta[GENPartCount],
-                    //     //                                    NanoReader_.GenPart_phi[GENPartCount],
-                    //     //                                    NanoReader_.GenPart_mass[GENPartCount]);
-                    // }
-
-
-                    // if (abs(NanoReader_.GenPart_pdgId[GENPartCount]) == 22 &&
-                        // )
-
-                    // if (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 ) std::cout << "Status Flags is Prompt "  << std::endl;
-                    // if (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 ) std::cout << "Status Flags is HardProcess "  << std::endl;
-                    // if (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 ) std::cout << "Status Flags is from HardProcess "  << std::endl;
-                    // if (NanoReader_.GenPart_statusFlags[i] >> 11 & 1 ) std::cout << "Status Flags is from HardProcessBeforeFSR "  << std::endl;
+                    // Get quarks coming from W-bosons and should be final state particles
+                    // status = 23 => final state particles
+                    if (abs(pdgid) <= 6 && abs(motherPDGid) == 24 && status == 23 )
+                    {
+                        // std::cout << "\tEvent No. " << i << "/" << lineCount << ":\tQuarks: pdgID: " << pdgid
+                                  // << "\tstatus: " << status << "\tMother pdgID: " <<  motherPDGid
+                                  // << "\tpT: " << NanoReader_.GenPart_pt[GENPartCount] << std::endl;
+                        CountEvents++;
+                        LV_GEN_quarks.push_back(TLorentzVector(0,0,0,0));
+                        LV_GEN_quarks.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
+                                                           NanoReader_.GenPart_eta[GENPartCount],
+                                                           NanoReader_.GenPart_phi[GENPartCount],
+                                                           NanoReader_.GenPart_mass[GENPartCount]);
+                    }
+                }
+                if (LV_GEN_photons.size() != 2)
+                {
+                    std::cout << "photons size = " << LV_GEN_photons.size() << std::endl;
+                    std::cout << "GEN photons are more than 2. Please check..." << std::endl;
+                    exit(0);
+                }
+                if (LV_GEN_Higgs.size()>2)
+                {
+                    std::cout << "Higgs size = " << LV_GEN_Higgs.size() << std::endl;
+                    std::cout << "GEN Higgs are more than 2. Please check..." << std::endl;
+                    exit(0);
+                }
+                if (LV_GEN_WBosons.size()>2)
+                {
+                    std::cout << "W-Bosons size = " << LV_GEN_WBosons.size() << std::endl;
+                    std::cout << "GEN W-Bosons are more than 2. Please check..." << std::endl;
+                    exit(0);
+                }
+                if (LV_GEN_quarks.size()>4)
+                {
+                    std::cout << "Quarks size = " << LV_GEN_quarks.size() << std::endl;
+                    std::cout << "GEN Quarks are more than 4. Please check..." << std::endl;
+                    exit(0);
                 }
             }
-            // exit(0);
-            // continue;
-            // filtering out particular event for sync
-            //if (!(*NanoReader_.event==3073090041)) {
-            //  continue;
-            //}
-            //std::cout << *NanoReader_.run << " " << *NanoReader_.event << std::endl;
 
+            TLorentzVector LV_GEN_HiggsGG(0,0,0,0);
+            TLorentzVector LV_GEN_HiggsWW(0,0,0,0);
+            LV_GEN_HiggsGG = LV_GEN_photons[0] + LV_GEN_photons[1];
+            LV_GEN_HiggsWW = LV_GEN_WBosons[0] + LV_GEN_WBosons[1];
+            WVJJTree->LHEGEN_deltaR_HToGGH = TMath::Min(deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_GEN_HiggsGG.Eta(),LV_GEN_HiggsGG.Phi()),
+                                                    deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),LV_GEN_HiggsGG.Eta(),LV_GEN_HiggsGG.Phi()));
+            WVJJTree->LHEGEN_deltaR_HToWWH = TMath::Min(deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_GEN_HiggsWW.Eta(),LV_GEN_HiggsWW.Phi()),
+                                                    deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),LV_GEN_HiggsWW.Eta(),LV_GEN_HiggsWW.Phi()));
+
+            // Save pT, eta, phi and mass of LV_GEN_photons[0] in output Tree
+            // Save pT, eta, phi and mass of LV_GEN_photons[1] in output Tree
+            WVJJTree->GEN_LeadingPhoton_pT = LV_GEN_photons[0].Pt();
+            WVJJTree->GEN_LeadingPhoton_eta = LV_GEN_photons[0].Eta();
+            WVJJTree->GEN_LeadingPhoton_phi = LV_GEN_photons[0].Phi();
+            WVJJTree->GEN_LeadingPhoton_energy = LV_GEN_photons[0].E();
+            WVJJTree->GEN_LeadingPhoton_mass = LV_GEN_photons[0].M();
+
+            WVJJTree->GEN_SubLeadingPhoton_pT = LV_GEN_photons[1].Pt();
+            WVJJTree->GEN_SubLeadingPhoton_eta = LV_GEN_photons[1].Eta();
+            WVJJTree->GEN_SubLeadingPhoton_phi = LV_GEN_photons[1].Phi();
+            WVJJTree->GEN_SubLeadingPhoton_energy = LV_GEN_photons[1].E();
+            WVJJTree->GEN_SubLeadingPhoton_mass = LV_GEN_photons[1].M();
+
+            // Save pT, eta, phi and mass of LV_GEN_quarks[0] in output Tree
+            // Save pT, eta, phi and mass of LV_GEN_quarks[1] in output Tree
+            // Save pT, eta, phi and mass of LV_GEN_quarks[2] in output Tree
+            // Save pT, eta, phi and mass of LV_GEN_quarks[3] in output Tree
+
+            WVJJTree->GEN_Q1_pT = LV_GEN_quarks[0].Pt();
+            WVJJTree->GEN_Q1_eta = LV_GEN_quarks[0].Eta();
+            WVJJTree->GEN_Q1_phi = LV_GEN_quarks[0].Phi();
+            WVJJTree->GEN_Q1_energy = LV_GEN_quarks[0].E();
+            WVJJTree->GEN_Q1_mass = LV_GEN_quarks[0].M();
+
+            WVJJTree->GEN_Q2_pT = LV_GEN_quarks[1].Pt();
+            WVJJTree->GEN_Q2_eta = LV_GEN_quarks[1].Eta();
+            WVJJTree->GEN_Q2_phi = LV_GEN_quarks[1].Phi();
+            WVJJTree->GEN_Q2_energy = LV_GEN_quarks[1].E();
+            WVJJTree->GEN_Q2_mass = LV_GEN_quarks[1].M();
+
+            WVJJTree->GEN_Q3_pT = LV_GEN_quarks[2].Pt();
+            WVJJTree->GEN_Q3_eta = LV_GEN_quarks[2].Eta();
+            WVJJTree->GEN_Q3_phi = LV_GEN_quarks[2].Phi();
+            WVJJTree->GEN_Q3_energy = LV_GEN_quarks[2].E();
+            WVJJTree->GEN_Q3_mass = LV_GEN_quarks[2].M();
+
+            WVJJTree->GEN_Q4_pT = LV_GEN_quarks[3].Pt();
+            WVJJTree->GEN_Q4_eta = LV_GEN_quarks[3].Eta();
+            WVJJTree->GEN_Q4_phi = LV_GEN_quarks[3].Phi();
+            WVJJTree->GEN_Q4_energy = LV_GEN_quarks[3].E();
+            WVJJTree->GEN_Q4_mass = LV_GEN_quarks[3].M();
+
+            // Save pT, eta, phi and mass of LV_GEN_WBosons[0] in output Tree
+            // Save pT, eta, phi and mass of LV_GEN_WBosons[1] in output Tree
+
+            WVJJTree->GEN_W1_pT = LV_GEN_WBosons[0].Pt();
+            WVJJTree->GEN_W1_eta = LV_GEN_WBosons[0].Eta();
+            WVJJTree->GEN_W1_phi = LV_GEN_WBosons[0].Phi();
+            WVJJTree->GEN_W1_energy = LV_GEN_WBosons[0].E();
+            WVJJTree->GEN_W1_mass = LV_GEN_WBosons[0].M();
+
+            WVJJTree->GEN_W2_pT = LV_GEN_WBosons[1].Pt();
+            WVJJTree->GEN_W2_eta = LV_GEN_WBosons[1].Eta();
+            WVJJTree->GEN_W2_phi = LV_GEN_WBosons[1].Phi();
+            WVJJTree->GEN_W2_energy = LV_GEN_WBosons[1].E();
+            WVJJTree->GEN_W2_mass = LV_GEN_WBosons[1].M();
+
+            // Save pT, eta, phi and mass of LV_GEN_Higgs[0] in output Tree
+            // Save pT, eta, phi and mass of LV_GEN_Higgs[1] in output Tree
+            WVJJTree->GEN_H1_pT = LV_GEN_Higgs[0].Pt();
+            WVJJTree->GEN_H1_eta = LV_GEN_Higgs[0].Eta();
+            WVJJTree->GEN_H1_phi = LV_GEN_Higgs[0].Phi();
+            WVJJTree->GEN_H1_energy = LV_GEN_Higgs[0].E();
+            WVJJTree->GEN_H1_mass = LV_GEN_Higgs[0].M();
+
+            WVJJTree->GEN_H2_pT = LV_GEN_Higgs[1].Pt();
+            WVJJTree->GEN_H2_eta = LV_GEN_Higgs[1].Eta();
+            WVJJTree->GEN_H2_phi = LV_GEN_Higgs[1].Phi();
+            WVJJTree->GEN_H2_energy = LV_GEN_Higgs[1].E();
+            WVJJTree->GEN_H2_mass = LV_GEN_Higgs[1].M();
+
+            WVJJTree->GEN_deltaR_HH = deltaR(LV_GEN_Higgs[0],LV_GEN_Higgs[1]);
+            WVJJTree->GEN_deltaEta_HH = LV_GEN_Higgs[0].Eta() - LV_GEN_Higgs[1].Eta();
+            WVJJTree->GEN_deltaPhi_HH = deltaPhi(LV_GEN_Higgs[0],LV_GEN_Higgs[1]);
+
+            WVJJTree->GEN_HWW_pT = (LV_GEN_WBosons[0]+LV_GEN_WBosons[1]).Pt();
+            WVJJTree->GEN_HWW_eta = (LV_GEN_WBosons[0]+LV_GEN_WBosons[1]).Eta();
+            WVJJTree->GEN_HWW_phi = (LV_GEN_WBosons[0]+LV_GEN_WBosons[1]).Phi();
+            WVJJTree->GEN_HWW_energy = (LV_GEN_WBosons[0]+LV_GEN_WBosons[1]).E();
+            WVJJTree->GEN_HWW_mass = (LV_GEN_WBosons[0]+LV_GEN_WBosons[1]).M();
+
+            WVJJTree->GEN_HGG_pT = (LV_GEN_photons[1]+LV_GEN_photons[0]).Pt();
+            WVJJTree->GEN_HGG_eta = (LV_GEN_photons[1]+LV_GEN_photons[0]).Eta();
+            WVJJTree->GEN_HGG_phi = (LV_GEN_photons[1]+LV_GEN_photons[0]).Phi();
+            WVJJTree->GEN_HGG_energy = (LV_GEN_photons[1]+LV_GEN_photons[0]).E();
+            WVJJTree->GEN_HGG_mass = (LV_GEN_photons[1]+LV_GEN_photons[0]).M();
 
             WVJJTree->trigger_2Pho = (
                                       (has_HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 ? *NanoReader_.HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 : 0) ||
@@ -565,9 +702,12 @@ int main (int argc, char** argv) {
             WVJJTree->pho1_E_byMgg = LV_pho2.E()/diphoton.M();
             WVJJTree->pho2_E_byMgg = LV_pho2.E()/diphoton.M();
 
-            WVJJTree->DiPhoton_deltaR_LHERECO_HH = TMath::Min(
-                                    deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),diphoton.Eta(),diphoton.Phi()),
-                                    deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),diphoton.Eta(),diphoton.Phi()));
+            WVJJTree->DiPhoton_deltaR_LHERECO_HH = MinDeltaR(diphoton,LV_LHE_Higgs[0],LV_LHE_Higgs[1]);
+            // WVJJTree->DiPhoton_deltaR_GENRECO_HH = MinDeltaR(diphoton,LV_GEN_Higgs[0],LV_GEN_Higgs[1]);
+            WVJJTree->DiPhoton_deltaR_GENRECO_HH = deltaR(diphoton,LV_GEN_photons[1]+LV_GEN_photons[0]);
+
+            WVJJTree->DiPhoton_deltaR_pho1_GENPhoton = MinDeltaR(LV_pho1,LV_GEN_photons[0],LV_GEN_photons[1]);
+            WVJJTree->DiPhoton_deltaR_pho2_GENPhoton = MinDeltaR(LV_pho2,LV_GEN_photons[0],LV_GEN_photons[1]);
 
             // if(!(WVJJTree->pho1_pt_byMgg > 0.35)) continue;
             // if(!(WVJJTree->pho2_pt_byMgg > 0.25)) continue;
@@ -730,7 +870,7 @@ int main (int argc, char** argv) {
                                             NanoReader_.FatJet_msoftdrop[j]
                                             );
             }
-            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet>=1)
+            if ((nTightMu + nTightEle == 0) && nGood_Higgs_FatJet>=1)
                 totalCutFlow_FH->Fill("nAK8_Higgs >= 1",1);
 
             /*  ------------------------------------------------------------------------- */
@@ -811,10 +951,15 @@ int main (int argc, char** argv) {
                 WVJJTree->OneJet_Radion_phi = OneJet_Radion_LV.Phi();
                 WVJJTree->OneJet_Radion_m = OneJet_Radion_LV.M();
                 WVJJTree->OneJet_Radion_E = OneJet_Radion_LV.E();
-                WVJJTree->OneJet_deltaR_LHERECO_HH = TMath::Min(
-                                        deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),OneJet_Radion_LV.Eta(),OneJet_Radion_LV.Phi()),
-                                        deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),OneJet_Radion_LV.Eta(),OneJet_Radion_LV.Phi()));
 
+                // deltaR between LHE Higgs and RECO Higgs
+                WVJJTree->OneJet_deltaR_LHERECO_HH = MinDeltaR(LV_Ak8HiggsJets[0], LV_LHE_Higgs[0], LV_LHE_Higgs[1]);
+                // WVJJTree->OneJet_deltaR_GENRECO_HH = MinDeltaR(LV_Ak8HiggsJets[0], LV_GEN_Higgs[0], LV_GEN_Higgs[1]);
+                WVJJTree->OneJet_deltaR_GENRECO_HH = deltaR(LV_Ak8HiggsJets[0], LV_GEN_WBosons[0] + LV_GEN_WBosons[1]);
+
+                WVJJTree->OneJet_deltaR_HH = deltaR(LV_Ak8HiggsJets[0],diphoton);
+                WVJJTree->OneJet_deltaEta_HH = LV_Ak8HiggsJets[0].Eta() - diphoton.Eta();
+                WVJJTree->OneJet_deltaPhi_HH = deltaPhi(LV_Ak8HiggsJets[0],diphoton);
 
             }
             if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After one jet if condition" << std::endl;
@@ -1102,7 +1247,7 @@ int main (int argc, char** argv) {
             }
 
             // FH: 4 jet category
-            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4 )
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4)
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8W=0 & nAK4>=4",1);
 
             // Found 1 Higgs jet or
@@ -1271,6 +1416,12 @@ int main (int argc, char** argv) {
                 WVJJTree->TwoJet_SubLeadFatJet_tau3=NanoReader_.FatJet_tau3[goodWJetIndex[1]];
                 WVJJTree->TwoJet_SubLeadFatJet_tau4=NanoReader_.FatJet_tau4[goodWJetIndex[1]];
 
+                WVJJTree->TwoJet_HWW_pt = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Pt();
+                WVJJTree->TwoJet_HWW_eta = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Eta();
+                WVJJTree->TwoJet_HWW_phi = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Phi();
+                WVJJTree->TwoJet_HWW_m = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).M();
+                WVJJTree->TwoJet_HWW_E = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).E();
+
                 TLorentzVector TwoJet_Radion_LV = LV_Ak8WZJets[0] + LV_Ak8WZJets[1] + diphoton;
 
                 WVJJTree->TwoJet_Radion_pt = TwoJet_Radion_LV.Pt();
@@ -1279,11 +1430,18 @@ int main (int argc, char** argv) {
                 WVJJTree->TwoJet_Radion_m = TwoJet_Radion_LV.M();
                 WVJJTree->TwoJet_Radion_E = TwoJet_Radion_LV.E();
 
-                WVJJTree->TwoJet_deltaR_LHERECO_HH = TMath::Min(
-                                        deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),TwoJet_Radion_LV.Eta(),TwoJet_Radion_LV.Phi()),
-                                        deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),TwoJet_Radion_LV.Eta(),TwoJet_Radion_LV.Phi()));
+                // deltaR between LHE Higgs and RECO Higgs
+                WVJJTree->TwoJet_deltaR_LHERECO_HH = MinDeltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_LHE_Higgs[0], LV_LHE_Higgs[1]);
+                // WVJJTree->TwoJet_deltaR_GENRECO_HH = MinDeltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_GEN_Higgs[0], LV_GEN_Higgs[1]);
+                WVJJTree->TwoJet_deltaR_GENRECO_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_GEN_WBosons[0]+LV_GEN_WBosons[1]);
 
+                // deltaR between GEN W-bosons and Reconstructed W-bosons
+                WVJJTree->TwoJet_deltaR_LeadAK8WBoson_GENW = MinDeltaR(LV_Ak8WZJets[0], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
+                WVJJTree->TwoJet_deltaR_SubLeadAK8WBoson_GENW = MinDeltaR(LV_Ak8WZJets[1], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
 
+                WVJJTree->TwoJet_deltaR_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1],diphoton);
+                WVJJTree->TwoJet_deltaEta_HH = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Eta() - diphoton.Eta();
+                WVJJTree->TwoJet_deltaPhi_HH = deltaPhi(LV_Ak8WZJets[0] + LV_Ak8WZJets[1],diphoton);
             }
             if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After two jet if condition" << std::endl;
 
@@ -1366,16 +1524,34 @@ int main (int argc, char** argv) {
 
                 TLorentzVector ThreeJet_Radion_LV = LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1] + diphoton;
 
+                WVJJTree->ThreeJet_Higgs_pt = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).Pt();
+                WVJJTree->ThreeJet_Higgs_eta = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).Eta();
+                WVJJTree->ThreeJet_Higgs_phi = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).Phi();
+                WVJJTree->ThreeJet_Higgs_m = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).M();
+                WVJJTree->ThreeJet_Higgs_E = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).E();
+
                 WVJJTree->ThreeJet_Radion_pt = ThreeJet_Radion_LV.Pt();
                 WVJJTree->ThreeJet_Radion_eta = ThreeJet_Radion_LV.Eta();
                 WVJJTree->ThreeJet_Radion_phi = ThreeJet_Radion_LV.Phi();
                 WVJJTree->ThreeJet_Radion_m = ThreeJet_Radion_LV.M();
                 WVJJTree->ThreeJet_Radion_E = ThreeJet_Radion_LV.E();
 
-                WVJJTree->ThreeJet_deltaR_LHERECO_HH = TMath::Min(
-                                        deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),ThreeJet_Radion_LV.Eta(),ThreeJet_Radion_LV.Phi()),
-                                        deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),ThreeJet_Radion_LV.Eta(),ThreeJet_Radion_LV.Phi()));
+                // deltaR between LHE Higgs and RECO Higgs
+                WVJJTree->ThreeJet_deltaR_LHERECO_HH = MinDeltaR(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_LHE_Higgs[0], LV_LHE_Higgs[1]);
+                // WVJJTree->ThreeJet_deltaR_GENRECO_HH = MinDeltaR(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_GEN_Higgs[0], LV_GEN_Higgs[1]);
+                WVJJTree->ThreeJet_deltaR_GENRECO_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_GEN_WBosons[0]+LV_GEN_WBosons[1]);
 
+                // deltaR between GEN W-bosons and Reconstructed W-bosons
+                WVJJTree->ThreeJet_deltaR_AK4WBoson_GENW = MinDeltaR(LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
+                WVJJTree->ThreeJet_deltaR_AK8WBoson_GENW = MinDeltaR(LV_Ak8WZJets[0], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
+
+                // deltaR between GEN quarks and RECO jets
+                WVJJTree->ThreeJet_deltaR_AK4_1stJet_GENW = MinDeltaR(LV_Ak4Jets[0], LV_GEN_quarks[0], LV_GEN_quarks[1], LV_GEN_quarks[2], LV_GEN_quarks[3]);
+                WVJJTree->ThreeJet_deltaR_AK4_2ndJet_GENW = MinDeltaR(LV_Ak4Jets[1], LV_GEN_quarks[0], LV_GEN_quarks[1], LV_GEN_quarks[2], LV_GEN_quarks[3]);
+
+                WVJJTree->ThreeJet_deltaR_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1],diphoton);
+                WVJJTree->ThreeJet_deltaEta_HH = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).Eta() - diphoton.Eta();
+                WVJJTree->ThreeJet_deltaPhi_HH = deltaPhi(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1],diphoton);
             }
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] After three jet if condition" << std::endl;
 
@@ -1444,11 +1620,26 @@ int main (int argc, char** argv) {
                 WVJJTree->FullyResolved_Radion_m = FullyResolved_Radion.M();
                 WVJJTree->FullyResolved_Radion_E = FullyResolved_Radion.E();
 
-                WVJJTree->FullyResolved_deltaR_LHERECO_HH = TMath::Min(
-                                        deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),FullyResolved_Radion.Eta(),FullyResolved_Radion.Phi()),
-                                        deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),FullyResolved_Radion.Eta(),FullyResolved_Radion.Phi()));
+                // deltaR between GEN quarks and RECO jets
+                WVJJTree->FullyResolved_deltaR_1stLeadingJet_GENQ = MinDeltaR(LV_Ak4Jets.at(0), LV_GEN_quarks[0], LV_GEN_quarks[1], LV_GEN_quarks[2], LV_GEN_quarks[3]);
+                WVJJTree->FullyResolved_deltaR_2ndLeadingJet_GENQ = MinDeltaR(LV_Ak4Jets.at(1), LV_GEN_quarks[0], LV_GEN_quarks[1], LV_GEN_quarks[2], LV_GEN_quarks[3]);
+                WVJJTree->FullyResolved_deltaR_3rdLeadingJet_GENQ = MinDeltaR(LV_Ak4Jets.at(2), LV_GEN_quarks[0], LV_GEN_quarks[1], LV_GEN_quarks[2], LV_GEN_quarks[3]);
+                WVJJTree->FullyResolved_deltaR_4thLeadingJet_GENQ = MinDeltaR(LV_Ak4Jets.at(3), LV_GEN_quarks[0], LV_GEN_quarks[1], LV_GEN_quarks[2], LV_GEN_quarks[3]);
 
+                // deltaR between GEN W-bosons and Reconstructed W-bosons
+                WVJJTree->FullyResolved_deltaR_LeadingWboson_GENW = MinDeltaR(TwoLeadingJets, LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
+                WVJJTree->FullyResolved_deltaR_SubLeadingWboson_GENW = MinDeltaR(ThirdFourthJets, LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
+
+                // deltaR between LHE Higgs and RECO Higgs
+                WVJJTree->FullyResolved_deltaR_LHERECO_HH = MinDeltaR(FourJets,LV_LHE_Higgs[0],LV_LHE_Higgs[1]);
+                // WVJJTree->FullyResolved_deltaR_GENRECO_HH = MinDeltaR(FullyResolved_Radion,LV_GEN_Higgs[0],LV_GEN_Higgs[1]);
+                WVJJTree->FullyResolved_deltaR_GENRECO_HH = deltaR(FourJets,LV_GEN_WBosons[0]+LV_GEN_WBosons[1]);
+
+                WVJJTree->FullyResolved_deltaR_HH = deltaR(FourJets,diphoton);
+                WVJJTree->FullyResolved_deltaEta_HH = FourJets.Eta() - diphoton.Eta();
+                WVJJTree->FullyResolved_deltaPhi_HH = deltaPhi(FourJets,diphoton);
             }
+
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] After four jet if condition" << std::endl;
 
             if (isMC==1) {

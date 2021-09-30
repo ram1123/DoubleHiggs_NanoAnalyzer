@@ -28,15 +28,15 @@ public:
   uint run;
   uint ls;
   uint long evt;
-  float nPV;
-  float nPU_mean;
-  float genWeight;
-  float puWeight;
-  float puWeight_Up;
-  float puWeight_Down;
-  float L1PFWeight;
-  float L1PFWeight_Up;
-  float L1PFWeight_Down;
+  float nPV = -999.0;
+  float nPU_mean = -999.0;
+  float genWeight = -999.0;
+  float puWeight = -999.0;
+  float puWeight_Up = -999.0;
+  float puWeight_Down = -999.0;
+  float L1PFWeight = -999.0;
+  float L1PFWeight_Up = -999.0;
+  float L1PFWeight_Down = -999.0;
   uint nScaleWeight;
   uint nPdfWeight;
   uint nAqgcWeight;
@@ -47,12 +47,97 @@ public:
   // tZq veto ZV
   bool is_tZq;
 
+  float GEN_HWW_pT = -999.0;
+  float GEN_HWW_eta = -999.0;
+  float GEN_HWW_phi = -999.0;
+  float GEN_HWW_energy = -999.0;
+  float GEN_HGG_pT = -999.0;
+  float GEN_HGG_eta = -999.0;
+  float GEN_HGG_phi = -999.0;
+  float GEN_HGG_energy = -999.0;
+
+  float GEN_LeadingPhoton_pT = -999.0;
+  float GEN_LeadingPhoton_eta = -999.0;
+  float GEN_LeadingPhoton_phi = -999.0;
+  float GEN_LeadingPhoton_energy = -999.0;
+  float GEN_SubLeadingPhoton_pT = -999.0;
+  float GEN_SubLeadingPhoton_eta = -999.0;
+  float GEN_SubLeadingPhoton_phi = -999.0;
+  float GEN_SubLeadingPhoton_energy = -999.0;
+  float GEN_Q1_pT = -999.0;
+  float GEN_Q1_eta = -999.0;
+  float GEN_Q1_phi = -999.0;
+  float GEN_Q1_energy = -999.0;
+  float GEN_Q2_pT = -999.0;
+  float GEN_Q2_eta = -999.0;
+  float GEN_Q2_phi = -999.0;
+  float GEN_Q2_energy = -999.0;
+  float GEN_Q3_pT = -999.0;
+  float GEN_Q3_eta = -999.0;
+  float GEN_Q3_phi = -999.0;
+  float GEN_Q3_energy = -999.0;
+  float GEN_Q4_pT = -999.0;
+  float GEN_Q4_eta = -999.0;
+  float GEN_Q4_phi = -999.0;
+  float GEN_Q4_energy = -999.0;
+  float GEN_W1_pT = -999.0;
+  float GEN_W1_eta = -999.0;
+  float GEN_W1_phi = -999.0;
+  float GEN_W1_energy = -999.0;
+  float GEN_W2_pT = -999.0;
+  float GEN_W2_eta = -999.0;
+  float GEN_W2_phi = -999.0;
+  float GEN_W2_energy = -999.0;
+  float GEN_H1_pT = -999.0;
+  float GEN_H1_eta = -999.0;
+  float GEN_H1_phi = -999.0;
+  float GEN_H1_energy = -999.0;
+  float GEN_H2_pT = -999.0;
+  float GEN_H2_eta = -999.0;
+  float GEN_H2_phi = -999.0;
+  float GEN_H2_energy = -999.0;
+
+  float GEN_HWW_mass = -999.0;
+  float GEN_HGG_mass = -999.0;
+  float GEN_LeadingPhoton_mass = -999.0;
+  float GEN_SubLeadingPhoton_mass = -999.0;
+  float GEN_Q1_mass = -999.0;
+  float GEN_Q2_mass = -999.0;
+  float GEN_Q3_mass = -999.0;
+  float GEN_Q4_mass = -999.0;
+  float GEN_W1_mass = -999.0;
+  float GEN_W2_mass = -999.0;
+  float GEN_H1_mass = -999.0;
+  float GEN_H2_mass = -999.0;
+
   float LHE_deltaR_HH = -999.0;
   float LHE_deltaEta_HH = -999.0;
   float LHE_deltaPhi_HH = -999.0;
 
-  float LHEGEN_deltaR_HH = -999.0;
+  float LHEGEN_deltaR_HToGGH = -999.0;
+  float LHEGEN_deltaR_HToWWH = -999.0;
   float DiPhoton_deltaR_LHERECO_HH = -999.0;
+
+  float DiPhoton_deltaR_GENRECO_HH = -999.0;
+  float DiPhoton_deltaR_pho1_GENPhoton = -999.0;
+  float DiPhoton_deltaR_pho2_GENPhoton = -999.0;
+  float OneJet_deltaR_GENRECO_HH = -999.0;
+  float TwoJet_deltaR_GENRECO_HH = -999.0;
+  float TwoJet_deltaR_LeadAK8WBoson_GENW = -999.0;
+  float TwoJet_deltaR_SubLeadAK8WBoson_GENW = -999.0;
+  float ThreeJet_deltaR_GENRECO_HH = -999.0;
+  float ThreeJet_deltaR_AK4WBoson_GENW = -999.0;
+  float ThreeJet_deltaR_AK8WBoson_GENW = -999.0;
+  float ThreeJet_deltaR_AK4_1stJet_GENW = -999.0;
+  float ThreeJet_deltaR_AK4_2ndJet_GENW = -999.0;
+  float FullyResolved_deltaR_1stLeadingJet_GENQ = -999.0;
+  float FullyResolved_deltaR_2ndLeadingJet_GENQ = -999.0;
+  float FullyResolved_deltaR_3rdLeadingJet_GENQ = -999.0;
+  float FullyResolved_deltaR_4thLeadingJet_GENQ = -999.0;
+  float FullyResolved_deltaR_LeadingWboson_GENW = -999.0;
+  float FullyResolved_deltaR_SubLeadingWboson_GENW = -999.0;
+  float FullyResolved_deltaR_GENRECO_HH = -999.0;
+
   float OneJet_deltaR_LHERECO_HH = -999.0;
   float TwoJet_deltaR_LHERECO_HH = -999.0;
   float ThreeJet_deltaR_LHERECO_HH = -999.0;
@@ -70,15 +155,15 @@ public:
   uint nAK4Btag_medium;
   uint nAK4Btag_tight;
 
-  float btagWeight_loose;
-  float btagWeight_loose_Up;
-  float btagWeight_loose_Down;
-  float btagWeight_medium;
-  float btagWeight_medium_Up;
-  float btagWeight_medium_Down;
-  float btagWeight_tight;
-  float btagWeight_tight_Up;
-  float btagWeight_tight_Down;
+  float btagWeight_loose = -999.0;
+  float btagWeight_loose_Up = -999.0;
+  float btagWeight_loose_Down = -999.0;
+  float btagWeight_medium = -999.0;
+  float btagWeight_medium_Up = -999.0;
+  float btagWeight_medium_Down = -999.0;
+  float btagWeight_tight = -999.0;
+  float btagWeight_tight_Up = -999.0;
+  float btagWeight_tight_Down = -999.0;
 
   //triggers
   bool trigger_1Mu;
@@ -89,136 +174,136 @@ public:
 
   //signal vs anti-iso
   bool isAntiIso;
-  float lepFakeRate;
+  float lepFakeRate = -999.0;
 
   //------------------------------------//
   //       LEPTONS                      //
   //------------------------------------//
 
   //lepton 1
-  float lep1_pt;
-  float lep1_eta;
-  float lep1_phi;
-  float lep1_m;
-  float lep1_q;
-  float lep1_iso;
-  float lep1_dxy;
-  float lep1_dz;
-  float lep1_sip3d;
-  float lep1_idEffWeight;
-  float lep1_trigEffWeight;
+  float lep1_pt = -999.0;
+  float lep1_eta = -999.0;
+  float lep1_phi = -999.0;
+  float lep1_m = -999.0;
+  float lep1_q = -999.0;
+  float lep1_iso = -999.0;
+  float lep1_dxy = -999.0;
+  float lep1_dz = -999.0;
+  float lep1_sip3d = -999.0;
+  float lep1_idEffWeight = -999.0;
+  float lep1_trigEffWeight = -999.0;
 
   //lepton 1 scale variations
-  float lep1_pt_scaleUp;
-  float lep1_pt_scaleDown;
+  float lep1_pt_scaleUp = -999.0;
+  float lep1_pt_scaleDown = -999.0;
 
   //lepton 2
-  float lep2_pt;
-  float lep2_eta;
-  float lep2_phi;
-  float lep2_m;
-  float lep2_q;
-  float lep2_iso;
-  float lep2_dxy;
-  float lep2_dz;
-  float lep2_sip3d;
-  float lep2_idEffWeight;
-  float lep2_trigEffWeight;
+  float lep2_pt = -999.0;
+  float lep2_eta = -999.0;
+  float lep2_phi = -999.0;
+  float lep2_m = -999.0;
+  float lep2_q = -999.0;
+  float lep2_iso = -999.0;
+  float lep2_dxy = -999.0;
+  float lep2_dz = -999.0;
+  float lep2_sip3d = -999.0;
+  float lep2_idEffWeight = -999.0;
+  float lep2_trigEffWeight = -999.0;
 
   //lepton 2 scale variations
-  float lep2_pt_scaleUp;
-  float lep2_pt_scaleDown;
+  float lep2_pt_scaleUp = -999.0;
+  float lep2_pt_scaleDown = -999.0;
 
   //dilepton final state
-  float dilep_m;
-  float dilep_mt;
-  float dilep_pt;
-  float dilep_eta;
-  float dilep_phi;
+  float dilep_m = -999.0;
+  float dilep_mt = -999.0;
+  float dilep_pt = -999.0;
+  float dilep_eta = -999.0;
+  float dilep_phi = -999.0;
 
   //dilepton JES variations
-  float dilep_m_jesFlavorQCDUp;
-  float dilep_m_jesFlavorQCDDown;
-  float dilep_m_jesRelativeBalUp;
-  float dilep_m_jesRelativeBalDown;
-  float dilep_m_jesHFUp;
-  float dilep_m_jesHFDown;
-  float dilep_m_jesBBEC1Up;
-  float dilep_m_jesBBEC1Down;
-  float dilep_m_jesEC2Up;
-  float dilep_m_jesEC2Down;
-  float dilep_m_jesAbsoluteUp;
-  float dilep_m_jesAbsoluteDown;
-  float dilep_m_jesBBEC1_YearUp;
-  float dilep_m_jesBBEC1_YearDown;
-  float dilep_m_jesEC2_YearUp;
-  float dilep_m_jesEC2_YearDown;
-  float dilep_m_jesAbsolute_YearUp;
-  float dilep_m_jesAbsolute_YearDown;
-  float dilep_m_jesHF_YearUp;
-  float dilep_m_jesHF_YearDown;
-  float dilep_m_jesRelativeSample_YearUp;
-  float dilep_m_jesRelativeSample_YearDown;
-  float dilep_m_jesTotalUp;
-  float dilep_m_jesTotalDown;
+  float dilep_m_jesFlavorQCDUp = -999.0;
+  float dilep_m_jesFlavorQCDDown = -999.0;
+  float dilep_m_jesRelativeBalUp = -999.0;
+  float dilep_m_jesRelativeBalDown = -999.0;
+  float dilep_m_jesHFUp = -999.0;
+  float dilep_m_jesHFDown = -999.0;
+  float dilep_m_jesBBEC1Up = -999.0;
+  float dilep_m_jesBBEC1Down = -999.0;
+  float dilep_m_jesEC2Up = -999.0;
+  float dilep_m_jesEC2Down = -999.0;
+  float dilep_m_jesAbsoluteUp = -999.0;
+  float dilep_m_jesAbsoluteDown = -999.0;
+  float dilep_m_jesBBEC1_YearUp = -999.0;
+  float dilep_m_jesBBEC1_YearDown = -999.0;
+  float dilep_m_jesEC2_YearUp = -999.0;
+  float dilep_m_jesEC2_YearDown = -999.0;
+  float dilep_m_jesAbsolute_YearUp = -999.0;
+  float dilep_m_jesAbsolute_YearDown = -999.0;
+  float dilep_m_jesHF_YearUp = -999.0;
+  float dilep_m_jesHF_YearDown = -999.0;
+  float dilep_m_jesRelativeSample_YearUp = -999.0;
+  float dilep_m_jesRelativeSample_YearDown = -999.0;
+  float dilep_m_jesTotalUp = -999.0;
+  float dilep_m_jesTotalDown = -999.0;
 
-  float dilep_mt_jesFlavorQCDUp;
-  float dilep_mt_jesFlavorQCDDown;
-  float dilep_mt_jesRelativeBalUp;
-  float dilep_mt_jesRelativeBalDown;
-  float dilep_mt_jesHFUp;
-  float dilep_mt_jesHFDown;
-  float dilep_mt_jesBBEC1Up;
-  float dilep_mt_jesBBEC1Down;
-  float dilep_mt_jesEC2Up;
-  float dilep_mt_jesEC2Down;
-  float dilep_mt_jesAbsoluteUp;
-  float dilep_mt_jesAbsoluteDown;
-  float dilep_mt_jesBBEC1_YearUp;
-  float dilep_mt_jesBBEC1_YearDown;
-  float dilep_mt_jesEC2_YearUp;
-  float dilep_mt_jesEC2_YearDown;
-  float dilep_mt_jesAbsolute_YearUp;
-  float dilep_mt_jesAbsolute_YearDown;
-  float dilep_mt_jesHF_YearUp;
-  float dilep_mt_jesHF_YearDown;
-  float dilep_mt_jesRelativeSample_YearUp;
-  float dilep_mt_jesRelativeSample_YearDown;
-  float dilep_mt_jesTotalUp;
-  float dilep_mt_jesTotalDown;
+  float dilep_mt_jesFlavorQCDUp = -999.0;
+  float dilep_mt_jesFlavorQCDDown = -999.0;
+  float dilep_mt_jesRelativeBalUp = -999.0;
+  float dilep_mt_jesRelativeBalDown = -999.0;
+  float dilep_mt_jesHFUp = -999.0;
+  float dilep_mt_jesHFDown = -999.0;
+  float dilep_mt_jesBBEC1Up = -999.0;
+  float dilep_mt_jesBBEC1Down = -999.0;
+  float dilep_mt_jesEC2Up = -999.0;
+  float dilep_mt_jesEC2Down = -999.0;
+  float dilep_mt_jesAbsoluteUp = -999.0;
+  float dilep_mt_jesAbsoluteDown = -999.0;
+  float dilep_mt_jesBBEC1_YearUp = -999.0;
+  float dilep_mt_jesBBEC1_YearDown = -999.0;
+  float dilep_mt_jesEC2_YearUp = -999.0;
+  float dilep_mt_jesEC2_YearDown = -999.0;
+  float dilep_mt_jesAbsolute_YearUp = -999.0;
+  float dilep_mt_jesAbsolute_YearDown = -999.0;
+  float dilep_mt_jesHF_YearUp = -999.0;
+  float dilep_mt_jesHF_YearDown = -999.0;
+  float dilep_mt_jesRelativeSample_YearUp = -999.0;
+  float dilep_mt_jesRelativeSample_YearDown = -999.0;
+  float dilep_mt_jesTotalUp = -999.0;
+  float dilep_mt_jesTotalDown = -999.0;
 
-  float dilep_pt_jesFlavorQCDUp;
-  float dilep_pt_jesFlavorQCDDown;
-  float dilep_pt_jesRelativeBalUp;
-  float dilep_pt_jesRelativeBalDown;
-  float dilep_pt_jesHFUp;
-  float dilep_pt_jesHFDown;
-  float dilep_pt_jesBBEC1Up;
-  float dilep_pt_jesBBEC1Down;
-  float dilep_pt_jesEC2Up;
-  float dilep_pt_jesEC2Down;
-  float dilep_pt_jesAbsoluteUp;
-  float dilep_pt_jesAbsoluteDown;
-  float dilep_pt_jesBBEC1_YearUp;
-  float dilep_pt_jesBBEC1_YearDown;
-  float dilep_pt_jesEC2_YearUp;
-  float dilep_pt_jesEC2_YearDown;
-  float dilep_pt_jesAbsolute_YearUp;
-  float dilep_pt_jesAbsolute_YearDown;
-  float dilep_pt_jesHF_YearUp;
-  float dilep_pt_jesHF_YearDown;
-  float dilep_pt_jesRelativeSample_YearUp;
-  float dilep_pt_jesRelativeSample_YearDown;
-  float dilep_pt_jesTotalUp;
-  float dilep_pt_jesTotalDown;
+  float dilep_pt_jesFlavorQCDUp = -999.0;
+  float dilep_pt_jesFlavorQCDDown = -999.0;
+  float dilep_pt_jesRelativeBalUp = -999.0;
+  float dilep_pt_jesRelativeBalDown = -999.0;
+  float dilep_pt_jesHFUp = -999.0;
+  float dilep_pt_jesHFDown = -999.0;
+  float dilep_pt_jesBBEC1Up = -999.0;
+  float dilep_pt_jesBBEC1Down = -999.0;
+  float dilep_pt_jesEC2Up = -999.0;
+  float dilep_pt_jesEC2Down = -999.0;
+  float dilep_pt_jesAbsoluteUp = -999.0;
+  float dilep_pt_jesAbsoluteDown = -999.0;
+  float dilep_pt_jesBBEC1_YearUp = -999.0;
+  float dilep_pt_jesBBEC1_YearDown = -999.0;
+  float dilep_pt_jesEC2_YearUp = -999.0;
+  float dilep_pt_jesEC2_YearDown = -999.0;
+  float dilep_pt_jesAbsolute_YearUp = -999.0;
+  float dilep_pt_jesAbsolute_YearDown = -999.0;
+  float dilep_pt_jesHF_YearUp = -999.0;
+  float dilep_pt_jesHF_YearDown = -999.0;
+  float dilep_pt_jesRelativeSample_YearUp = -999.0;
+  float dilep_pt_jesRelativeSample_YearDown = -999.0;
+  float dilep_pt_jesTotalUp = -999.0;
+  float dilep_pt_jesTotalDown = -999.0;
 
   //dilepton lepton scale variations
-  float dilep_m_scaleUp;
-  float dilep_m_scaleDown;
-  float dilep_mt_scaleUp;
-  float dilep_mt_scaleDown;
-  float dilep_pt_scaleUp;
-  float dilep_pt_scaleDown;
+  float dilep_m_scaleUp = -999.0;
+  float dilep_m_scaleDown = -999.0;
+  float dilep_mt_scaleUp = -999.0;
+  float dilep_mt_scaleDown = -999.0;
+  float dilep_pt_scaleUp = -999.0;
+  float dilep_pt_scaleDown = -999.0;
 
 
   // Photons
@@ -284,66 +369,66 @@ public:
   //       MET                          //
   //------------------------------------//
 
-  float MET;
-  float MET_phi;
-  float MET_2017;
+  float MET = -999.0;
+  float MET_phi = -999.0;
+  float MET_2017 = -999.0;
 
-  float MET_jesFlavorQCDUp;
-  float MET_jesFlavorQCDDown;
-  float MET_jesRelativeBalUp;
-  float MET_jesRelativeBalDown;
-  float MET_jesHFUp;
-  float MET_jesHFDown;
-  float MET_jesBBEC1Up;
-  float MET_jesBBEC1Down;
-  float MET_jesEC2Up;
-  float MET_jesEC2Down;
-  float MET_jesAbsoluteUp;
-  float MET_jesAbsoluteDown;
-  float MET_jesBBEC1_YearUp;
-  float MET_jesBBEC1_YearDown;
-  float MET_jesEC2_YearUp;
-  float MET_jesEC2_YearDown;
-  float MET_jesAbsolute_YearUp;
-  float MET_jesAbsolute_YearDown;
-  float MET_jesHF_YearUp;
-  float MET_jesHF_YearDown;
-  float MET_jesRelativeSample_YearUp;
-  float MET_jesRelativeSample_YearDown;
-  float MET_jesTotalUp;
-  float MET_jesTotalDown;
+  float MET_jesFlavorQCDUp = -999.0;
+  float MET_jesFlavorQCDDown = -999.0;
+  float MET_jesRelativeBalUp = -999.0;
+  float MET_jesRelativeBalDown = -999.0;
+  float MET_jesHFUp = -999.0;
+  float MET_jesHFDown = -999.0;
+  float MET_jesBBEC1Up = -999.0;
+  float MET_jesBBEC1Down = -999.0;
+  float MET_jesEC2Up = -999.0;
+  float MET_jesEC2Down = -999.0;
+  float MET_jesAbsoluteUp = -999.0;
+  float MET_jesAbsoluteDown = -999.0;
+  float MET_jesBBEC1_YearUp = -999.0;
+  float MET_jesBBEC1_YearDown = -999.0;
+  float MET_jesEC2_YearUp = -999.0;
+  float MET_jesEC2_YearDown = -999.0;
+  float MET_jesAbsolute_YearUp = -999.0;
+  float MET_jesAbsolute_YearDown = -999.0;
+  float MET_jesHF_YearUp = -999.0;
+  float MET_jesHF_YearDown = -999.0;
+  float MET_jesRelativeSample_YearUp = -999.0;
+  float MET_jesRelativeSample_YearDown = -999.0;
+  float MET_jesTotalUp = -999.0;
+  float MET_jesTotalDown = -999.0;
 
-  float MET_phi_jesFlavorQCDUp;
-  float MET_phi_jesFlavorQCDDown;
-  float MET_phi_jesRelativeBalUp;
-  float MET_phi_jesRelativeBalDown;
-  float MET_phi_jesHFUp;
-  float MET_phi_jesHFDown;
-  float MET_phi_jesBBEC1Up;
-  float MET_phi_jesBBEC1Down;
-  float MET_phi_jesEC2Up;
-  float MET_phi_jesEC2Down;
-  float MET_phi_jesAbsoluteUp;
-  float MET_phi_jesAbsoluteDown;
-  float MET_phi_jesBBEC1_YearUp;
-  float MET_phi_jesBBEC1_YearDown;
-  float MET_phi_jesEC2_YearUp;
-  float MET_phi_jesEC2_YearDown;
-  float MET_phi_jesAbsolute_YearUp;
-  float MET_phi_jesAbsolute_YearDown;
-  float MET_phi_jesHF_YearUp;
-  float MET_phi_jesHF_YearDown;
-  float MET_phi_jesRelativeSample_YearUp;
-  float MET_phi_jesRelativeSample_YearDown;
-  float MET_phi_jesTotalUp;
-  float MET_phi_jesTotalDown;
+  float MET_phi_jesFlavorQCDUp = -999.0;
+  float MET_phi_jesFlavorQCDDown = -999.0;
+  float MET_phi_jesRelativeBalUp = -999.0;
+  float MET_phi_jesRelativeBalDown = -999.0;
+  float MET_phi_jesHFUp = -999.0;
+  float MET_phi_jesHFDown = -999.0;
+  float MET_phi_jesBBEC1Up = -999.0;
+  float MET_phi_jesBBEC1Down = -999.0;
+  float MET_phi_jesEC2Up = -999.0;
+  float MET_phi_jesEC2Down = -999.0;
+  float MET_phi_jesAbsoluteUp = -999.0;
+  float MET_phi_jesAbsoluteDown = -999.0;
+  float MET_phi_jesBBEC1_YearUp = -999.0;
+  float MET_phi_jesBBEC1_YearDown = -999.0;
+  float MET_phi_jesEC2_YearUp = -999.0;
+  float MET_phi_jesEC2_YearDown = -999.0;
+  float MET_phi_jesAbsolute_YearUp = -999.0;
+  float MET_phi_jesAbsolute_YearDown = -999.0;
+  float MET_phi_jesHF_YearUp = -999.0;
+  float MET_phi_jesHF_YearDown = -999.0;
+  float MET_phi_jesRelativeSample_YearUp = -999.0;
+  float MET_phi_jesRelativeSample_YearDown = -999.0;
+  float MET_phi_jesTotalUp = -999.0;
+  float MET_phi_jesTotalDown = -999.0;
 
 
-  float PuppiMET;
-  float PuppiMET_phi;
+  float PuppiMET = -999.0;
+  float PuppiMET_phi = -999.0;
 
   //W neutrino pZ
-  float neu_pz_type0;
+  float neu_pz_type0 = -999.0;
   //------------------------------------//
   //       1 Jet Case (AK8 Higgs jet)   //
   //------------------------------------//
@@ -538,6 +623,11 @@ public:
   float TwoJet_SubLeadFatJet_tau2 = -999.0;
   float TwoJet_SubLeadFatJet_tau3 = -999.0;
   float TwoJet_SubLeadFatJet_tau4 = -999.0;
+  float TwoJet_HWW_pt = -999.0;
+  float TwoJet_HWW_eta = -999.0;
+  float TwoJet_HWW_phi = -999.0;
+  float TwoJet_HWW_m = -999.0;
+  float TwoJet_HWW_E = -999.0;
   float TwoJet_Radion_pt = -999.0;
   float TwoJet_Radion_eta = -999.0;
   float TwoJet_Radion_phi = -999.0;
@@ -619,7 +709,11 @@ public:
   float ThreeJet_Radion_phi = -999.0;
   float ThreeJet_Radion_m = -999.0;
   float ThreeJet_Radion_E = -999.0;
-
+  float ThreeJet_Higgs_pt = -999.0;
+  float ThreeJet_Higgs_eta = -999.0;
+  float ThreeJet_Higgs_phi = -999.0;
+  float ThreeJet_Higgs_m = -999.0;
+  float ThreeJet_Higgs_E = -999.0;
   //------------------------------------//
   //       AK4 Jets                     //
   //------------------------------------//
@@ -673,6 +767,23 @@ public:
   float FullyResolved_Radion_phi  = -999.0;
   float FullyResolved_Radion_m  = -999.0;
   float FullyResolved_Radion_E  = -999.0;
+
+  float GEN_deltaR_HH = -999.0;
+  float GEN_deltaEta_HH = -999.0;
+  float GEN_deltaPhi_HH = -999.0;
+
+  float OneJet_deltaR_HH = -999.0;
+  float OneJet_deltaEta_HH = -999.0;
+  float OneJet_deltaPhi_HH = -999.0;
+  float TwoJet_deltaR_HH = -999.0;
+  float TwoJet_deltaEta_HH = -999.0;
+  float TwoJet_deltaPhi_HH = -999.0;
+  float ThreeJet_deltaR_HH = -999.0;
+  float ThreeJet_deltaEta_HH = -999.0;
+  float ThreeJet_deltaPhi_HH = -999.0;
+  float FullyResolved_deltaR_HH = -999.0;
+  float FullyResolved_deltaEta_HH = -999.0;
+  float FullyResolved_deltaPhi_HH = -999.0;
 
 };
 

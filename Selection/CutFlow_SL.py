@@ -4,6 +4,10 @@ import os
 
 ROOT.gROOT.SetBatch(True)
 
+plotDir = "CutFlowTables_SL"
+if not os.path.isdir(plotDir):
+    os.makedirs(plotDir)
+
 Hist = [
         "GluGluToRadionToHHTo2G2Qlnu_M250.root",
         "GluGluToRadionToHHTo2G2Qlnu_M1000.root",
@@ -54,7 +58,8 @@ for files_ in Hist:
 
     c1 = ROOT.TCanvas()
     h1.Draw("TEXT")
-    c1.SaveAs(inFileName.replace(".root", ".pdf"))
+    # c1.SaveAs(inFileName.replace(".root", ".pdf"))
+    c1.SaveAs(plotDir+"/"+inFileName.replace(".root", ".pdf"))
 
     print("Number of bins: {}".format(h1.GetNbinsX()))
     for x in range(h1.GetNbinsX()):
@@ -93,9 +98,9 @@ df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton 
 
 print(df)
 
-df.to_csv("test.csv")
+df.to_csv(plotDir + "/test.csv")
 
-os.system('cat test.csv')
+os.system('cat '+ plotDir+ '/test.csv')
 
 # df = pd.DataFrame(columns=info["SampleName"],dtype="string")
 # df.loc[0] = info["MC Gen"]

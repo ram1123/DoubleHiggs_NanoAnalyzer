@@ -15,6 +15,7 @@ treeplot/
 Selection/*tree*
 screenlog.*
 *.csv
+InputRootFileList.txt
 
 *.root
 Selection/output.root
