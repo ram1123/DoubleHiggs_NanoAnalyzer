@@ -47,6 +47,17 @@ public:
   // tZq veto ZV
   bool is_tZq;
 
+  float LHE_deltaR_HH = -999.0;
+  float LHE_deltaEta_HH = -999.0;
+  float LHE_deltaPhi_HH = -999.0;
+
+  float LHEGEN_deltaR_HH = -999.0;
+  float DiPhoton_deltaR_LHERECO_HH = -999.0;
+  float OneJet_deltaR_LHERECO_HH = -999.0;
+  float TwoJet_deltaR_LHERECO_HH = -999.0;
+  float ThreeJet_deltaR_LHERECO_HH = -999.0;
+  float FullyResolved_deltaR_LHERECO_HH = -999.0;
+
   //njet counters
   uint nAK4Jet30;
   uint nAK4Jet50;

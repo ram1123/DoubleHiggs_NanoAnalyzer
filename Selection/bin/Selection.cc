@@ -128,14 +128,21 @@ int main (int argc, char** argv) {
 
     ScaleFactors scaleFactor(era);
 
-    std::vector<TLorentzVector> tightMuon;
-    std::vector<TLorentzVector> tightEle;
-    std::vector<TLorentzVector> tightPhoton;
+    std::vector<TLorentzVector> LV_LHE_Higgs;
+    std::vector<TLorentzVector> LV_GEN_photons;
+    TLorentzVector LV_GEN_HiggsGG(0,0,0,0);
+    TLorentzVector LV_GEN_HiggsWW(0,0,0,0);
+    TLorentzVector LV_GEN_LeadingW(0,0,0,0);
+    TLorentzVector LV_GEN_SubLeadingW(0,0,0,0);
 
-    std::vector<TLorentzVector> Ak4Jets;
+    std::vector<TLorentzVector> LV_tightMuon;
+    std::vector<TLorentzVector> LV_tightEle;
+    std::vector<TLorentzVector> LV_tightPhoton;
+
+    std::vector<TLorentzVector> LV_Ak4Jets;
     // std::vector<TLorentzVector> Ak4JetsTem;
-    std::vector<TLorentzVector> Ak8WZJets;
-    std::vector<TLorentzVector> Ak8HiggsJets;
+    std::vector<TLorentzVector> LV_Ak8WZJets;
+    std::vector<TLorentzVector> LV_Ak8HiggsJets;
 
     std::vector<int> goodAK4JetIndex;
     std::vector<int> goodWJetIndex;
@@ -333,60 +340,96 @@ int main (int argc, char** argv) {
 
             // LHE information: Before partion shower
             // It contains information for pp -> Radion -> HH, only.
-            // if (isMC==1)
-            // {
-            //     for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nLHEPart; ++LHEPartCount)
-            //     {
-            //         std::cout <<  "Event No. " << i << "/" << lineCount
-            //                     << "\tNanoReader_.nLHEPart: pdgID = " << NanoReader_.LHEPart_pdgId[LHEPartCount]
-            //                     << "\t Status = " << NanoReader_.LHEPart_status[LHEPartCount]
-            //                     << "\t pT = " << NanoReader_.LHEPart_pt[LHEPartCount]
-            //                     << "\t mass = " << NanoReader_.LHEPart_mass[LHEPartCount] << std::endl;
-            //         // To-Do:
-            //         // Grab Higgs with status 1 and fill it in branch:
-            //         // branch name: LHE_Leading_Higgs_pT, LHE_Subleading_Higgs_pT
-            //     }
-            // }
+            if (isMC==1)
+            {
+                LV_LHE_Higgs.clear();
+                for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nLHEPart; ++LHEPartCount)
+                {
+                    // std::cout <<  "Event No. " << i << "/" << lineCount
+                    //             << "\tNanoReader_.nLHEPart: pdgID = " << NanoReader_.LHEPart_pdgId[LHEPartCount]
+                    //             << "\t Status = " << NanoReader_.LHEPart_status[LHEPartCount]
+                    //             << "\t pT = " << NanoReader_.LHEPart_pt[LHEPartCount]
+                    //             << "\t mass = " << NanoReader_.LHEPart_mass[LHEPartCount] << std::endl;
+                    // To-Do:
+                    // Grab Higgs with status 1 and fill it in branch:
+                    // branch name: LHE_Leading_Higgs_pT, LHE_Subleading_Higgs_pT
+                    // TLorentzVector LHE_Higgs
+                    if (NanoReader_.LHEPart_pdgId[LHEPartCount] == 25 && NanoReader_.LHEPart_status[LHEPartCount] == 1)
+                    {
+                        LV_LHE_Higgs.push_back(TLorentzVector(0,0,0,0));
+                        LV_LHE_Higgs.back().SetPtEtaPhiM(NanoReader_.LHEPart_pt[LHEPartCount],
+                                                         NanoReader_.LHEPart_eta[LHEPartCount],
+                                                         NanoReader_.LHEPart_phi[LHEPartCount],
+                                                         NanoReader_.LHEPart_mass[LHEPartCount]);
+                    }
+                }
+                if (LV_LHE_Higgs.size() != 2) continue;
+                WVJJTree->LHE_deltaR_HH = deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi());
+                WVJJTree->LHE_deltaEta_HH = LV_LHE_Higgs[0].Eta() - LV_LHE_Higgs[1].Eta();
+                WVJJTree->LHE_deltaPhi_HH = deltaPhi(LV_LHE_Higgs[0].Phi(),LV_LHE_Higgs[1].Phi());
+            }
 
             // Below part : GEN information
             //              This contains information of the Higgs decays and after shower effects.
             //
-            // if (isMC==1)
-            // {
-            //     for (UInt_t LHEPartCount = 0; LHEPartCount < *NanoReader_.nGenPart; ++LHEPartCount)
-            //     {
-            //         // if ((NanoReader_.GenPart_statusFlags[i] >> 0  & 1) && (NanoReader_.GenPart_statusFlags[i] >> 7  & 1)  && (abs(NanoReader_.GenPart_pdgId[LHEPartCount]) == 24) && (NanoReader_.GenPart_status[LHEPartCount]==22))
-            //         // if (
-            //         //     (
-            //         //     (NanoReader_.GenPart_statusFlags[i] >> 0  & 1) ||   // "Status Flags is Prompt "
-            //         //     (NanoReader_.GenPart_statusFlags[i] >> 7  & 1) ||   // "Status Flags is HardProcess "
-            //         //     (NanoReader_.GenPart_statusFlags[i] >> 8  & 1) ||   // "Status Flags is from HardProcess "
-            //         //     (NanoReader_.GenPart_statusFlags[i] >> 11  & 1)     // "Status Flags is from HardProcessBeforeFSR "
-            //         //     ) &&
-            //         //     (abs(NanoReader_.GenPart_pdgId[LHEPartCount]) == 25))
-            //         // {
-            //         //     std::cout << "Event No. " << i << "/" << lineCount
-            //         //               << ":\tNanoReader_.nGenPart = " << NanoReader_.GenPart_pdgId[LHEPartCount]
-            //         //               << "\t" << NanoReader_.GenPart_status[LHEPartCount]
-            //         //               << "\t" <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[LHEPartCount]]
-            //         //               <<  std::endl;
-            //         // }
+            if (isMC==1)
+            {
+                for (UInt_t GENPartCount = 0; GENPartCount < *NanoReader_.nGenPart; ++GENPartCount)
+                {
+                    if (abs(NanoReader_.GenPart_pdgId[GENPartCount]) == 22 &&
+                        (NanoReader_.GenPart_status[GENPartCount]==1 ||
+                            NanoReader_.GenPart_status[GENPartCount] == 23) &&
+                        NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]==25)
+                    {
+                        // std::cout << "Event No. " << i << "/" << lineCount
+                        //           << ":\tpdgID: " << NanoReader_.GenPart_pdgId[GENPartCount]
+                        //           << "\tstatus: " << NanoReader_.GenPart_status[GENPartCount]
+                        //           << "\tMother pdgID: " <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]
+                        //           <<  std::endl;
 
-            //         if (NanoReader_.GenPart_status[LHEPartCount] == 22 &&
-            //             abs(NanoReader_.GenPart_pdgId[LHEPartCount]) == 24)
-            //         {
-            //             std::cout << "Event No. " << i << "/" << lineCount
-            //                       << ":\tNanoReader_.nGenPart = " << NanoReader_.GenPart_pdgId[LHEPartCount]
-            //                       << "\t" << NanoReader_.GenPart_status[LHEPartCount]
-            //                       << "\t" <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[LHEPartCount]]
-            //                       <<  std::endl;
-            //         }
-            //         // if (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 ) std::cout << "Status Flags is Prompt "  << std::endl;
-            //         // if (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 ) std::cout << "Status Flags is HardProcess "  << std::endl;
-            //         // if (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 ) std::cout << "Status Flags is from HardProcess "  << std::endl;
-            //         // if (NanoReader_.GenPart_statusFlags[i] >> 11 & 1 ) std::cout << "Status Flags is from HardProcessBeforeFSR "  << std::endl;
-            //     }
-            // }
+                        LV_GEN_photons.push_back(TLorentzVector(0,0,0,0));
+                        LV_GEN_photons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
+                                                           NanoReader_.GenPart_eta[GENPartCount],
+                                                           NanoReader_.GenPart_phi[GENPartCount],
+                                                           NanoReader_.GenPart_mass[GENPartCount]);
+                    }
+
+                    if (LV_GEN_photons.size() == 2)
+                    {
+                        LV_GEN_HiggsGG = TLorentzVector(0,0,0,0);
+                        LV_GEN_HiggsGG = LV_GEN_photons[0] + LV_GEN_photons[1];
+                        if (LV_LHE_Higgs.size() == 2)
+                            WVJJTree->LHEGEN_deltaR_HH = TMath::Min(deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_GEN_HiggsGG.Eta(),LV_GEN_HiggsGG.Phi()),
+                                                                    deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),LV_GEN_HiggsGG.Eta(),LV_GEN_HiggsGG.Phi()));
+                    }
+
+                    // if (abs(NanoReader_.GenPart_pdgId[GENPartCount]) == 24 &&
+                    //     (NanoReader_.GenPart_status[GENPartCount]==1) &&
+                    //     NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]==25)
+                    // {
+                    //     std::cout << "Event No. " << i << "/" << lineCount
+                    //               << ":\tpdgID: " << NanoReader_.GenPart_pdgId[GENPartCount]
+                    //               << "\tstatus: " << NanoReader_.GenPart_status[GENPartCount]
+                    //               << "\tMother pdgID: " <<  NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]
+                    //               << "\n" << std::endl;
+
+                    //     // LV_GEN_photons.push_back(TLorentzVector(0,0,0,0));
+                    //     // LV_GEN_photons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
+                    //     //                                    NanoReader_.GenPart_eta[GENPartCount],
+                    //     //                                    NanoReader_.GenPart_phi[GENPartCount],
+                    //     //                                    NanoReader_.GenPart_mass[GENPartCount]);
+                    // }
+
+
+                    // if (abs(NanoReader_.GenPart_pdgId[GENPartCount]) == 22 &&
+                        // )
+
+                    // if (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 ) std::cout << "Status Flags is Prompt "  << std::endl;
+                    // if (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 ) std::cout << "Status Flags is HardProcess "  << std::endl;
+                    // if (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 ) std::cout << "Status Flags is from HardProcess "  << std::endl;
+                    // if (NanoReader_.GenPart_statusFlags[i] >> 11 & 1 ) std::cout << "Status Flags is from HardProcessBeforeFSR "  << std::endl;
+                }
+            }
             // exit(0);
             // continue;
             // filtering out particular event for sync
@@ -428,7 +471,7 @@ int main (int argc, char** argv) {
             /* -------------------------------------------------------------------------- */
             /*                              PHOTON SELECTION                              */
             /* -------------------------------------------------------------------------- */
-            tightPhoton.clear();
+            LV_tightPhoton.clear();
             int nTightPhoton = 0;
 
             if (*NanoReader_.nPhoton < 2) continue;
@@ -443,8 +486,8 @@ int main (int argc, char** argv) {
                 nTightPhoton++;
 
                 /* ----------- push pt,eta,phi,ecorr in the TightPhoton last index ---------- */
-                tightPhoton.push_back(TLorentzVector(0,0,0,0));
-                tightPhoton.back().SetPtEtaPhiE( NanoReader_.Photon_pt[PhotonCount],
+                LV_tightPhoton.push_back(TLorentzVector(0,0,0,0));
+                LV_tightPhoton.back().SetPtEtaPhiE( NanoReader_.Photon_pt[PhotonCount],
                                                 NanoReader_.Photon_eta[PhotonCount],
                                                 NanoReader_.Photon_phi[PhotonCount],
                                                 NanoReader_.Photon_eCorr[PhotonCount]
@@ -522,6 +565,10 @@ int main (int argc, char** argv) {
             WVJJTree->pho1_E_byMgg = LV_pho2.E()/diphoton.M();
             WVJJTree->pho2_E_byMgg = LV_pho2.E()/diphoton.M();
 
+            WVJJTree->DiPhoton_deltaR_LHERECO_HH = TMath::Min(
+                                    deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),diphoton.Eta(),diphoton.Phi()),
+                                    deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),diphoton.Eta(),diphoton.Phi()));
+
             // if(!(WVJJTree->pho1_pt_byMgg > 0.35)) continue;
             // if(!(WVJJTree->pho2_pt_byMgg > 0.25)) continue;
 
@@ -533,8 +580,8 @@ int main (int argc, char** argv) {
             /*                      ele and muon Selection                                */
             /*             no electron and muon in fullyHadronic                          */
             /* -------------------------------------------------------------------------- */
-            tightMuon.clear();
-            tightEle.clear();
+            LV_tightMuon.clear();
+            LV_tightEle.clear();
             int nTightEle = 0;
             int nTightMu = 0;
 
@@ -554,8 +601,8 @@ int main (int argc, char** argv) {
                 if (DEBUG) std::cout << "\t[INFO::Muons] [" << i <<"/" << lineCount << "] Clean Muons with photons" << std::endl;
 
                 bool isClean=true;
-                for ( std::size_t k=0; k<tightPhoton.size(); k++) {
-                    if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                for ( std::size_t k=0; k<LV_tightPhoton.size(); k++) {
+                    if (deltaR(LV_tightPhoton.at(k).Eta(), LV_tightPhoton.at(k).Phi(),
                                NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j]) < 0.4) {
                         isClean = false;
                     }
@@ -571,6 +618,7 @@ int main (int argc, char** argv) {
                 if( fabs((Mu+LV_pho2).M() - 91.187) < 5.0) continue;
 
                 nTightMu++;
+                LV_tightMuon.push_back(Mu);
             }
 
             for ( uint j=0; j < *NanoReader_.nElectron; j++ ) {
@@ -596,8 +644,8 @@ int main (int argc, char** argv) {
                     // }
                 }
                 bool isClean=true;
-                for ( std::size_t k=0; k<tightPhoton.size(); k++) {
-                    if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                for ( std::size_t k=0; k<LV_tightPhoton.size(); k++) {
+                    if (deltaR(LV_tightPhoton.at(k).Eta(), LV_tightPhoton.at(k).Phi(),
                                NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j]) < 0.4) {
                         isClean = false;
                     }
@@ -613,11 +661,12 @@ int main (int argc, char** argv) {
                 if( fabs((Ele+LV_pho2).M() - 91.187) < 5.0) continue;
 
                 nTightEle++;
+                LV_tightEle.push_back(Ele);
             }
 
             // if (DEBUG) std::cout << "\t[INFO] Number of leptons: " << nTightEle + nTightMu << std::endl;
 
-            if (nTightMu + nTightEle > 0) continue;
+            if (nTightMu + nTightEle > 1) continue;
             if (nTightMu + nTightEle == 0) totalCutFlow_FH->Fill("Lepton Selection",1);
             if (nTightMu + nTightEle == 1) totalCutFlow_SL->Fill("Lepton Selection",1);
 
@@ -626,7 +675,7 @@ int main (int argc, char** argv) {
             /*                                   AK8Jet   Higgs Jet                       */
             /* -------------------------------------------------------------------------- */
             // AK8
-            Ak8HiggsJets.clear();
+            LV_Ak8HiggsJets.clear();
             goodHJetIndex.clear();
             float dmV = 0.0;
             int nGood_Higgs_FatJet = 0;
@@ -643,20 +692,20 @@ int main (int argc, char** argv) {
                 bool isClean=true;
 
                 //lepton cleaning
-                for ( std::size_t k=0; k<tightEle.size(); k++)
+                for ( std::size_t k=0; k<LV_tightEle.size(); k++)
                 {
-                    if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+                    if (deltaR(LV_tightEle.at(k).Eta(), LV_tightEle.at(k).Phi(),
                          NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
                     isClean = false;
                 }
-                for ( std::size_t k=0; k<tightMuon.size(); k++)
+                for ( std::size_t k=0; k<LV_tightMuon.size(); k++)
                 {
-                    if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
+                    if (deltaR(LV_tightMuon.at(k).Eta(), LV_tightMuon.at(k).Phi(),
                          NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
                     isClean = false;
                 }
-                for ( std::size_t k=0; k<tightPhoton.size(); k++) {
-                    if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                for ( std::size_t k=0; k<LV_tightPhoton.size(); k++) {
+                    if (deltaR(LV_tightPhoton.at(k).Eta(), LV_tightPhoton.at(k).Phi(),
                                NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT) {
                         isClean = false;
                     }
@@ -674,19 +723,20 @@ int main (int argc, char** argv) {
                 nGood_Higgs_FatJet++;
                 goodHJetIndex.push_back(j);
 
-                Ak8HiggsJets.push_back(TLorentzVector(0,0,0,0));
-                Ak8HiggsJets.back().SetPtEtaPhiM(NanoReader_.FatJet_pt[j],
+                LV_Ak8HiggsJets.push_back(TLorentzVector(0,0,0,0));
+                LV_Ak8HiggsJets.back().SetPtEtaPhiM(NanoReader_.FatJet_pt[j],
                                             NanoReader_.FatJet_eta[j],
                                             NanoReader_.FatJet_phi[j],
                                             NanoReader_.FatJet_msoftdrop[j]
                                             );
             }
-            if (nGood_Higgs_FatJet>=1) totalCutFlow_FH->Fill("nAK8_Higgs >= 1",1);
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet>=1)
+                totalCutFlow_FH->Fill("nAK8_Higgs >= 1",1);
 
             /*  ------------------------------------------------------------------------- */
             /*                              One Jet case variables                        */
             /*  ------------------------------------------------------------------------- */
-            if (nGood_Higgs_FatJet>=1)
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet>=1)
             {
                 if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] Passed One jet condition" << std::endl;
                 WVJJTree->OneJet_FatJet_area = NanoReader_.FatJet_area[goodHJetIndex[0]];
@@ -754,13 +804,18 @@ int main (int argc, char** argv) {
                 WVJJTree->OneJet_FatJet_tau4=NanoReader_.FatJet_tau4[goodHJetIndex[0]];
                 WVJJTree->OneJet_nFatJet=nGood_Higgs_FatJet;
 
-                TLorentzVector OneJet_Radion_LV = Ak8HiggsJets[0] + diphoton;
+                TLorentzVector OneJet_Radion_LV = LV_Ak8HiggsJets[0] + diphoton;
 
                 WVJJTree->OneJet_Radion_pt = OneJet_Radion_LV.Pt();
                 WVJJTree->OneJet_Radion_eta = OneJet_Radion_LV.Eta();
                 WVJJTree->OneJet_Radion_phi = OneJet_Radion_LV.Phi();
                 WVJJTree->OneJet_Radion_m = OneJet_Radion_LV.M();
                 WVJJTree->OneJet_Radion_E = OneJet_Radion_LV.E();
+                WVJJTree->OneJet_deltaR_LHERECO_HH = TMath::Min(
+                                        deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),OneJet_Radion_LV.Eta(),OneJet_Radion_LV.Phi()),
+                                        deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),OneJet_Radion_LV.Eta(),OneJet_Radion_LV.Phi()));
+
+
             }
             if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After one jet if condition" << std::endl;
 
@@ -768,7 +823,7 @@ int main (int argc, char** argv) {
             /*                                   AK8Jet   W Jet                       */
             /* -------------------------------------------------------------------------- */
             // AK8
-            Ak8WZJets.clear();
+            LV_Ak8WZJets.clear();
             goodWJetIndex.clear();
             dmV = 0.0;
             int nGood_W_FatJet = 0;
@@ -787,22 +842,22 @@ int main (int argc, char** argv) {
                 if ( NanoReader_.FatJet_tau2[j]/NanoReader_.FatJet_tau1[j] > TAU21) isClean = false;
 
                 // cleaning jet from electron
-                for ( std::size_t k=0; k<tightEle.size(); k++)
+                for ( std::size_t k=0; k<LV_tightEle.size(); k++)
                 {
-                    if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+                    if (deltaR(LV_tightEle.at(k).Eta(), LV_tightEle.at(k).Phi(),
                          NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
                     isClean = false;
                 }
                 // cleaning jet from muons
-                for ( std::size_t k=0; k<tightMuon.size(); k++)
+                for ( std::size_t k=0; k<LV_tightMuon.size(); k++)
                 {
-                    if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
+                    if (deltaR(LV_tightMuon.at(k).Eta(), LV_tightMuon.at(k).Phi(),
                          NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
                     isClean = false;
                 }
                 // cleaning jet from photons
-                for ( std::size_t k=0; k<tightPhoton.size(); k++) {
-                    if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                for ( std::size_t k=0; k<LV_tightPhoton.size(); k++) {
+                    if (deltaR(LV_tightPhoton.at(k).Eta(), LV_tightPhoton.at(k).Phi(),
                                NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT) {
                         isClean = false;
                     }
@@ -824,8 +879,8 @@ int main (int argc, char** argv) {
                 // fj_idx = j;
                 nGood_W_FatJet++;
                 goodWJetIndex.push_back(j);
-                Ak8WZJets.push_back(TLorentzVector(0,0,0,0));
-                Ak8WZJets.back().SetPtEtaPhiM(NanoReader_.FatJet_pt[j],
+                LV_Ak8WZJets.push_back(TLorentzVector(0,0,0,0));
+                LV_Ak8WZJets.back().SetPtEtaPhiM(NanoReader_.FatJet_pt[j],
                                             NanoReader_.FatJet_eta[j],
                                             NanoReader_.FatJet_phi[j],
                                             NanoReader_.FatJet_msoftdrop[j]
@@ -838,7 +893,7 @@ int main (int argc, char** argv) {
             /*                                   AK4Jet                                   */
             /* -------------------------------------------------------------------------- */
             goodAK4JetIndex.clear();
-            Ak4Jets.clear();
+            LV_Ak4Jets.clear();
             int nGood_AK4Jet = 0;
 
             float allAK4JetsSum_pt = 0.0;
@@ -902,21 +957,21 @@ int main (int argc, char** argv) {
                 }
 
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with photons jets" << std::endl;
-                for ( std::size_t k=0; k<tightPhoton.size(); k++) {
-                    if (deltaR(tightPhoton.at(k).Eta(), tightPhoton.at(k).Phi(),
+                for ( std::size_t k=0; k<LV_tightPhoton.size(); k++) {
+                    if (deltaR(LV_tightPhoton.at(k).Eta(), LV_tightPhoton.at(k).Phi(),
                                NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_LEP_DR_CUT) {
                         isClean = false;
                     }
                 }
 
-                for ( std::size_t k=0; k<tightEle.size(); k++) {
-                    if (deltaR(tightEle.at(k).Eta(), tightEle.at(k).Phi(),
+                for ( std::size_t k=0; k<LV_tightEle.size(); k++) {
+                    if (deltaR(LV_tightEle.at(k).Eta(), LV_tightEle.at(k).Phi(),
                                NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_LEP_DR_CUT) {
                         isClean = false;
                     }
                 }
-                for ( std::size_t k=0; k<tightMuon.size(); k++) {
-                    if (deltaR(tightMuon.at(k).Eta(), tightMuon.at(k).Phi(),
+                for ( std::size_t k=0; k<LV_tightMuon.size(); k++) {
+                    if (deltaR(LV_tightMuon.at(k).Eta(), LV_tightMuon.at(k).Phi(),
                                NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_LEP_DR_CUT) {
                         isClean = false;
                     }
@@ -1010,8 +1065,8 @@ int main (int argc, char** argv) {
                 }
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] btag weight computation done" << std::endl;
 
-                Ak4Jets.push_back(TLorentzVector(0,0,0,0));
-                Ak4Jets.back().SetPtEtaPhiM(NanoReader_.Jet_pt[j],
+                LV_Ak4Jets.push_back(TLorentzVector(0,0,0,0));
+                LV_Ak4Jets.back().SetPtEtaPhiM(NanoReader_.Jet_pt[j],
                                             NanoReader_.Jet_eta[j],
                                             NanoReader_.Jet_phi[j],
                                             NanoReader_.Jet_mass[j]
@@ -1033,50 +1088,61 @@ int main (int argc, char** argv) {
             int nGoodAK4jets = goodAK4JetIndex.size();
 
             // FH: 2 jet category
-            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2)
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2)
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8_W >= 2",1);
 
             // FH: 3 jet category (including 2 or more good AK8 jet)
-            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 1 && nGoodAK4jets >= 2)
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 1 && nGoodAK4jets >= 2)
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8_W>=1 & nAK4>=2",1);
 
             // FH: 3 jet category  (excluding events with 2 or more good AK8 jet)
-            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2)
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2)
             {
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8_W=1 & nAK4>=2",1);
             }
 
             // FH: 4 jet category
-            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4 )
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4 )
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8W=0 & nAK4>=4",1);
 
             // Found 1 Higgs jet or
             // Fount 1 fat Wjet and 2 AK4 jets or
             // If we don't find any fat jet then choose 4 AK4 jets
-            if ( (nGood_Higgs_FatJet >= 1) ||
+            if ( nTightMu + nTightEle == 0 && (
+                 (nGood_Higgs_FatJet >= 1) ||
                  (nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2) ||
                  (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2) ||
-                 (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4)
+                 (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4))
                 )
+            {
                 totalCutFlow_FH->Fill("1Jet2Jet3Jet4Jet",1);
+                if(WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25)
+                    totalCutFlow_FH->Fill("pT/mgg cut",1);
+                if(WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0)
+                totalCutFlow_FH->Fill("pT(#gamma #gamma)>100",1);
+            }
+
 
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nJet>=4 conditon" << std::endl;
-            if ((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 ) totalCutFlow_FH->Fill("nAK4 >= 4",1);
-            if ((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 ) totalCutFlow_SL->Fill("nAK4 >= 2",1);
+            // if ((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 ) totalCutFlow_FH->Fill("nAK4 >= 4",1);
+            if ((nTightMu + nTightEle == 1) && nGood_W_FatJet >= 1 )
+                totalCutFlow_SL->Fill("nAK8_W >= 1",1);
+            if ((nTightMu + nTightEle == 1) && nGood_W_FatJet == 0 &&  nGoodAK4jets >= 2)
+                totalCutFlow_SL->Fill("nAK4 >= 2",1);
 
-            if(((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25))
-                totalCutFlow_FH->Fill("pT/mgg cut",1);
-            if(((nTightMu + nTightEle == 0) && nGoodAK4jets >= 4 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0))
-                totalCutFlow_FH->Fill("pT(#gamma #gamma)>100",1);
+            if ((nTightMu + nTightEle == 1) && (
+                (nGood_W_FatJet >= 1) ||
+                (nGood_W_FatJet == 0 && nGoodAK4jets >= 2))
+               )
+            {
+                totalCutFlow_SL->Fill("1Jet+2Jet",1);
+                if(WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25)
+                    totalCutFlow_SL->Fill("pT/mgg cut",1);
+                if(WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0)
+                    totalCutFlow_SL->Fill("pT(#gamma #gamma)>100",1);
+            }
 
-            if(((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25))
-                totalCutFlow_SL->Fill("pT/mgg cut",1);
-            if(((nTightMu + nTightEle == 1) && nGoodAK4jets >= 2 && WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0))
-                totalCutFlow_SL->Fill("pT(#gamma #gamma)>100",1);
-
-            // if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] " << std::endl;
-
-            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2)
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2)
             {
                 if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] Passed two jet condition" << std::endl;
                 WVJJTree->TwoJet_LeadFatJet_area = NanoReader_.FatJet_area[goodWJetIndex[0]];
@@ -1205,7 +1271,7 @@ int main (int argc, char** argv) {
                 WVJJTree->TwoJet_SubLeadFatJet_tau3=NanoReader_.FatJet_tau3[goodWJetIndex[1]];
                 WVJJTree->TwoJet_SubLeadFatJet_tau4=NanoReader_.FatJet_tau4[goodWJetIndex[1]];
 
-                TLorentzVector TwoJet_Radion_LV = Ak8WZJets[0] + Ak8WZJets[1] + diphoton;
+                TLorentzVector TwoJet_Radion_LV = LV_Ak8WZJets[0] + LV_Ak8WZJets[1] + diphoton;
 
                 WVJJTree->TwoJet_Radion_pt = TwoJet_Radion_LV.Pt();
                 WVJJTree->TwoJet_Radion_eta = TwoJet_Radion_LV.Eta();
@@ -1213,10 +1279,15 @@ int main (int argc, char** argv) {
                 WVJJTree->TwoJet_Radion_m = TwoJet_Radion_LV.M();
                 WVJJTree->TwoJet_Radion_E = TwoJet_Radion_LV.E();
 
+                WVJJTree->TwoJet_deltaR_LHERECO_HH = TMath::Min(
+                                        deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),TwoJet_Radion_LV.Eta(),TwoJet_Radion_LV.Phi()),
+                                        deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),TwoJet_Radion_LV.Eta(),TwoJet_Radion_LV.Phi()));
+
+
             }
             if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After two jet if condition" << std::endl;
 
-            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2)
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2)
             {
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed three jet condition" << std::endl;
                 WVJJTree->ThreeJet_FatJet_area = NanoReader_.FatJet_area[goodWJetIndex[0]];
@@ -1293,18 +1364,23 @@ int main (int argc, char** argv) {
                 WVJJTree->ThreeJet_SubLeadingAK4_phi = NanoReader_.Jet_phi[goodAK4JetIndex[1]];
                 WVJJTree->ThreeJet_SubLeadingAK4_mass = NanoReader_.Jet_mass[goodAK4JetIndex[1]];
 
-                TLorentzVector ThreeJet_Radion_LV = Ak8WZJets[0] + Ak4Jets[0] + Ak4Jets[1] + diphoton;
+                TLorentzVector ThreeJet_Radion_LV = LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1] + diphoton;
 
                 WVJJTree->ThreeJet_Radion_pt = ThreeJet_Radion_LV.Pt();
                 WVJJTree->ThreeJet_Radion_eta = ThreeJet_Radion_LV.Eta();
                 WVJJTree->ThreeJet_Radion_phi = ThreeJet_Radion_LV.Phi();
                 WVJJTree->ThreeJet_Radion_m = ThreeJet_Radion_LV.M();
                 WVJJTree->ThreeJet_Radion_E = ThreeJet_Radion_LV.E();
+
+                WVJJTree->ThreeJet_deltaR_LHERECO_HH = TMath::Min(
+                                        deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),ThreeJet_Radion_LV.Eta(),ThreeJet_Radion_LV.Phi()),
+                                        deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),ThreeJet_Radion_LV.Eta(),ThreeJet_Radion_LV.Phi()));
+
             }
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] After three jet if condition" << std::endl;
 
             /* ----------------------- output the AK4 jet ----------------------- */
-            if (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4 )
+            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4 )
             {
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nAK4 jets >= 4 condition" << std::endl;
 
@@ -1332,13 +1408,13 @@ int main (int argc, char** argv) {
                 WVJJTree->FullyResolved_Jet3_M = NanoReader_.Jet_mass[goodAK4JetIndex[2]];
                 WVJJTree->FullyResolved_Jet4_M = NanoReader_.Jet_mass[goodAK4JetIndex[3]];
 
-                WVJJTree->FullyResolved_Jet1_E = Ak4Jets.at(0).E();
-                WVJJTree->FullyResolved_Jet2_E = Ak4Jets.at(1).E();
-                WVJJTree->FullyResolved_Jet3_E = Ak4Jets.at(2).E();
-                WVJJTree->FullyResolved_Jet4_E = Ak4Jets.at(3).E();
+                WVJJTree->FullyResolved_Jet1_E = LV_Ak4Jets.at(0).E();
+                WVJJTree->FullyResolved_Jet2_E = LV_Ak4Jets.at(1).E();
+                WVJJTree->FullyResolved_Jet3_E = LV_Ak4Jets.at(2).E();
+                WVJJTree->FullyResolved_Jet4_E = LV_Ak4Jets.at(3).E();
 
                 /* -------------------------- Sum of 2 leading jets ------------------------- */
-                TLorentzVector TwoLeadingJets = Ak4Jets.at(0) + Ak4Jets.at(1);
+                TLorentzVector TwoLeadingJets = LV_Ak4Jets.at(0) + LV_Ak4Jets.at(1);
                 WVJJTree->FullyResolved_TwoLeadingJets_pt = TwoLeadingJets.Pt();
                 WVJJTree->FullyResolved_TwoLeadingJets_eta = TwoLeadingJets.Eta();
                 WVJJTree->FullyResolved_TwoLeadingJets_phi = TwoLeadingJets.Phi();
@@ -1346,7 +1422,7 @@ int main (int argc, char** argv) {
                 WVJJTree->FullyResolved_TwoLeadingJets_E = TwoLeadingJets.E();
 
                 /* -------------------------- Sum of 3rd 4th  jets -------------------------- */
-                TLorentzVector ThirdFourthJets = Ak4Jets.at(2) + Ak4Jets.at(3);
+                TLorentzVector ThirdFourthJets = LV_Ak4Jets.at(2) + LV_Ak4Jets.at(3);
                 WVJJTree->FullyResolved_ThirdFourthJets_pt = ThirdFourthJets.Pt();
                 WVJJTree->FullyResolved_ThirdFourthJets_eta = ThirdFourthJets.Eta();
                 WVJJTree->FullyResolved_ThirdFourthJets_phi = ThirdFourthJets.Phi();
@@ -1354,19 +1430,24 @@ int main (int argc, char** argv) {
                 WVJJTree->FullyResolved_ThirdFourthJets_E = ThirdFourthJets.E();
 
                 /* ------------------------------ Sum of 4 jets ----------------------------- */
-                TLorentzVector FourJets = Ak4Jets.at(0) + Ak4Jets.at(1)+ Ak4Jets.at(2) + Ak4Jets.at(3);
+                TLorentzVector FourJets = LV_Ak4Jets.at(0) + LV_Ak4Jets.at(1)+ LV_Ak4Jets.at(2) + LV_Ak4Jets.at(3);
                 WVJJTree->FullyResolved_FourJets_pt = FourJets.Pt();
                 WVJJTree->FullyResolved_FourJets_eta = FourJets.Eta();
                 WVJJTree->FullyResolved_FourJets_phi = FourJets.Phi();
                 WVJJTree->FullyResolved_FourJets_m = FourJets.M();
                 WVJJTree->FullyResolved_FourJets_E = FourJets.E();
 
-                TLorentzVector Radion = FourJets + diphoton;
-                WVJJTree->FullyResolved_Radion_pt = Radion.Pt();
-                WVJJTree->FullyResolved_Radion_eta = Radion.Eta();
-                WVJJTree->FullyResolved_Radion_phi = Radion.Phi();
-                WVJJTree->FullyResolved_Radion_m = Radion.M();
-                WVJJTree->FullyResolved_Radion_E = Radion.E();
+                TLorentzVector FullyResolved_Radion = FourJets + diphoton;
+                WVJJTree->FullyResolved_Radion_pt = FullyResolved_Radion.Pt();
+                WVJJTree->FullyResolved_Radion_eta = FullyResolved_Radion.Eta();
+                WVJJTree->FullyResolved_Radion_phi = FullyResolved_Radion.Phi();
+                WVJJTree->FullyResolved_Radion_m = FullyResolved_Radion.M();
+                WVJJTree->FullyResolved_Radion_E = FullyResolved_Radion.E();
+
+                WVJJTree->FullyResolved_deltaR_LHERECO_HH = TMath::Min(
+                                        deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),FullyResolved_Radion.Eta(),FullyResolved_Radion.Phi()),
+                                        deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),FullyResolved_Radion.Eta(),FullyResolved_Radion.Phi()));
+
             }
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] After four jet if condition" << std::endl;
 

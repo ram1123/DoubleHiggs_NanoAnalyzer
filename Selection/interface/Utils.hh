@@ -25,6 +25,14 @@ float deltaR(float eta1, float phi1, float eta2, float phi2) {
   return TMath::Sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 }
 
+float deltaPhi(float phi1, float phi2) {
+  float deltaphi_ = TMath::Abs(phi1-phi2);
+  if(deltaphi_ > TMath::Pi()) {
+    deltaphi_ = TMath::TwoPi() - deltaphi_;
+  }
+  return deltaphi_;
+}
+
 float GetBinTH2_value(float x, float y, TH2* h2) {
   int nbinsX = h2->GetNbinsX();
   int nbinsY = h2->GetNbinsY();

@@ -26,6 +26,19 @@ void WVJJData::init() {
   fTree->Branch("aqgcWeight",&aqgcWeight[0],"aqgcWeight[nAqgcWeight]/F");
   // tZq veto
   fTree->Branch("is_tZq",&is_tZq,"is_tZq/O");
+
+  // LHE
+  fTree->Branch("LHE_deltaR_HH",&LHE_deltaR_HH,"LHE_deltaR_HH/F");
+  fTree->Branch("LHE_deltaEta_HH",&LHE_deltaEta_HH,"LHE_deltaEta_HH/F");
+  fTree->Branch("LHE_deltaPhi_HH",&LHE_deltaPhi_HH,"LHE_deltaPhi_HH/F");
+
+  fTree->Branch("LHEGEN_deltaR_HH",&LHEGEN_deltaR_HH,"LHEGEN_deltaR_HH/F");
+  fTree->Branch("DiPhoton_deltaR_LHERECO_HH",&DiPhoton_deltaR_LHERECO_HH,"DiPhoton_deltaR_LHERECO_HH/F");
+  fTree->Branch("OneJet_deltaR_LHERECO_HH",&OneJet_deltaR_LHERECO_HH,"OneJet_deltaR_LHERECO_HH/F");
+  fTree->Branch("TwoJet_deltaR_LHERECO_HH",&TwoJet_deltaR_LHERECO_HH,"TwoJet_deltaR_LHERECO_HH/F");
+  fTree->Branch("ThreeJet_deltaR_LHERECO_HH",&ThreeJet_deltaR_LHERECO_HH,"ThreeJet_deltaR_LHERECO_HH/F");
+  fTree->Branch("FullyResolved_deltaR_LHERECO_HH",&FullyResolved_deltaR_LHERECO_HH,"FullyResolved_deltaR_LHERECO_HH/F");
+
   //jet counters
   fTree->Branch("nAK4Jet30",&nAK4Jet30,"nAK4Jet30/I");
   fTree->Branch("nAK4Jet50",&nAK4Jet50,"nAK4Jet50/I");
@@ -624,6 +637,17 @@ void WVJJData::clearVars() {
   std::fill_n(aqgcWeight,1000,0);
 
   is_tZq = false;
+
+  LHE_deltaR_HH = -999.0;
+  LHE_deltaEta_HH = -999.0;
+  LHE_deltaPhi_HH = -999.0;
+
+  LHEGEN_deltaR_HH = -999.0;
+  DiPhoton_deltaR_LHERECO_HH = -999.0;
+  OneJet_deltaR_LHERECO_HH = -999.0;
+  TwoJet_deltaR_LHERECO_HH = -999.0;
+  ThreeJet_deltaR_LHERECO_HH = -999.0;
+  FullyResolved_deltaR_LHERECO_HH = -999.0;
 
   nAK4Jet30 = 0;
   nAK4Jet50 = 0;
