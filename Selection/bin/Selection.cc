@@ -1087,12 +1087,6 @@ int main (int argc, char** argv) {
                 // PU JET ID for jets pt > AK4_PT_CUT and < 50
                 if (NanoReader_.Jet_pt[j] < 50 && NanoReader_.Jet_puId[j] < 3) continue;
 
-                if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] compute the btag eff." << std::endl;
-                //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagSFMethods#1a_Event_reweighting_using_scale
-                float btag_eff_loose = 1.0;
-                float btag_eff_medium = 1.0;
-                float btag_eff_tight = 1.0;
-
                 bool isClean=true;
 
                 // object cleaning
@@ -1154,6 +1148,14 @@ int main (int argc, char** argv) {
                 }
 
                 if ( isClean == false ) continue;
+
+
+                if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] compute the btag eff." << std::endl;
+                //https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagSFMethods#1a_Event_reweighting_using_scale
+                float btag_eff_loose = 1.0;
+                float btag_eff_medium = 1.0;
+                float btag_eff_tight = 1.0;
+
                 if (NanoReader_.Jet_pt[j]>30) WVJJTree->nAK4Jet30++;
                 if (NanoReader_.Jet_pt[j]>50) WVJJTree->nAK4Jet50++;
 
@@ -1563,6 +1565,12 @@ int main (int argc, char** argv) {
                 WVJJTree->ThreeJet_SubLeadingAK4_mass = NanoReader_.Jet_mass[goodAK4JetIndex[1]];
 
                 TLorentzVector ThreeJet_Radion_LV = LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1] + diphoton;
+
+                WVJJTree->ThreeJet_AK4WBoson_pt = (LV_Ak4Jets[0] + LV_Ak4Jets[1]).Pt();
+                WVJJTree->ThreeJet_AK4WBoson_eta = (LV_Ak4Jets[0] + LV_Ak4Jets[1]).Eta();
+                WVJJTree->ThreeJet_AK4WBoson_phi = (LV_Ak4Jets[0] + LV_Ak4Jets[1]).Phi();
+                WVJJTree->ThreeJet_AK4WBoson_m = (LV_Ak4Jets[0] + LV_Ak4Jets[1]).M();
+                WVJJTree->ThreeJet_AK4WBoson_E = (LV_Ak4Jets[0] + LV_Ak4Jets[1]).E();
 
                 WVJJTree->ThreeJet_Higgs_pt = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).Pt();
                 WVJJTree->ThreeJet_Higgs_eta = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).Eta();

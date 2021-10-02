@@ -715,6 +715,11 @@ public:
   float ThreeJet_SubLeadingAK4_eta = -999.0;
   float ThreeJet_SubLeadingAK4_phi = -999.0;
   float ThreeJet_SubLeadingAK4_mass = -999.0;
+  float ThreeJet_AK4WBoson_pt = -999.0;
+  float ThreeJet_AK4WBoson_eta = -999.0;
+  float ThreeJet_AK4WBoson_phi = -999.0;
+  float ThreeJet_AK4WBoson_m = -999.0;
+  float ThreeJet_AK4WBoson_E = -999.0;
   float ThreeJet_Radion_pt = -999.0;
   float ThreeJet_Radion_eta = -999.0;
   float ThreeJet_Radion_phi = -999.0;
