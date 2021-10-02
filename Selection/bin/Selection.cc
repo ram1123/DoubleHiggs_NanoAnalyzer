@@ -175,6 +175,24 @@ int main (int argc, char** argv) {
     totalCutFlow_FH->GetXaxis()->SetBinLabel(14,"pT/mgg cut");
     totalCutFlow_FH->GetXaxis()->SetBinLabel(15,"pT(#gamma #gamma)>100");
 
+    TH1F *totalCutFlow_FH_GENMatch = new TH1F("totalCutFlow_FH_GENMatch","totalCutFlow_FH_GENMatch",15,0,15);
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(1,"MC Gen");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(2,"nEvent");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(3,"Skim NanoAOD");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(4,"Trigger");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(5,"Photon Selection");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(6,"Lepton Selection");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(7,"nAK8_Higgs >= 1");  // 1 jet category
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(8,"nAK8H=0 & nAK8_W >= 2"); // 2  jet category
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(9,"nAK8H=0 & nAK8_W=1 & nAK4>=2");  // 3 jet catego
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(10,"nAK8H=0 & nAK8_W>=1 & nAK4>=2");  // 3 jet catego
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(11,"nAK8H=0 & nAK8W=0 & nAK4>=4"); // 4 jet category
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(12,"nAK4 >= 4");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(13,"1Jet2Jet3Jet4Jet");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(14,"pT/mgg cut");
+    totalCutFlow_FH_GENMatch->GetXaxis()->SetBinLabel(15,"pT(#gamma #gamma)>100");
+
+
     // TH1F *totalCutFlow_SL = (TH1F*)totalCutFlow_FH->Clone("totalCutFlow_SL");
     // totalCutFlow_SL->SetTitle("totalCutFlow_SL");
     TH1F *totalCutFlow_SL = new TH1F("totalCutFlow_SL","totalCutFlow_SL",11,0,11);
@@ -299,6 +317,8 @@ int main (int argc, char** argv) {
         totalCutFlow_FH->Fill("nEvent",genEventSumw);
         totalCutFlow_SL->Fill("MC Gen",genEventCount);
         totalCutFlow_SL->Fill("nEvent",genEventSumw);
+        totalCutFlow_FH_GENMatch->Fill("MC Gen",genEventCount);
+        totalCutFlow_FH_GENMatch->Fill("nEvent",genEventSumw);
         //check if tree has these hlt branches
         if (lineCount == 1){
             has_HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90 = t->GetBranchStatus("HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90");
@@ -319,6 +339,7 @@ int main (int argc, char** argv) {
             NanoReader_.GetEntry(i);
             totalCutFlow_FH->Fill("Skim NanoAOD",1);
             totalCutFlow_SL->Fill("Skim NanoAOD",1);
+            totalCutFlow_FH_GENMatch->Fill("Skim NanoAOD",1);
 
             if (i%10000==0) std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
             if (DEBUG)       std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
@@ -604,6 +625,7 @@ int main (int argc, char** argv) {
             // totalCutFlow_SL->Fill("Trigger",1);
             if (WVJJTree->trigger_2Pho) totalCutFlow_FH->Fill("Trigger",1);
             if (WVJJTree->trigger_2Pho) totalCutFlow_SL->Fill("Trigger",1);
+            if (WVJJTree->trigger_2Pho) totalCutFlow_FH_GENMatch->Fill("Trigger",1);
 
             /* -------------------------------------------------------------------------- */
             /*                              PHOTON SELECTION                              */
@@ -676,7 +698,6 @@ int main (int argc, char** argv) {
             totalCutFlow_FH->Fill("Photon Selection",1);
             totalCutFlow_SL->Fill("Photon Selection",1);
 
-
             // std::cout << "Exactly 2 photons found..." << std::endl;
 
             /* -------------------------------------------------------------------------- */
@@ -711,6 +732,9 @@ int main (int argc, char** argv) {
 
             WVJJTree->DiPhoton_deltaR_pho1_GENPhoton = MinDeltaRFromReferenceLV(LV_pho1,LV_GEN_photons[0],LV_GEN_photons[1]);
             WVJJTree->DiPhoton_deltaR_pho2_GENPhoton = MinDeltaRFromReferenceLV(LV_pho2,LV_GEN_photons[0],LV_GEN_photons[1]);
+
+            if (WVJJTree->DiPhoton_deltaR_GENRECO_HH < 0.8)
+                totalCutFlow_FH_GENMatch->Fill("Photon Selection",1);
 
             // if(!(WVJJTree->pho1_pt_byMgg > 0.35)) continue;
             // if(!(WVJJTree->pho2_pt_byMgg > 0.25)) continue;
@@ -812,7 +836,8 @@ int main (int argc, char** argv) {
             if (nTightMu + nTightEle > 1) continue;
             if (nTightMu + nTightEle == 0) totalCutFlow_FH->Fill("Lepton Selection",1);
             if (nTightMu + nTightEle == 1) totalCutFlow_SL->Fill("Lepton Selection",1);
-
+            if (nTightMu + nTightEle == 0)
+                totalCutFlow_FH_GENMatch->Fill("Lepton Selection",1);
 
             /* -------------------------------------------------------------------------- */
             /*                                   AK8Jet   Higgs Jet                       */
@@ -963,8 +988,11 @@ int main (int argc, char** argv) {
                 WVJJTree->OneJet_deltaR_HH = deltaR(LV_Ak8HiggsJets[0],diphoton);
                 WVJJTree->OneJet_deltaEta_HH = LV_Ak8HiggsJets[0].Eta() - diphoton.Eta();
                 WVJJTree->OneJet_deltaPhi_HH = deltaPhi(LV_Ak8HiggsJets[0],diphoton);
-
             }
+
+            if ((nTightMu + nTightEle == 0) && nGood_Higgs_FatJet>=1 && WVJJTree->OneJet_deltaR_GENRECO_HH<0.8)
+                totalCutFlow_FH_GENMatch->Fill("nAK8_Higgs >= 1",1);
+
             if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After one jet if condition" << std::endl;
 
             /* -------------------------------------------------------------------------- */
@@ -1448,6 +1476,12 @@ int main (int argc, char** argv) {
                 WVJJTree->TwoJet_deltaR_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1],diphoton);
                 WVJJTree->TwoJet_deltaEta_HH = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Eta() - diphoton.Eta();
                 WVJJTree->TwoJet_deltaPhi_HH = deltaPhi(LV_Ak8WZJets[0] + LV_Ak8WZJets[1],diphoton);
+
+                // other conditons are already applied in the current if condition
+                // so I did not added conditons that belongs to 2 jet category.
+                if ( WVJJTree->TwoJet_deltaR_GENRECO_HH < 0.8)
+                    totalCutFlow_FH_GENMatch->Fill("nAK8H=0 & nAK8_W >= 2",1);
+
             }
             if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After two jet if condition" << std::endl;
 
