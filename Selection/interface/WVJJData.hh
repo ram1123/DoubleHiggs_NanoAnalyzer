@@ -25,6 +25,17 @@ public:
   //       METADATA AND EVENT WEIGHTS   //
   //------------------------------------//
 
+  float diphoton_dRgg = -999.0;
+  float diphoton_dPhigg = -999.0;
+  float diphoton_dEtagg = -999.0;
+  float TwoJet_deltaR_jj = -999.0;
+  float TwoJet_deltaPhi_jj = -999.0;
+  float TwoJet_deltaEta_jj = -999.0;
+  float ThreeJet_deltaR_AK8AK40 = -999.0;
+  float ThreeJet_deltaR_AK8AK41 = -999.0;
+  float ThreeJet_deltaR_MinAK8AK4 = -999.0;
+  float FullyResolved_deltaR_MinAlljeta = -999.0;
+
   uint run;
   uint ls;
   uint long evt;
@@ -704,6 +715,11 @@ public:
   float ThreeJet_SubLeadingAK4_eta = -999.0;
   float ThreeJet_SubLeadingAK4_phi = -999.0;
   float ThreeJet_SubLeadingAK4_mass = -999.0;
+  float ThreeJet_AK4WBoson_pt = -999.0;
+  float ThreeJet_AK4WBoson_eta = -999.0;
+  float ThreeJet_AK4WBoson_phi = -999.0;
+  float ThreeJet_AK4WBoson_m = -999.0;
+  float ThreeJet_AK4WBoson_E = -999.0;
   float ThreeJet_Radion_pt = -999.0;
   float ThreeJet_Radion_eta = -999.0;
   float ThreeJet_Radion_phi = -999.0;

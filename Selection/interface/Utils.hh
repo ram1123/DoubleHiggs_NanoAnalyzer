@@ -31,22 +31,18 @@ float deltaR(TLorentzVector vec1, TLorentzVector vec2) {
   float eta2 = vec2.Eta();
   float phi1 = vec1.Phi();
   float phi2 = vec2.Phi();
-  float deltaPhi = TMath::Abs(phi1-phi2);
-  float deltaEta = eta1-eta2;
-  if(deltaPhi > TMath::Pi()) {
-    deltaPhi = TMath::TwoPi() - deltaPhi;
-  }
-  return TMath::Sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+  
+  return deltaR(eta1, phi1, eta2, phi2);
 }
 
-float MinDeltaR(TLorentzVector ReferenceVec, TLorentzVector Check1, TLorentzVector Check2)
+float MinDeltaRFromReferenceLV(TLorentzVector ReferenceVec, TLorentzVector Check1, TLorentzVector Check2)
 {
   float deltaR1 = deltaR(ReferenceVec, Check1);
   float deltaR2 = deltaR(ReferenceVec, Check2);
   return TMath::Min(deltaR1,deltaR2);
 }
 
-float MinDeltaR(TLorentzVector ReferenceVec, TLorentzVector Check1, TLorentzVector Check2, TLorentzVector Check3, TLorentzVector Check4)
+float MinDeltaRFromReferenceLV(TLorentzVector ReferenceVec, TLorentzVector Check1, TLorentzVector Check2, TLorentzVector Check3, TLorentzVector Check4)
 {
   float deltaR1 = deltaR(ReferenceVec, Check1);
   float deltaR2 = deltaR(ReferenceVec, Check2);
@@ -56,6 +52,22 @@ float MinDeltaR(TLorentzVector ReferenceVec, TLorentzVector Check1, TLorentzVect
   float minOf34 = TMath::Min(deltaR3,deltaR4);
   return TMath::Min(minOf12,minOf34);
 }
+
+/* minimum deltaR between any 4 TLorentzVector */
+float MinDeltaR(TLorentzVector Check1, TLorentzVector Check2, TLorentzVector Check3, TLorentzVector Check4)
+{
+  float deltaR1 = deltaR(Check1, Check2);
+  float deltaR2 = deltaR(Check1, Check3);
+  float deltaR3 = deltaR(Check1, Check4);
+  
+  float deltaR4 = deltaR(Check2, Check3);
+  float deltaR5 = deltaR(Check2, Check4);
+
+  float deltaR6 = deltaR(Check3, Check4);
+  
+  return TMath::Min(TMath::Min(TMath::Min(TMath::Min(TMath::Min(deltaR1,deltaR2), deltaR3), deltaR4), deltaR5), deltaR6);
+}
+
 float deltaPhi(float phi1, float phi2) {
   float deltaphi_ = TMath::Abs(phi1-phi2);
   if(deltaphi_ > TMath::Pi()) {
