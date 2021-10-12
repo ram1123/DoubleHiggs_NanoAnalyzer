@@ -129,7 +129,12 @@ public:
   float LHEGEN_deltaR_HToWWH = -999.0;
   float DiPhoton_deltaR_LHERECO_HH = -999.0;
 
+  float GEN_deltaR_GG = -999.0;
+  float GEN_deltaR_WW = -999.0;
+  float GEN_deltaR_MIN4Q = -999.0;
   float DiPhoton_deltaR_GENRECO_HH = -999.0;
+  float Leading_photon_deltaR_GENRECO_G = -999.0;
+  float SubLeading_photon_deltaR_GENRECO_G = -999.0;
   float DiPhoton_deltaR_pho1_GENPhoton = -999.0;
   float DiPhoton_deltaR_pho2_GENPhoton = -999.0;
   float OneJet_deltaR_GENRECO_HH = -999.0;
@@ -795,6 +800,7 @@ public:
   float TwoJet_deltaEta_HH = -999.0;
   float TwoJet_deltaPhi_HH = -999.0;
   float ThreeJet_deltaR_HH = -999.0;
+  float ThreeJet_deltaR_WW = -999.0;
   float ThreeJet_deltaEta_HH = -999.0;
   float ThreeJet_deltaPhi_HH = -999.0;
   float FullyResolved_deltaR_HH = -999.0;

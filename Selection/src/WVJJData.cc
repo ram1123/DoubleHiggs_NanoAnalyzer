@@ -99,7 +99,12 @@ void WVJJData::init() {
   fTree->Branch("LHEGEN_deltaR_HToWWH",&LHEGEN_deltaR_HToWWH,"LHEGEN_deltaR_HToWWH/F");
   fTree->Branch("DiPhoton_deltaR_LHERECO_HH",&DiPhoton_deltaR_LHERECO_HH,"DiPhoton_deltaR_LHERECO_HH/F");
 
+  fTree->Branch("GEN_deltaR_GG",&GEN_deltaR_GG,"GEN_deltaR_GG/F");
+  fTree->Branch("GEN_deltaR_WW",&GEN_deltaR_WW,"GEN_deltaR_WW/F");
+  fTree->Branch("GEN_deltaR_MIN4Q",&GEN_deltaR_MIN4Q,"GEN_deltaR_MIN4Q/F");
   fTree->Branch("DiPhoton_deltaR_GENRECO_HH",&DiPhoton_deltaR_GENRECO_HH,"DiPhoton_deltaR_GENRECO_HH/F");
+  fTree->Branch("Leading_photon_deltaR_GENRECO_G",&Leading_photon_deltaR_GENRECO_G,"Leading_photon_deltaR_GENRECO_G/F");
+  fTree->Branch("SubLeading_photon_deltaR_GENRECO_G",&SubLeading_photon_deltaR_GENRECO_G,"SubLeading_photon_deltaR_GENRECO_G/F");
   fTree->Branch("DiPhoton_deltaR_pho1_GENPhoton",&DiPhoton_deltaR_pho1_GENPhoton,"DiPhoton_deltaR_pho1_GENPhoton/F");
   fTree->Branch("DiPhoton_deltaR_pho2_GENPhoton",&DiPhoton_deltaR_pho2_GENPhoton,"DiPhoton_deltaR_pho2_GENPhoton/F");
   fTree->Branch("OneJet_deltaR_GENRECO_HH",&OneJet_deltaR_GENRECO_HH,"OneJet_deltaR_GENRECO_HH/F");
@@ -718,6 +723,7 @@ void WVJJData::init() {
   fTree->Branch("TwoJet_deltaEta_HH",&TwoJet_deltaEta_HH,"TwoJet_deltaEta_HH/F");
   fTree->Branch("TwoJet_deltaPhi_HH",&TwoJet_deltaPhi_HH,"TwoJet_deltaPhi_HH/F");
   fTree->Branch("ThreeJet_deltaR_HH",&ThreeJet_deltaR_HH,"ThreeJet_deltaR_HH/F");
+  fTree->Branch("ThreeJet_deltaR_WW",&ThreeJet_deltaR_WW,"ThreeJet_deltaR_WW/F");
   fTree->Branch("ThreeJet_deltaEta_HH",&ThreeJet_deltaEta_HH,"ThreeJet_deltaEta_HH/F");
   fTree->Branch("ThreeJet_deltaPhi_HH",&ThreeJet_deltaPhi_HH,"ThreeJet_deltaPhi_HH/F");
   fTree->Branch("FullyResolved_deltaR_HH",&FullyResolved_deltaR_HH,"FullyResolved_deltaR_HH/F");
@@ -831,6 +837,8 @@ void WVJJData::clearVars() {
   DiPhoton_deltaR_LHERECO_HH = -999.0;
 
   DiPhoton_deltaR_GENRECO_HH = -999.0;
+  Leading_photon_deltaR_GENRECO_G = -999.0;
+  SubLeading_photon_deltaR_GENRECO_G = -999.0;
   DiPhoton_deltaR_pho1_GENPhoton = -999.0;
   DiPhoton_deltaR_pho2_GENPhoton = -999.0;
   OneJet_deltaR_GENRECO_HH = -999.0;
@@ -1462,6 +1470,9 @@ void WVJJData::clearVars() {
   GEN_deltaR_HH = -999.0;
   GEN_deltaEta_HH = -999.0;
   GEN_deltaPhi_HH = -999.0;
+  GEN_deltaR_GG = -999.0;
+  GEN_deltaR_WW = -999.0;
+  GEN_deltaR_MIN4Q = -999.0;
 
   OneJet_deltaR_HH = -999.0;
   OneJet_deltaEta_HH = -999.0;
@@ -1470,6 +1481,7 @@ void WVJJData::clearVars() {
   TwoJet_deltaEta_HH = -999.0;
   TwoJet_deltaPhi_HH = -999.0;
   ThreeJet_deltaR_HH = -999.0;
+  ThreeJet_deltaR_WW = -999.0;
   ThreeJet_deltaEta_HH = -999.0;
   ThreeJet_deltaPhi_HH = -999.0;
   FullyResolved_deltaR_HH = -999.0;

@@ -499,13 +499,14 @@ int main (int argc, char** argv) {
                     exit(0);
                 }
             }
-
             TLorentzVector LV_GEN_HiggsGG(0,0,0,0);
             TLorentzVector LV_GEN_HiggsWW(0,0,0,0);
             LV_GEN_HiggsGG = LV_GEN_photons[0] + LV_GEN_photons[1];
             LV_GEN_HiggsWW = LV_GEN_WBosons[0] + LV_GEN_WBosons[1];
+
             WVJJTree->LHEGEN_deltaR_HToGGH = TMath::Min(deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_GEN_HiggsGG.Eta(),LV_GEN_HiggsGG.Phi()),
                                                     deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),LV_GEN_HiggsGG.Eta(),LV_GEN_HiggsGG.Phi()));
+            
             WVJJTree->LHEGEN_deltaR_HToWWH = TMath::Min(deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_GEN_HiggsWW.Eta(),LV_GEN_HiggsWW.Phi()),
                                                     deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),LV_GEN_HiggsWW.Eta(),LV_GEN_HiggsWW.Phi()));
 
@@ -573,6 +574,8 @@ int main (int argc, char** argv) {
             WVJJTree->GEN_H1_eta = LV_GEN_Higgs[0].Eta();
             WVJJTree->GEN_H1_phi = LV_GEN_Higgs[0].Phi();
             WVJJTree->GEN_H1_energy = LV_GEN_Higgs[0].E();
+
+    
             WVJJTree->GEN_H1_mass = LV_GEN_Higgs[0].M();
 
             WVJJTree->GEN_H2_pT = LV_GEN_Higgs[1].Pt();
@@ -584,6 +587,9 @@ int main (int argc, char** argv) {
             WVJJTree->GEN_deltaR_HH = deltaR(LV_GEN_Higgs[0],LV_GEN_Higgs[1]);
             WVJJTree->GEN_deltaEta_HH = LV_GEN_Higgs[0].Eta() - LV_GEN_Higgs[1].Eta();
             WVJJTree->GEN_deltaPhi_HH = deltaPhi(LV_GEN_Higgs[0],LV_GEN_Higgs[1]);
+            WVJJTree->GEN_deltaR_GG = deltaR(LV_GEN_photons[0],LV_GEN_photons[1]);
+            WVJJTree->GEN_deltaR_WW = deltaR(LV_GEN_WBosons[0],LV_GEN_WBosons[1]);
+            WVJJTree->GEN_deltaR_MIN4Q = MinDeltaR(LV_GEN_quarks[0],LV_GEN_quarks[1],LV_GEN_quarks[2],LV_GEN_quarks[3]);
 
             WVJJTree->GEN_HWW_pT = (LV_GEN_WBosons[0]+LV_GEN_WBosons[1]).Pt();
             WVJJTree->GEN_HWW_eta = (LV_GEN_WBosons[0]+LV_GEN_WBosons[1]).Eta();
@@ -722,6 +728,7 @@ int main (int argc, char** argv) {
             WVJJTree->pho2_pt_byMgg = LV_pho1.Pt()/diphoton.M();
             WVJJTree->pho1_E_byMgg = LV_pho2.E()/diphoton.M();
             WVJJTree->pho2_E_byMgg = LV_pho2.E()/diphoton.M();
+            //RECO level photon deltaR
             WVJJTree->diphoton_dRgg = deltaR(LV_pho1,LV_pho2);
             WVJJTree->diphoton_dPhigg = deltaPhi(LV_pho1,LV_pho2);
             WVJJTree->diphoton_dEtagg = LV_pho1.Eta() - LV_pho2.Eta();
@@ -729,7 +736,8 @@ int main (int argc, char** argv) {
             WVJJTree->DiPhoton_deltaR_LHERECO_HH = MinDeltaRFromReferenceLV(diphoton,LV_LHE_Higgs[0],LV_LHE_Higgs[1]);
             // WVJJTree->DiPhoton_deltaR_GENRECO_HH = MinDeltaRFromReferenceLV(diphoton,LV_GEN_Higgs[0],LV_GEN_Higgs[1]);
             WVJJTree->DiPhoton_deltaR_GENRECO_HH = deltaR(diphoton,LV_GEN_photons[1]+LV_GEN_photons[0]);
-
+            WVJJTree->Leading_photon_deltaR_GENRECO_G = deltaR(LV_pho1,LV_GEN_photons[0]);
+            WVJJTree->SubLeading_photon_deltaR_GENRECO_G = deltaR(LV_pho2,LV_GEN_photons[1]);
             WVJJTree->DiPhoton_deltaR_pho1_GENPhoton = MinDeltaRFromReferenceLV(LV_pho1,LV_GEN_photons[0],LV_GEN_photons[1]);
             WVJJTree->DiPhoton_deltaR_pho2_GENPhoton = MinDeltaRFromReferenceLV(LV_pho2,LV_GEN_photons[0],LV_GEN_photons[1]);
 
@@ -1467,7 +1475,6 @@ int main (int argc, char** argv) {
                 WVJJTree->TwoJet_deltaR_LHERECO_HH = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_LHE_Higgs[0], LV_LHE_Higgs[1]);
                 // WVJJTree->TwoJet_deltaR_GENRECO_HH = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_GEN_Higgs[0], LV_GEN_Higgs[1]);
                 WVJJTree->TwoJet_deltaR_GENRECO_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_GEN_WBosons[0]+LV_GEN_WBosons[1]);
-
                 // deltaR between GEN W-bosons and Reconstructed W-bosons
                 WVJJTree->TwoJet_deltaR_LeadAK8WBoson_GENW = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
                 WVJJTree->TwoJet_deltaR_SubLeadAK8WBoson_GENW = MinDeltaRFromReferenceLV(LV_Ak8WZJets[1], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
@@ -1591,7 +1598,8 @@ int main (int argc, char** argv) {
                 WVJJTree->ThreeJet_deltaR_LHERECO_HH = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_LHE_Higgs[0], LV_LHE_Higgs[1]);
                 // WVJJTree->ThreeJet_deltaR_GENRECO_HH = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_GEN_Higgs[0], LV_GEN_Higgs[1]);
                 WVJJTree->ThreeJet_deltaR_GENRECO_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_GEN_WBosons[0]+LV_GEN_WBosons[1]);
-
+                //deltaR between two W boson
+                WVJJTree->ThreeJet_deltaR_WW = deltaR(LV_Ak4Jets[0]+LV_Ak4Jets[1],LV_Ak8WZJets[0]);
                 // deltaR between GEN W-bosons and Reconstructed W-bosons
                 WVJJTree->ThreeJet_deltaR_AK4WBoson_GENW = MinDeltaRFromReferenceLV(LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
                 WVJJTree->ThreeJet_deltaR_AK8WBoson_GENW = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
