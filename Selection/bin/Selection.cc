@@ -815,7 +815,7 @@ int main (int argc, char** argv) {
             WVJJTree->DiPhoton_deltaR_pho1_GENPhoton = MinDeltaRFromReferenceLV(LV_pho1,LV_GEN_photons[0],LV_GEN_photons[1]);
             WVJJTree->DiPhoton_deltaR_pho2_GENPhoton = MinDeltaRFromReferenceLV(LV_pho2,LV_GEN_photons[0],LV_GEN_photons[1]);
 
-            if (WVJJTree->DiPhoton_deltaR_GENRECO_HH < 0.8)
+            if (WVJJTree->DiPhoton_deltaR_GENRECO_HH < 0.4)
                 totalCutFlow_FH_GENMatch->Fill("Photon Selection",1);
 
             // if(!(WVJJTree->pho1_pt_byMgg > 0.35)) continue;
