@@ -120,10 +120,45 @@ public:
   float GEN_W2_mass = -999.0;
   float GEN_H1_mass = -999.0;
   float GEN_H2_mass = -999.0;
+  // GEN level x->HH
+  float GEN_Radion_HH_p = -999.0;
+  float GEN_Radion_HH_pt = -999.0;
+  float GEN_Radion_HH_pz = -999.0;
+  float GEN_Radion_HH_eta = -999.0;
+  float GEN_Radion_HH_phi = -999.0;
+  float GEN_Radion_HH_m = -999.0;
+  float GEN_Radion_HH_E = -999.0;
+  // GEN level x->HH->WWgg
+  float GEN_Radion_WWgg_p = -999.0;
+  float GEN_Radion_WWgg_pt = -999.0;
+  float GEN_Radion_WWgg_pz = -999.0;
+  float GEN_Radion_WWgg_eta = -999.0;
+  float GEN_Radion_WWgg_phi = -999.0;
+  float GEN_Radion_WWgg_m = -999.0;
+  float GEN_Radion_WWgg_E = -999.0;
 
   float LHE_deltaR_HH = -999.0;
   float LHE_deltaEta_HH = -999.0;
   float LHE_deltaPhi_HH = -999.0;
+  float LHE_H1_p = -999.0;
+  float LHE_H2_p = -999.0;
+  float LHE_H1_pt = -999.0;
+  float LHE_H2_pt = -999.0;
+  float LHE_H1_pz = -999.0;
+  float LHE_H2_pz = -999.0;
+  float LHE_H1_eta = -999.0;
+  float LHE_H2_eta = -999.0;
+  float LHE_H1_phi = -999.0;
+  float LHE_H2_phi = -999.0;
+  // LHE level x->HH
+  float LHE_Radion_HH_p = -999.0;
+  float LHE_Radion_HH_pt = -999.0;
+  float LHE_Radion_HH_pz = -999.0;
+  float LHE_Radion_HH_eta = -999.0;
+  float LHE_Radion_HH_phi = -999.0;
+  float LHE_Radion_HH_m = -999.0;
+  float LHE_Radion_HH_E = -999.0;
+
 
   float LHEGEN_deltaR_HToGGH = -999.0;
   float LHEGEN_deltaR_HToWWH = -999.0;
@@ -512,7 +547,9 @@ public:
   float OneJet_FatJet_tau4 = -999.0;
   float OneJet_nFatJet = -999;
 
+  float OneJet_Radion_p = -999.0;
   float OneJet_Radion_pt = -999.0;
+  float OneJet_Radion_pz = -999.0;
   float OneJet_Radion_eta = -999.0;
   float OneJet_Radion_phi = -999.0;
   float OneJet_Radion_m = -999.0;
@@ -644,7 +681,9 @@ public:
   float TwoJet_HWW_phi = -999.0;
   float TwoJet_HWW_m = -999.0;
   float TwoJet_HWW_E = -999.0;
+  float TwoJet_Radion_p = -999.0;
   float TwoJet_Radion_pt = -999.0;
+  float TwoJet_Radion_pz = -999.0;
   float TwoJet_Radion_eta = -999.0;
   float TwoJet_Radion_phi = -999.0;
   float TwoJet_Radion_m = -999.0;
@@ -725,11 +764,14 @@ public:
   float ThreeJet_AK4WBoson_phi = -999.0;
   float ThreeJet_AK4WBoson_m = -999.0;
   float ThreeJet_AK4WBoson_E = -999.0;
+  float ThreeJet_Radion_p = -999.0;
   float ThreeJet_Radion_pt = -999.0;
+  float ThreeJet_Radion_pz = -999.0;
   float ThreeJet_Radion_eta = -999.0;
   float ThreeJet_Radion_phi = -999.0;
   float ThreeJet_Radion_m = -999.0;
   float ThreeJet_Radion_E = -999.0;
+
   float ThreeJet_Higgs_pt = -999.0;
   float ThreeJet_Higgs_eta = -999.0;
   float ThreeJet_Higgs_phi = -999.0;
@@ -783,7 +825,9 @@ public:
   float FullyResolved_FourJets_m = -999.0;
   float FullyResolved_FourJets_E = -999.0;
 
+  float FullyResolved_Radion_p = -999.0;
   float FullyResolved_Radion_pt = -999.0;
+  float FullyResolved_Radion_pz = -999.0;
   float FullyResolved_Radion_eta  = -999.0;
   float FullyResolved_Radion_phi  = -999.0;
   float FullyResolved_Radion_m  = -999.0;

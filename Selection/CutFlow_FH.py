@@ -4,14 +4,14 @@ import os
 
 ROOT.gROOT.SetBatch(True)
 
-plotDir = "CutFlowTables_FH"
+plotDir = "CutFlowTables_FH_GENMatch"
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 Hist = [
-        "GluGluToRadionToHHTo2G4Q_M250.root",
-        "GluGluToRadionToHHTo2G4Q_M1000.root",
-        "GluGluToRadionToHHTo2G4Q_M3000.root",
+        "/eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G4Q_M250.root",
+        "/eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G4Q_M1000.root",
+        "/eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G4Q_M3000.root",
 
         # "GluGluToRadionToHHTo2G4Q_M250.root",
         # "GluGluToRadionToHHTo2G4Q_M260.root",
@@ -77,13 +77,13 @@ for files_ in Hist:
     if len(inFileNameSplit) == 1:
         Title = inFileName.replace(".root", "")
     else:
-        Title = inFileName.split("_")[1].replace(".root", "")
+        Title = inFileName.split("_")[-1].replace(".root", "")
     info["SampleName"].append(Title)
     inFile = ROOT.TFile.Open(inFileName, "READ")
 
     # print("Number of bins: {}".format(inFile.GetXaxis().GetNbinsX()))
 
-    h1 = inFile.Get("totalCutFlow_FH")
+    h1 = inFile.Get("totalCutFlow_FH_GENMatch")
     h1.SetTitle(Title)
     h1.GetYaxis().SetTitle("Number of events")
 
@@ -165,4 +165,3 @@ os.system('cat '+ plotDir+ '/test.csv')
 # df.loc[8] = info["Pt/mgg && Photon pT > 100 (%)"]
 # df.loc[0] = info["MC Gen"]
 # print(df)
-

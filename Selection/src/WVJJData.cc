@@ -89,11 +89,46 @@ void WVJJData::init() {
   fTree->Branch("GEN_W2_mass",&GEN_W2_mass,"GEN_W2_mass/F");
   fTree->Branch("GEN_H1_mass",&GEN_H1_mass,"GEN_H1_mass/F");
   fTree->Branch("GEN_H2_mass",&GEN_H2_mass,"GEN_H2_mass/F");
+  //GEN level x->HH
+  fTree->Branch("GEN_Radion_HH_p",&GEN_Radion_HH_p,"GEN_Radion_HH_p/F");
+  fTree->Branch("GEN_Radion_HH_pt",&GEN_Radion_HH_pt,"GEN_Radion_HH_pt/F");
+  fTree->Branch("GEN_Radion_HH_pz",&GEN_Radion_HH_pz,"GEN_Radion_HH_pz/F");
+  fTree->Branch("GEN_Radion_HH_eta",&GEN_Radion_HH_eta,"GEN_Radion_HH_eta/F");
+  fTree->Branch("GEN_Radion_HH_phi",&GEN_Radion_HH_phi,"GEN_Radion_HH_phi/F");
+  fTree->Branch("GEN_Radion_HH_m",&GEN_Radion_HH_m,"GEN_Radion_HH_m/F");
+  fTree->Branch("GEN_Radion_HH_E",&GEN_Radion_HH_E,"GEN_Radion_HH_E/F");
+  //GEN level x->HH->WWgg
+  fTree->Branch("GEN_Radion_WWgg_p",&GEN_Radion_WWgg_p,"GEN_Radion_WWgg_p/F");
+  fTree->Branch("GEN_Radion_WWgg_pt",&GEN_Radion_WWgg_pt,"GEN_Radion_WWgg_pt/F");
+  fTree->Branch("GEN_Radion_WWgg_pz",&GEN_Radion_WWgg_pz,"GEN_Radion_WWgg_pz/F");
+  fTree->Branch("GEN_Radion_WWgg_eta",&GEN_Radion_WWgg_eta,"GEN_Radion_WWgg_eta/F");
+  fTree->Branch("GEN_Radion_WWgg_phi",&GEN_Radion_WWgg_phi,"GEN_Radion_WWgg_phi/F");
+  fTree->Branch("GEN_Radion_WWgg_m",&GEN_Radion_WWgg_m,"GEN_Radion_WWgg_m/F");
+  fTree->Branch("GEN_Radion_WWgg_E",&GEN_Radion_WWgg_E,"GEN_Radion_WWgg_E/F");
 
   // LHE
   fTree->Branch("LHE_deltaR_HH",&LHE_deltaR_HH,"LHE_deltaR_HH/F");
   fTree->Branch("LHE_deltaEta_HH",&LHE_deltaEta_HH,"LHE_deltaEta_HH/F");
   fTree->Branch("LHE_deltaPhi_HH",&LHE_deltaPhi_HH,"LHE_deltaPhi_HH/F");
+  fTree->Branch("LHE_H1_p",&LHE_H1_p,"LHE_H1_p/F");
+  fTree->Branch("LHE_H2_p",&LHE_H2_p,"LHE_H2_p/F");
+  fTree->Branch("LHE_H1_pt",&LHE_H1_pt,"LHE_H1_pt/F");
+  fTree->Branch("LHE_H2_pt",&LHE_H2_pt,"LHE_H2_pt/F");
+  fTree->Branch("LHE_H1_pz",&LHE_H1_pz,"LHE_H1_pz/F");
+  fTree->Branch("LHE_H2_pz",&LHE_H2_pz,"LHE_H2_pz/F");
+  fTree->Branch("LHE_H1_eta",&LHE_H1_eta,"LHE_H1_eta/F");
+  fTree->Branch("LHE_H2_eta",&LHE_H2_eta,"LHE_H2_eta/F");
+  fTree->Branch("LHE_H1_phi",&LHE_H1_phi,"LHE_H1_phi/F");
+  fTree->Branch("LHE_H2_phi",&LHE_H2_phi,"LHE_H2_phi/F");
+  //LHE level x->HH
+  fTree->Branch("LHE_Radion_HH_p",&LHE_Radion_HH_p,"LHE_Radion_HH_p/F");
+  fTree->Branch("LHE_Radion_HH_pt",&LHE_Radion_HH_pt,"LHE_Radion_HH_pt/F");
+  fTree->Branch("LHE_Radion_HH_pz",&LHE_Radion_HH_pz,"LHE_Radion_HH_pz/F");
+  fTree->Branch("LHE_Radion_HH_eta",&LHE_Radion_HH_eta,"LHE_Radion_HH_eta/F");
+  fTree->Branch("LHE_Radion_HH_phi",&LHE_Radion_HH_phi,"LHE_Radion_HH_phi/F");
+  fTree->Branch("LHE_Radion_HH_m",&LHE_Radion_HH_m,"LHE_Radion_HH_m/F");
+  fTree->Branch("LHE_Radion_HH_E",&LHE_Radion_HH_E,"LHE_Radion_HH_E/F");
+ 
 
   fTree->Branch("LHEGEN_deltaR_HToGGH",&LHEGEN_deltaR_HToGGH,"LHEGEN_deltaR_HToGGH/F");
   fTree->Branch("LHEGEN_deltaR_HToWWH",&LHEGEN_deltaR_HToWWH,"LHEGEN_deltaR_HToWWH/F");
@@ -435,7 +470,9 @@ void WVJJData::init() {
   fTree->Branch("OneJet_FatJet_tau3",&OneJet_FatJet_tau3,"OneJet_FatJet_tau3/F");
   fTree->Branch("OneJet_FatJet_tau4",&OneJet_FatJet_tau4,"OneJet_FatJet_tau4/F");
   fTree->Branch("OneJet_nFatJet",&OneJet_nFatJet,"OneJet_nFatJet/F");
+  fTree->Branch("OneJet_Radion_p",&OneJet_Radion_p,"OneJet_Radion_p/F");
   fTree->Branch("OneJet_Radion_pt",&OneJet_Radion_pt,"OneJet_Radion_pt/F");
+  fTree->Branch("OneJet_Radion_pz",&OneJet_Radion_pz,"OneJet_Radion_pz/F");
   fTree->Branch("OneJet_Radion_eta",&OneJet_Radion_eta,"OneJet_Radion_eta/F");
   fTree->Branch("OneJet_Radion_phi",&OneJet_Radion_phi,"OneJet_Radion_phi/F");
   fTree->Branch("OneJet_Radion_m",&OneJet_Radion_m,"OneJet_Radion_m/F");
@@ -570,7 +607,9 @@ void WVJJData::init() {
   fTree->Branch("TwoJet_HWW_m",&TwoJet_HWW_m,"TwoJet_HWW_m/F");
   fTree->Branch("TwoJet_HWW_E",&TwoJet_HWW_E,"TwoJet_HWW_E/F");
 
+  fTree->Branch("TwoJet_Radion_p",&TwoJet_Radion_p,"TwoJet_Radion_p/F");
   fTree->Branch("TwoJet_Radion_pt",&TwoJet_Radion_pt,"TwoJet_Radion_pt/F");
+  fTree->Branch("TwoJet_Radion_pz",&TwoJet_Radion_pz,"TwoJet_Radion_pz/F");
   fTree->Branch("TwoJet_Radion_eta",&TwoJet_Radion_eta,"TwoJet_Radion_eta/F");
   fTree->Branch("TwoJet_Radion_phi",&TwoJet_Radion_phi,"TwoJet_Radion_phi/F");
   fTree->Branch("TwoJet_Radion_m",&TwoJet_Radion_m,"TwoJet_Radion_m/F");
@@ -656,7 +695,9 @@ void WVJJData::init() {
   fTree->Branch("ThreeJet_Higgs_phi",&ThreeJet_Higgs_phi,"ThreeJet_Higgs_phi/F");
   fTree->Branch("ThreeJet_Higgs_m",&ThreeJet_Higgs_m,"ThreeJet_Higgs_m/F");
   fTree->Branch("ThreeJet_Higgs_E",&ThreeJet_Higgs_E,"ThreeJet_Higgs_E/F");
+  fTree->Branch("ThreeJet_Radion_p",&ThreeJet_Radion_p,"ThreeJet_Radion_p/F");
   fTree->Branch("ThreeJet_Radion_pt",&ThreeJet_Radion_pt,"ThreeJet_Radion_pt/F");
+  fTree->Branch("ThreeJet_Radion_pz",&ThreeJet_Radion_pz,"ThreeJet_Radion_pz/F");
   fTree->Branch("ThreeJet_Radion_eta",&ThreeJet_Radion_eta,"ThreeJet_Radion_eta/F");
   fTree->Branch("ThreeJet_Radion_phi",&ThreeJet_Radion_phi,"ThreeJet_Radion_phi/F");
   fTree->Branch("ThreeJet_Radion_m",&ThreeJet_Radion_m,"ThreeJet_Radion_m/F");
@@ -706,7 +747,9 @@ void WVJJData::init() {
   fTree->Branch("FullyResolved_FourJets_m", &FullyResolved_FourJets_m, "FullyResolved_FourJets_m/F");
   fTree->Branch("FullyResolved_FourJets_E", &FullyResolved_FourJets_E, "FullyResolved_FourJets_E/F");
 
+  fTree->Branch("FullyResolved_Radion_p", &FullyResolved_Radion_p, "FullyResolved_Radion_p/F");
   fTree->Branch("FullyResolved_Radion_pt", &FullyResolved_Radion_pt, "FullyResolved_Radion_pt/F");
+  fTree->Branch("FullyResolved_Radion_pz", &FullyResolved_Radion_pz, "FullyResolved_Radion_pz/F");
   fTree->Branch("FullyResolved_Radion_eta", &FullyResolved_Radion_eta, "FullyResolved_Radion_eta/F");
   fTree->Branch("FullyResolved_Radion_phi", &FullyResolved_Radion_phi, "FullyResolved_Radion_phi/F");
   fTree->Branch("FullyResolved_Radion_m", &FullyResolved_Radion_m, "FullyResolved_Radion_m/F");
@@ -827,10 +870,45 @@ void WVJJData::clearVars() {
   GEN_W2_mass = -999.0;
   GEN_H1_mass = -999.0;
   GEN_H2_mass = -999.0;
+  // GEN level x->HH
+  GEN_Radion_HH_p = -999.0;
+  GEN_Radion_HH_pt = -999.0;
+  GEN_Radion_HH_pz = -999.0;
+  GEN_Radion_HH_eta = -999.0;
+  GEN_Radion_HH_phi = -999.0;
+  GEN_Radion_HH_m = -999.0;
+  GEN_Radion_HH_E = -999.0;
+  // GEN level x->HH->WWgg
+  GEN_Radion_WWgg_p = -999.0;
+  GEN_Radion_WWgg_pt = -999.0;
+  GEN_Radion_WWgg_pz = -999.0;
+  GEN_Radion_WWgg_eta = -999.0;
+  GEN_Radion_WWgg_phi = -999.0;
+  GEN_Radion_WWgg_m = -999.0;
+  GEN_Radion_WWgg_E = -999.0;
 
   LHE_deltaR_HH = -999.0;
   LHE_deltaEta_HH = -999.0;
   LHE_deltaPhi_HH = -999.0;
+  LHE_H1_p = -999.0;
+  LHE_H2_p = -999.0;
+  LHE_H1_pt = -999.0;
+  LHE_H2_pt = -999.0;
+  LHE_H1_pz = -999.0;
+  LHE_H2_pz = -999.0;
+  LHE_H1_phi = -999.0;
+  LHE_H2_phi = -999.0;
+  LHE_H1_eta = -999.0;
+  LHE_H2_eta = -999.0;
+  // LHE level x->HH
+  LHE_Radion_HH_p = -999.0;
+  LHE_Radion_HH_pt = -999.0;
+  LHE_Radion_HH_pz = -999.0;
+  LHE_Radion_HH_eta = -999.0;
+  LHE_Radion_HH_phi = -999.0;
+  LHE_Radion_HH_m = -999.0;
+  LHE_Radion_HH_E = -999.0;
+
 
   LHEGEN_deltaR_HToGGH = -999.0;
   LHEGEN_deltaR_HToWWH = -999.0;
@@ -1202,7 +1280,9 @@ void WVJJData::clearVars() {
   OneJet_FatJet_tau3 = -999.0;
   OneJet_FatJet_tau4 = -999.0;
   OneJet_nFatJet = -999.0;
+  OneJet_Radion_p = -999.0;
   OneJet_Radion_pt = -999.0;
+  OneJet_Radion_pz = -999.0;
   OneJet_Radion_eta = -999.0;
   OneJet_Radion_phi = -999.0;
   OneJet_Radion_m = -999.0;
@@ -1333,7 +1413,9 @@ void WVJJData::clearVars() {
   TwoJet_HWW_phi = -999.0;
   TwoJet_HWW_m = -999.0;
   TwoJet_HWW_E = -999.0;
+  TwoJet_Radion_p = -999.0;
   TwoJet_Radion_pt = -999.0;
+  TwoJet_Radion_pz = -999.0;
   TwoJet_Radion_eta = -999.0;
   TwoJet_Radion_phi = -999.0;
   TwoJet_Radion_m = -999.0;
@@ -1418,7 +1500,9 @@ void WVJJData::clearVars() {
   ThreeJet_Higgs_phi = -999.0;
   ThreeJet_Higgs_m = -999.0;
   ThreeJet_Higgs_E = -999.0;
+  ThreeJet_Radion_p = -999.0;
   ThreeJet_Radion_pt = -999.0;
+  ThreeJet_Radion_pz = -999.0;
   ThreeJet_Radion_eta = -999.0;
   ThreeJet_Radion_phi = -999.0;
   ThreeJet_Radion_m = -999.0;
@@ -1461,7 +1545,9 @@ void WVJJData::clearVars() {
   FullyResolved_FourJets_m = -999.0;
   FullyResolved_FourJets_E = -999.0;
 
+  FullyResolved_Radion_p = -999.0;
   FullyResolved_Radion_pt = -999.0;
+  FullyResolved_Radion_pz = -999.0;
   FullyResolved_Radion_eta = -999.0;
   FullyResolved_Radion_phi = -999.0;
   FullyResolved_Radion_m = -999.0;
