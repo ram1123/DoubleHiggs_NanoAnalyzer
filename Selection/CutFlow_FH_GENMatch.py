@@ -4,7 +4,7 @@ import os
 
 ROOT.gROOT.SetBatch(True)
 
-plotDir = "CutFlowTables_FH"
+plotDir = "CutFlowTables_FH_GENMatch"
 if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
@@ -83,7 +83,7 @@ for files_ in Hist:
 
     # print("Number of bins: {}".format(inFile.GetXaxis().GetNbinsX()))
 
-    h1 = inFile.Get("totalCutFlow_FH")
+    h1 = inFile.Get("totalCutFlow_FH_GENMatch")
     h1.SetTitle(Title)
     h1.GetYaxis().SetTitle("Number of events")
 

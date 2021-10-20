@@ -210,6 +210,9 @@ int main (int argc, char** argv) {
     totalCutFlow_SL->GetXaxis()->SetBinLabel(10,"pT/mgg cut");
     totalCutFlow_SL->GetXaxis()->SetBinLabel(11,"pT(#gamma #gamma)>100");
 
+    TH1F *eventNumber = new TH1F("eventNumber","eventNumber",11,0,11);
+    eventNumber->GetXaxis()->SetBinLabel(1,"LHE_Radion_HH_eta");
+    
 
     TFile *f=0;
     TTree *t=0, *r=0;
@@ -393,26 +396,26 @@ int main (int argc, char** argv) {
             {
             // radion dynamic check LHE level                
             WVJJTree->LHE_H1_p = LV_LHE_Higgs[0].P();
-            WVJJTree->LHE_H2_p = LV_LHE_Higgs[1].P();
             WVJJTree->LHE_H1_pt = LV_LHE_Higgs[0].Pt();
-            WVJJTree->LHE_H2_pt = LV_LHE_Higgs[1].Pt();
             WVJJTree->LHE_H1_pz = LV_LHE_Higgs[0].Pz();
-            WVJJTree->LHE_H2_pz = LV_LHE_Higgs[1].Pz();
             WVJJTree->LHE_H1_eta = LV_LHE_Higgs[0].Eta();
-            WVJJTree->LHE_H2_eta = LV_LHE_Higgs[1].Eta();
             WVJJTree->LHE_H1_phi = LV_LHE_Higgs[0].Phi();
+            WVJJTree->LHE_H2_p = LV_LHE_Higgs[1].P();
+            WVJJTree->LHE_H2_pt = LV_LHE_Higgs[1].Pt();
+            WVJJTree->LHE_H2_pz = LV_LHE_Higgs[1].Pz();
+            WVJJTree->LHE_H2_eta = LV_LHE_Higgs[1].Eta();
             WVJJTree->LHE_H2_phi = LV_LHE_Higgs[1].Phi();
             }
             else{
             WVJJTree->LHE_H1_p = LV_LHE_Higgs[1].P();
-            WVJJTree->LHE_H2_p = LV_LHE_Higgs[0].P();
             WVJJTree->LHE_H1_pt = LV_LHE_Higgs[1].Pt();
-            WVJJTree->LHE_H2_pt = LV_LHE_Higgs[0].Pt();
             WVJJTree->LHE_H1_pz = LV_LHE_Higgs[1].Pz();
-            WVJJTree->LHE_H2_pz = LV_LHE_Higgs[0].Pz();
             WVJJTree->LHE_H1_eta = LV_LHE_Higgs[1].Eta();
-            WVJJTree->LHE_H2_eta = LV_LHE_Higgs[0].Eta();
             WVJJTree->LHE_H1_phi = LV_LHE_Higgs[1].Phi();
+            WVJJTree->LHE_H2_p = LV_LHE_Higgs[0].P();
+            WVJJTree->LHE_H2_pt = LV_LHE_Higgs[0].Pt();
+            WVJJTree->LHE_H2_pz = LV_LHE_Higgs[0].Pz();
+            WVJJTree->LHE_H2_eta = LV_LHE_Higgs[0].Eta();
             WVJJTree->LHE_H2_phi = LV_LHE_Higgs[0].Phi();
 
             }
@@ -423,6 +426,7 @@ int main (int argc, char** argv) {
             WVJJTree->LHE_Radion_HH_pt = LV_LHE_Radion_HH.Pt();
             WVJJTree->LHE_Radion_HH_pz = LV_LHE_Radion_HH.Pz();
             WVJJTree->LHE_Radion_HH_eta = LV_LHE_Radion_HH.Eta();
+            eventNumber->Fill("LHE_Radion_HH_eta",1);
             WVJJTree->LHE_Radion_HH_phi = LV_LHE_Radion_HH.Phi();
             WVJJTree->LHE_Radion_HH_m = LV_LHE_Radion_HH.M();
             WVJJTree->LHE_Radion_HH_E = LV_LHE_Radion_HH.E();
@@ -815,9 +819,13 @@ int main (int argc, char** argv) {
             WVJJTree->DiPhoton_deltaR_pho1_GENPhoton = MinDeltaRFromReferenceLV(LV_pho1,LV_GEN_photons[0],LV_GEN_photons[1]);
             WVJJTree->DiPhoton_deltaR_pho2_GENPhoton = MinDeltaRFromReferenceLV(LV_pho2,LV_GEN_photons[0],LV_GEN_photons[1]);
 
+            // if (WVJJTree->DiPhoton_deltaR_pho1_GENPhoton < 0.4 && WVJJTree->DiPhoton_deltaR_pho2_GENPhoton < 0.4)
+            // Important:Photon RECO&GEN dR
             if (WVJJTree->DiPhoton_deltaR_GENRECO_HH < 0.4)
+            {
                 totalCutFlow_FH_GENMatch->Fill("Photon Selection",1);
-
+            }
+            
             // if(!(WVJJTree->pho1_pt_byMgg > 0.35)) continue;
             // if(!(WVJJTree->pho2_pt_byMgg > 0.25)) continue;
 
@@ -1075,7 +1083,8 @@ int main (int argc, char** argv) {
             }
 
             //Important: Onejet RECO&GEN Higgs dR
-            if ((nTightMu + nTightEle == 0) && nGood_Higgs_FatJet>=1 && WVJJTree->OneJet_deltaR_GENRECO_HH<0.8)
+            // if ((nTightMu + nTightEle == 0) && nGood_Higgs_FatJet>=1 && WVJJTree->OneJet_deltaR_GENRECO_HH<0.4)
+            if ((nTightMu + nTightEle == 0) && nGood_Higgs_FatJet>=1 && WVJJTree->OneJet_deltaR_GENRECO_HH<0.4)
             {
                 totalCutFlow_FH_GENMatch->Fill("nAK8_Higgs >= 1",1);
                 totalCutFlow_FH_GENMatch->Fill("1Jet2Jet3Jet4Jet",1);
@@ -1576,7 +1585,8 @@ int main (int argc, char** argv) {
                 // other conditons are already applied in the current if condition
                 // so I did not added conditons that belongs to 2 jet category.
                 // Important: Two jets RECO&GEN Higgs dR 
-                if ( WVJJTree->TwoJet_deltaR_GENRECO_HH < 0.8)
+                // if ( WVJJTree->TwoJet_deltaR_GENRECO_HH < 0.8)
+                if ( WVJJTree->TwoJet_deltaR_LeadAK8WBoson_GENW < 0.4 && WVJJTree-> TwoJet_deltaR_SubLeadAK8WBoson_GENW < 0.4)
                 {
                     totalCutFlow_FH_GENMatch->Fill("nAK8H=0 & nAK8_W >= 2",1);
                     totalCutFlow_FH_GENMatch->Fill("1Jet2Jet3Jet4Jet",1);
@@ -1711,7 +1721,8 @@ int main (int argc, char** argv) {
                 WVJJTree->ThreeJet_deltaEta_HH = (LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1]).Eta() - diphoton.Eta();
                 WVJJTree->ThreeJet_deltaPhi_HH = deltaPhi(LV_Ak8WZJets[0] + LV_Ak4Jets[0] + LV_Ak4Jets[1],diphoton);
                 // Important: Three jets RECO&GEN Higgs dR 
-                if(WVJJTree->ThreeJet_deltaR_GENRECO_HH<0.8){
+                // if(WVJJTree->ThreeJet_deltaR_AK4WBoson_GENW<0.4 && WVJJTree->ThreeJet_deltaR_AK8WBoson_GENW<0.4){
+                if(WVJJTree->ThreeJet_deltaR_GENRECO_HH<0.4){
                     totalCutFlow_FH_GENMatch->Fill("nAK8H=0 & nAK8_W>=1 & nAK4>=2",1);
                     totalCutFlow_FH_GENMatch->Fill("1Jet2Jet3Jet4Jet",1);
                 }
@@ -1807,7 +1818,8 @@ int main (int argc, char** argv) {
                 WVJJTree->FullyResolved_deltaEta_HH = FourJets.Eta() - diphoton.Eta();
                 WVJJTree->FullyResolved_deltaPhi_HH = deltaPhi(FourJets,diphoton);
                 // Important: Four jets RECO&GEN Higgs dR 
-                if(WVJJTree->FullyResolved_deltaR_GENRECO_HH<0.8){
+                // if(WVJJTree->FullyResolved_deltaR_LeadingWboson_GENW<0.4 && WVJJTree-> FullyResolved_deltaR_SubLeadingWboson_GENW < 0.4){
+                if(WVJJTree->FullyResolved_deltaR_LHERECO_HH < 0.4){
                     totalCutFlow_FH_GENMatch->Fill("nAK8H=0 & nAK8W=0 & nAK4>=4",1);
                     totalCutFlow_FH_GENMatch->Fill("1Jet2Jet3Jet4Jet",1);
                 }
