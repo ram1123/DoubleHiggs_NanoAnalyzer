@@ -34,7 +34,11 @@ info = {"SampleName": [],
         "1Jet Category": [],
         "2Jet Category": [],
         "All cat jets(%)": [],
-        "Pt/mgg && Photon pT > 100 (%)": []
+        "Pt/mgg && Photon pT > 100 (%)": [],
+        "GEN_Match_photon(%) before": [],
+        "GEN_Match_photon(%) after": [],
+        "GEN_Match photon before": [],
+        "GEN_Match photon after": []
         }
 
 count = 0
@@ -74,6 +78,10 @@ for files_ in Hist:
     info["All cat jets(%)"].append(round((float(info["1Jet+2Jet"][count]) / info["MC Gen"][count]) * 100.0,2))
     info["Pt/mgg && Photon pT > 100 (%)"].append(round((float(info["pT(#gamma #gamma)>100"][count]) / info["MC Gen"][count]) * 100.0,2))
 
+    info["GEN_Match_photon(%) before"].append(round((float(info["GEN_Match photon before"][count]) / info["MC Gen"][count]) * 100.0,2))
+    info["GEN_Match_photon(%) after"].append(round((float(info["GEN_Match photon after"][count]) / info["MC Gen"][count]) * 100.0,2))
+
+
     count += 1
 
 print("\n\n\n")
@@ -94,7 +102,7 @@ print("\n\n\n")
 
 # df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8H=0 & nAK8W=0 & nAK4>=4", "1Jet+2Jet", "pT/mgg cut", "pT(#gamma #gamma)>100", "DiPhoton (%)", "1Jet Category", "All cat jets(%)", "Pt/mgg && Photon pT > 100 (%)"])
 # df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8H=0 & nAK8W=0 & nAK4>=4", "1Jet+2Jet", "DiPhoton (%)", "1Jet Category", "All cat jets(%)"])
-df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8_W >= 1", "nAK4 >= 2", "1Jet+2Jet", "DiPhoton (%)", "Exactly 1 lepton", "1Jet Category", "2Jet Category", "All cat jets(%)"])
+df = df.reindex(["SampleName", "MC Gen", "Trigger", "Photon Selection", "Lepton Selection", "nAK8_W >= 1", "nAK4 >= 2", "1Jet+2Jet", "DiPhoton (%)", "Exactly 1 lepton", "1Jet Category", "2Jet Category", "All cat jets(%)","GEN_Match photon before","GEN_Match photon after","GEN_Match_photon(%) before","GEN_Match_photon(%) after"])
 
 print(df)
 
