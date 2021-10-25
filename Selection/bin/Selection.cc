@@ -131,11 +131,12 @@ int main (int argc, char** argv) {
     std::vector<TLorentzVector> LV_LHE_Higgs;
     std::vector<TLorentzVector> LV_LHE_WBosons;
     std::vector<TLorentzVector> LV_LHE_photons;
-    std::vector<TLorentzVector> LV_LHE_quarks;
     std::vector<TLorentzVector> LV_GEN_Higgs;
     std::vector<TLorentzVector> LV_GEN_WBosons;
     std::vector<TLorentzVector> LV_GEN_photons;
     std::vector<TLorentzVector> LV_GEN_quarks;
+    std::vector<TLorentzVector> LV_GEN_leptons;
+    std::vector<TLorentzVector> LV_GEN_neutrino;
 
     std::vector<TLorentzVector> LV_tightMuon;
     std::vector<TLorentzVector> LV_tightEle;
@@ -424,20 +425,14 @@ int main (int argc, char** argv) {
                 LV_GEN_WBosons.clear();
                 LV_GEN_photons.clear();
                 LV_GEN_quarks.clear();
+                LV_GEN_leptons.clear();
+                LV_GEN_neutrino.clear();
                 for (UInt_t GENPartCount = 0; GENPartCount < *NanoReader_.nGenPart; ++GENPartCount)
                 {
                     int pdgid = NanoReader_.GenPart_pdgId[GENPartCount];
                     int status = NanoReader_.GenPart_status[GENPartCount];
                     int motherPDGid = NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]];
 
-                    // bool isPrompt = (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 );
-                    // bool isHardProcess = (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 );
-                    // bool isFromHardProcess = (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 );
-                    // bool isFromHardProcessBeforeFSR = (NanoReader_.GenPart_statusFlags[i] >> 11  & 1 );
-                    // if (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 ) std::cout << "Status Flags is Prompt "  << std::endl;
-                    // if (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 ) std::cout << "Status Flags is HardProcess "  << std::endl;
-                    // if (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 ) std::cout << "Status Flags is from HardProcess "  << std::endl;
-                    // if (NanoReader_.GenPart_statusFlags[i] >> 11 & 1 ) std::cout << "Status Flags is from HardProcessBeforeFSR "  << std::endl;
 
                     // Get Higgs bosons
                     if (pdgid == 25)
@@ -495,29 +490,52 @@ int main (int argc, char** argv) {
                                                            NanoReader_.GenPart_phi[GENPartCount],
                                                            NanoReader_.GenPart_mass[GENPartCount]);
                     }
+                    // Important: add lepton and neutrino
+                    // Add ele,mu,tao separatly then add together as leptons
+                    if (  (abs(pdgid)==11 ||abs(pdgid)==13||abs(pdgid)==15) && abs(motherPDGid) == 24 && status == 1 )
+                    {
+                        
+                        LV_GEN_leptons.push_back(TLorentzVector(0,0,0,0));
+                        LV_GEN_leptons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
+                                                           NanoReader_.GenPart_eta[GENPartCount],
+                                                           NanoReader_.GenPart_phi[GENPartCount],
+                                                           NanoReader_.GenPart_mass[GENPartCount]);
+                    }
+                    if (  (abs(pdgid)==12 ||abs(pdgid)==14||abs(pdgid)==16) && abs(motherPDGid) == 24 && status == 1 )
+                    {
+                        
+                        LV_GEN_neutrino.push_back(TLorentzVector(0,0,0,0));
+                        LV_GEN_neutrino.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
+                                                           NanoReader_.GenPart_eta[GENPartCount],
+                                                           NanoReader_.GenPart_phi[GENPartCount],
+                                                           NanoReader_.GenPart_mass[GENPartCount]);
+                    }
+                    
+                   
                 }
+                
                 if (LV_GEN_photons.size() != 2)
                 {
                     std::cout << "photons size = " << LV_GEN_photons.size() << std::endl;
                     std::cout << "GEN photons are more than 2. Please check..." << std::endl;
                     exit(0);
                 }
-                if (LV_GEN_Higgs.size()>2)
+                if (LV_GEN_Higgs.size()!=2)
                 {
                     std::cout << "Higgs size = " << LV_GEN_Higgs.size() << std::endl;
                     std::cout << "GEN Higgs are more than 2. Please check..." << std::endl;
                     exit(0);
                 }
-                if (LV_GEN_WBosons.size()>2)
+                if (LV_GEN_WBosons.size()!= 2 )
                 {
                     std::cout << "W-Bosons size = " << LV_GEN_WBosons.size() << std::endl;
                     std::cout << "GEN W-Bosons are more than 2. Please check..." << std::endl;
                     exit(0);
                 }
-                if (LV_GEN_quarks.size()>4)
+                if (LV_GEN_quarks.size()!=2)
                 {
                     std::cout << "Quarks size = " << LV_GEN_quarks.size() << std::endl;
-                    std::cout << "GEN Quarks are more than 4. Please check..." << std::endl;
+                    std::cout << "GEN Quarks are more than 2. Please check..." << std::endl;
                     exit(0);
                 }
             }
@@ -563,17 +581,6 @@ int main (int argc, char** argv) {
             WVJJTree->GEN_Q2_energy = LV_GEN_quarks[1].E();
             WVJJTree->GEN_Q2_mass = LV_GEN_quarks[1].M();
 
-            WVJJTree->GEN_Q3_pT = LV_GEN_quarks[2].Pt();
-            WVJJTree->GEN_Q3_eta = LV_GEN_quarks[2].Eta();
-            WVJJTree->GEN_Q3_phi = LV_GEN_quarks[2].Phi();
-            WVJJTree->GEN_Q3_energy = LV_GEN_quarks[2].E();
-            WVJJTree->GEN_Q3_mass = LV_GEN_quarks[2].M();
-
-            WVJJTree->GEN_Q4_pT = LV_GEN_quarks[3].Pt();
-            WVJJTree->GEN_Q4_eta = LV_GEN_quarks[3].Eta();
-            WVJJTree->GEN_Q4_phi = LV_GEN_quarks[3].Phi();
-            WVJJTree->GEN_Q4_energy = LV_GEN_quarks[3].E();
-            WVJJTree->GEN_Q4_mass = LV_GEN_quarks[3].M();
 
             // Save pT, eta, phi and mass of LV_GEN_WBosons[0] in output Tree
             // Save pT, eta, phi and mass of LV_GEN_WBosons[1] in output Tree
@@ -691,7 +698,6 @@ int main (int argc, char** argv) {
             /* -------------------------------------------------------------------------- */
             LV_tightPhoton.clear();
             int nTightPhoton = 0;
-
             if (*NanoReader_.nPhoton < 2) continue;
             for (UInt_t PhotonCount = 0; PhotonCount < *NanoReader_.nPhoton; ++PhotonCount)
             {
@@ -723,7 +729,6 @@ int main (int argc, char** argv) {
                     WVJJTree->pho2_mvaID_WP80 = WVJJTree->pho1_mvaID_WP80;
                     WVJJTree->pho2_mvaID_WP90 = WVJJTree->pho1_mvaID_WP90;
 
-
                     WVJJTree->pho1_pt = NanoReader_.Photon_pt[PhotonCount];
                     WVJJTree->pho1_eta = NanoReader_.Photon_eta[PhotonCount];
                     WVJJTree->pho1_phi = NanoReader_.Photon_phi[PhotonCount];
@@ -735,7 +740,7 @@ int main (int argc, char** argv) {
                     WVJJTree->pho1_mvaID_WP80 = NanoReader_.Photon_mvaID_WP80[PhotonCount];
                     WVJJTree->pho1_mvaID_WP90 = NanoReader_.Photon_mvaID_WP90[PhotonCount];
                 }
-                else if ( NanoReader_.Photon_pt[PhotonCount] > WVJJTree->pho2_pt ) {
+                else if ( WVJJTree->pho1_pt > NanoReader_.Photon_pt[PhotonCount] > WVJJTree->pho2_pt ) {
                     WVJJTree->pho2_pt = NanoReader_.Photon_pt[PhotonCount];
                     WVJJTree->pho2_eta = NanoReader_.Photon_eta[PhotonCount];
                     WVJJTree->pho2_phi = NanoReader_.Photon_phi[PhotonCount];
@@ -747,13 +752,18 @@ int main (int argc, char** argv) {
                     WVJJTree->pho2_mvaID_WP80 = NanoReader_.Photon_mvaID_WP80[PhotonCount];
                     WVJJTree->pho2_mvaID_WP90 = NanoReader_.Photon_mvaID_WP90[PhotonCount];
                 }
-            }
+                // checked ntightphoton problems
+                // std::cout << "ntight_photons= " << nTightPhoton << std::endl;
+                // std::cout << "photon_pt= " << NanoReader_.Photon_pt[PhotonCount] << std::endl;
+                // std::cout << "pho1_pt= " << WVJJTree->pho1_pt << std::endl;
+                // std::cout << "pho2_pt= " << WVJJTree->pho2_pt << std::endl;
+                
+                }
             /* ----------------- Leading and SubLeading photon selection ---------------- */
 
             if (!(nTightPhoton==2)) continue;
             if(!(WVJJTree->pho1_pt > PHO1_PT_CUT)) continue;
             if(!(WVJJTree->pho2_pt > PHO2_PT_CUT)) continue;
-
             totalCutFlow_SL->Fill("Photon Selection",1);
             totalCutFlow_SL_GENMatch->Fill("Photon Selection",1);
 
@@ -887,12 +897,25 @@ int main (int argc, char** argv) {
                 nTightEle++;
                 LV_tightEle.push_back(Ele);
             }
-
+            bool goodlep = true;
             // if (DEBUG) std::cout << "\t[INFO] Number of leptons: " << nTightEle + nTightMu << std::endl;
-
-            // if (nTightMu + nTightEle > 1) continue;
-            if (nTightMu + nTightEle == 1) totalCutFlow_SL->Fill("Lepton Selection",1);
-            if (nTightMu + nTightEle == 1) {totalCutFlow_SL_GENMatch->Fill("Lepton Selection",1);}
+            // checking ecxatly 1 lepton
+            if (nTightMu + nTightEle != 1) continue;
+            if(nTightEle == 1){
+                if (MinDeltaRFromReferenceLV(LV_tightEle[0],LV_GEN_quarks[0],LV_GEN_quarks[1]) < 0.4)
+                {
+                    goodlep = false;
+                }
+            }
+            if(nTightMu == 1){
+                if (MinDeltaRFromReferenceLV(LV_tightMuon[0],LV_GEN_quarks[0],LV_GEN_quarks[1]) < 0.4)
+                {
+                    goodlep = false;
+                }
+            }
+            if(goodlep == false) continue;
+            totalCutFlow_SL->Fill("Lepton Selection",1);
+            totalCutFlow_SL_GENMatch->Fill("Lepton Selection",1);
             // if (nTightMu + nTightEle == 0)
 
             /* -------------------------------------------------------------------------- */
@@ -904,148 +927,6 @@ int main (int argc, char** argv) {
             float dmV = 0.0;
             int nGood_Higgs_FatJet = 0;
             // int fj_idx = -1;
-
-            for (uint j=0; j<*NanoReader_.nFatJet; j++)
-            {
-                if ( fabs(NanoReader_.FatJet_eta[j]) > AK8_MAX_ETA ) continue;
-                if ( NanoReader_.FatJet_pt[j]<AK8_HJET_MIN_PT ) continue;
-
-                if ( NanoReader_.FatJet_msoftdrop[j]<AK8_HJet_MIN_SDM ) continue;
-                if ( NanoReader_.FatJet_msoftdrop[j]>AK8_HJet_MAX_SDM ) continue;
-
-                bool isClean=true;
-
-                //lepton cleaning
-                for ( std::size_t k=0; k<LV_tightEle.size(); k++)
-                {
-                    if (deltaR(LV_tightEle.at(k).Eta(), LV_tightEle.at(k).Phi(),
-                         NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
-                    isClean = false;
-                }
-                for ( std::size_t k=0; k<LV_tightMuon.size(); k++)
-                {
-                    if (deltaR(LV_tightMuon.at(k).Eta(), LV_tightMuon.at(k).Phi(),
-                         NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT)
-                    isClean = false;
-                }
-                for ( std::size_t k=0; k<LV_tightPhoton.size(); k++) {
-                    if (deltaR(LV_tightPhoton.at(k).Eta(), LV_tightPhoton.at(k).Phi(),
-                               NanoReader_.FatJet_eta[j], NanoReader_.FatJet_phi[j]) < AK8_LEP_DR_CUT) {
-                        isClean = false;
-                    }
-                }
-
-                if ( NanoReader_.FatJet_tau4[j]/NanoReader_.FatJet_tau2[j] > TAU42) isClean = false;
-
-                if ( isClean == false ) continue;
-
-                if ( nGood_Higgs_FatJet == 0 ) dmV = fabs(NanoReader_.FatJet_msoftdrop[j] - H_MASS);
-
-                if ( fabs(NanoReader_.FatJet_msoftdrop[j] - H_MASS) > dmV ) continue;
-                dmV = fabs(NanoReader_.FatJet_msoftdrop[j] - H_MASS);
-                // fj_idx = j;
-                nGood_Higgs_FatJet++;
-                goodHJetIndex.push_back(j);
-
-                LV_Ak8HiggsJets.push_back(TLorentzVector(0,0,0,0));
-                LV_Ak8HiggsJets.back().SetPtEtaPhiM(NanoReader_.FatJet_pt[j],
-                                            NanoReader_.FatJet_eta[j],
-                                            NanoReader_.FatJet_phi[j],
-                                            NanoReader_.FatJet_msoftdrop[j]
-                                            );
-            }
-            // if ((nTightMu + nTightEle == 0) && nGood_Higgs_FatJet>=1)
-
-            /*  ------------------------------------------------------------------------- */
-            /*                              One Jet case variables                        */
-            /*  ------------------------------------------------------------------------- */
-            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet>=1)
-            {
-                if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] Passed One jet condition" << std::endl;
-                WVJJTree->OneJet_FatJet_area = NanoReader_.FatJet_area[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagCMVA = NanoReader_.FatJet_btagCMVA[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagCSVV2 = NanoReader_.FatJet_btagCSVV2[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagDDBvL = NanoReader_.FatJet_btagDDBvL[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagDDBvL_noMD = NanoReader_.FatJet_btagDDBvL_noMD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagDDCvB = NanoReader_.FatJet_btagDDCvB[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagDDCvB_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagDDCvL = NanoReader_.FatJet_btagDDCvB_noMD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagDDCvL_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagDeepB = NanoReader_.FatJet_btagDDCvB_noMD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_btagHbb = NanoReader_.FatJet_btagHbb[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_H4qvsQCD = NanoReader_.FatJet_deepTagMD_H4qvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_HbbvsQCD = NanoReader_.FatJet_deepTagMD_HbbvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_TvsQCD = NanoReader_.FatJet_deepTagMD_TvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_WvsQCD = NanoReader_.FatJet_deepTagMD_WvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_ZHbbvsQCD = NanoReader_.FatJet_deepTagMD_ZHbbvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_ZHccvsQCD = NanoReader_.FatJet_deepTagMD_ZHccvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_ZbbvsQCD = NanoReader_.FatJet_deepTagMD_ZbbvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_ZvsQCD = NanoReader_.FatJet_deepTagMD_ZvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_bbvsLight = NanoReader_.FatJet_deepTagMD_bbvsLight[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTagMD_ccvsLight = NanoReader_.FatJet_deepTagMD_ccvsLight[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTag_H = NanoReader_.FatJet_deepTag_H[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTag_QCD = NanoReader_.FatJet_deepTag_QCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTag_QCDothers = NanoReader_.FatJet_deepTag_QCDothers[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTag_TvsQCD = NanoReader_.FatJet_deepTag_TvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTag_WvsQCD = NanoReader_.FatJet_deepTag_WvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_deepTag_ZvsQCD = NanoReader_.FatJet_deepTag_ZvsQCD[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_electronIdx3SJ = NanoReader_.FatJet_electronIdx3SJ[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_eta = NanoReader_.FatJet_eta[goodHJetIndex[0]];
-                if (isMC) WVJJTree->OneJet_FatJet_genJetAK8Idx = NanoReader_.FatJet_genJetAK8Idx[goodHJetIndex[0]];
-                if (isMC) WVJJTree->OneJet_FatJet_hadronFlavour = NanoReader_.FatJet_hadronFlavour[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_jetId=NanoReader_.FatJet_jetId[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_lsf3=NanoReader_.FatJet_lsf3[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_mass=NanoReader_.FatJet_mass[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_msoftdrop=NanoReader_.FatJet_msoftdrop[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_muonIdx3SJ=NanoReader_.FatJet_muonIdx3SJ[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_n2b1=NanoReader_.FatJet_n2b1[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_n3b1=NanoReader_.FatJet_n3b1[goodHJetIndex[0]];
-                if (isMC) WVJJTree->OneJet_FatJet_nBHadrons=NanoReader_.FatJet_nBHadrons[goodHJetIndex[0]];
-                if (isMC) WVJJTree->OneJet_FatJet_nCHadrons=NanoReader_.FatJet_nCHadrons[goodHJetIndex[0]];
-                //! todo: add this variable but not find in root file
-                // if (nanoVersion == 8) {
-                //     WVJJTree->OneJet_FatJet_particleNetMD_QCD=NanoReader_.FatJet_particleNetMD_QCD[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNetMD_Xbb=NanoReader_.FatJet_particleNetMD_Xbb[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNetMD_Xcc=NanoReader_.FatJet_particleNetMD_Xcc[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNetMD_Xqq=NanoReader_.FatJet_particleNetMD_Xqq[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNet_H4qvsQCD=NanoReader_.FatJet_particleNet_H4qvsQCD[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNet_HbbvsQCD=NanoReader_.FatJet_particleNet_HbbvsQCD[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNet_HccvsQCD=NanoReader_.FatJet_particleNet_HccvsQCD[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNet_QCD=NanoReader_.FatJet_particleNet_QCD[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNet_TvsQCD=NanoReader_.FatJet_particleNet_TvsQCD[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNet_WvsQCD=NanoReader_.FatJet_particleNet_WvsQCD[goodHJetIndex[0]];
-                //     WVJJTree->OneJet_FatJet_particleNet_ZvsQCD=NanoReader_.FatJet_particleNet_ZvsQCD[goodHJetIndex[0]];
-                // }
-                WVJJTree->OneJet_FatJet_phi=NanoReader_.FatJet_phi[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_pt=NanoReader_.FatJet_pt[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_rawFactor=NanoReader_.FatJet_rawFactor[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_subJetIdx1=NanoReader_.FatJet_subJetIdx1[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_subJetIdx2=NanoReader_.FatJet_subJetIdx2[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_tau1=NanoReader_.FatJet_tau1[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_tau2=NanoReader_.FatJet_tau2[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_tau3=NanoReader_.FatJet_tau3[goodHJetIndex[0]];
-                WVJJTree->OneJet_FatJet_tau4=NanoReader_.FatJet_tau4[goodHJetIndex[0]];
-                WVJJTree->OneJet_nFatJet=nGood_Higgs_FatJet;
-
-                TLorentzVector OneJet_Radion_LV = LV_Ak8HiggsJets[0] + diphoton;
-
-                WVJJTree->OneJet_Radion_p = OneJet_Radion_LV.P();
-                WVJJTree->OneJet_Radion_pt = OneJet_Radion_LV.Pt();
-                WVJJTree->OneJet_Radion_pz = OneJet_Radion_LV.Pz();
-                WVJJTree->OneJet_Radion_eta = OneJet_Radion_LV.Eta();
-                WVJJTree->OneJet_Radion_phi = OneJet_Radion_LV.Phi();
-                WVJJTree->OneJet_Radion_m = OneJet_Radion_LV.M();
-                WVJJTree->OneJet_Radion_E = OneJet_Radion_LV.E();
-
-                // deltaR between LHE Higgs and RECO Higgs
-                WVJJTree->OneJet_deltaR_LHERECO_HH = MinDeltaRFromReferenceLV(LV_Ak8HiggsJets[0], LV_LHE_Higgs[0], LV_LHE_Higgs[1]);
-                // WVJJTree->OneJet_deltaR_GENRECO_HH = MinDeltaRFromReferenceLV(LV_Ak8HiggsJets[0], LV_GEN_Higgs[0], LV_GEN_Higgs[1]);
-                WVJJTree->OneJet_deltaR_GENRECO_HH = deltaR(LV_Ak8HiggsJets[0], LV_GEN_WBosons[0] + LV_GEN_WBosons[1]);
-
-                WVJJTree->OneJet_deltaR_HH = deltaR(LV_Ak8HiggsJets[0],diphoton);
-                WVJJTree->OneJet_deltaEta_HH = LV_Ak8HiggsJets[0].Eta() - diphoton.Eta();
-                WVJJTree->OneJet_deltaPhi_HH = deltaPhi(LV_Ak8HiggsJets[0],diphoton);
-            }
 
            
             if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After one jet if condition" << std::endl;
@@ -1154,22 +1035,6 @@ int main (int argc, char** argv) {
                             isClean = false;
                         }
                     }
-                    // kept goodHJetIndex cleaning for future VBF study
-                    for ( std::size_t k=0; k<goodHJetIndex.size(); k++)
-                    {
-                        if (deltaR(NanoReader_.FatJet_eta[goodHJetIndex.at(k)], NanoReader_.FatJet_phi[goodHJetIndex.at(k)],
-                             NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK8_DR_CUT) {
-                            isClean = false;
-                        }
-                    }
-                    // kept below patch for SL category
-                    // for ( std::size_t k=0; k<goodWLepJetIndex.size(); k++)
-                    // {
-                    //     if (deltaR(NanoReader_.FatJet_eta[goodWLepJetIndex.at(k)], NanoReader_.FatJet_phi[goodWLepJetIndex.at(k)],
-                    //          NanoReader_.Jet_eta[j], NanoReader_.Jet_phi[j]) < AK4_AK8_DR_CUT) {
-                    //         isClean = false;
-                    //     }
-                    // }
                 }
 
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Clean AK4 jet with other AK4 jets" << std::endl;
@@ -1228,72 +1093,7 @@ int main (int argc, char** argv) {
                     if (DEBUG) std::cout << "\t[INFO::AK4Jets] [" << i <<"/" << lineCount << "] btag_eff_tight  = " << btag_eff_tight << std::endl;
 
                     if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Got Btag SF for loose, medium and tight" << std::endl;
-                    // if (NanoReader_.Jet_btagDeepB[j] > btag_loose_wp) {
-                    //   WVJJTree->nAK4Btag_loose++;
-                    //   if (isMC) {
-                    //     WVJJTree->btagWeight_loose *= NanoReader_.Jet_btagSF_deepcsv_L[j];
-                    //     WVJJTree->btagWeight_loose_Up *= NanoReader_.Jet_btagSF_deepcsv_L_up[j];
-                    //     WVJJTree->btagWeight_loose_Down *= NanoReader_.Jet_btagSF_deepcsv_L_down[j];
-                    //   }
-                    // }
-                    // else {
-                    //   if (isMC) {
-                    //     if (btag_eff_loose == 1.0) {
-                    //       WVJJTree->btagWeight_loose *= NanoReader_.Jet_btagSF_deepcsv_L[j];
-                    //       WVJJTree->btagWeight_loose_Up *= NanoReader_.Jet_btagSF_deepcsv_L_up[j];
-                    //       WVJJTree->btagWeight_loose_Down *= NanoReader_.Jet_btagSF_deepcsv_L_down[j];
-                    //     }
-                    //     else {
-                    //       WVJJTree->btagWeight_loose *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_L[j] * btag_eff_loose) / (1.0 - btag_eff_loose);
-                    //       WVJJTree->btagWeight_loose_Up *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_L_up[j] * btag_eff_loose) / (1.0 - btag_eff_loose);
-                    //       WVJJTree->btagWeight_loose_Down *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_L_down[j] * btag_eff_loose) / (1.0 - btag_eff_loose);
-                    //     }
-                    //   }
-                    // }
-                    // if (NanoReader_.Jet_btagDeepB[j] > btag_medium_wp) {
-                    //   WVJJTree->nAK4Btag_medium++;
-                    //   if (isMC) {
-                    //     WVJJTree->btagWeight_medium *= NanoReader_.Jet_btagSF_deepcsv_M[j];
-                    //     WVJJTree->btagWeight_medium_Up *= NanoReader_.Jet_btagSF_deepcsv_M_up[j];
-                    //     WVJJTree->btagWeight_medium_Down *= NanoReader_.Jet_btagSF_deepcsv_M_down[j];
-                    //   }
-                    // }
-                    // else {
-                    //   if (isMC) {
-                    //     if (btag_eff_medium == 1.0) {
-                    //       WVJJTree->btagWeight_medium *= NanoReader_.Jet_btagSF_deepcsv_M[j];
-                    //       WVJJTree->btagWeight_medium_Up *= NanoReader_.Jet_btagSF_deepcsv_M_up[j];
-                    //       WVJJTree->btagWeight_medium_Down *= NanoReader_.Jet_btagSF_deepcsv_M_down[j];
-                    //     }
-                    //     else {
-                    //       WVJJTree->btagWeight_medium *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_M[j] * btag_eff_medium) / (1.0 - btag_eff_medium);
-                    //       WVJJTree->btagWeight_medium_Up *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_M_up[j] * btag_eff_medium) / (1.0 - btag_eff_medium);
-                    //       WVJJTree->btagWeight_medium_Down *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_M_down[j] * btag_eff_medium) / (1.0 - btag_eff_medium);
-                    //     }
-                    //   }
-                    // }
-                    // if (NanoReader_.Jet_btagDeepB[j] > btag_tight_wp) {
-                    //   WVJJTree->nAK4Btag_tight++;
-                    //   if (isMC) {
-                    //     WVJJTree->btagWeight_tight *= NanoReader_.Jet_btagSF_deepcsv_T[j];
-                    //     WVJJTree->btagWeight_tight_Up *= NanoReader_.Jet_btagSF_deepcsv_T_up[j];
-                    //     WVJJTree->btagWeight_tight_Down *= NanoReader_.Jet_btagSF_deepcsv_T_down[j];
-                    //   }
-                    // }
-                    // else {
-                    //   if (isMC) {
-                    //     if (btag_eff_tight == 1.0) {
-                    //       WVJJTree->btagWeight_tight *= NanoReader_.Jet_btagSF_deepcsv_T[j];
-                    //       WVJJTree->btagWeight_tight_Up *= NanoReader_.Jet_btagSF_deepcsv_T_up[j];
-                    //       WVJJTree->btagWeight_tight_Down *= NanoReader_.Jet_btagSF_deepcsv_T_down[j];
-                    //     }
-                    //     else {
-                    //       WVJJTree->btagWeight_tight *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_T[j] * btag_eff_tight) / (1.0 - btag_eff_tight);
-                    //       WVJJTree->btagWeight_tight_Up *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_T_up[j] * btag_eff_tight) / (1.0 - btag_eff_tight);
-                    //       WVJJTree->btagWeight_tight_Down *= (1.0 - NanoReader_.Jet_btagSF_deepcsv_T_down[j] * btag_eff_tight) / (1.0 - btag_eff_tight);
-                    //     }
-                    //   }
-                    // }
+                  
                 }
                 if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] btag weight computation done" << std::endl;
 
@@ -1319,16 +1119,44 @@ int main (int argc, char** argv) {
 
             int nGoodAK4jets = goodAK4JetIndex.size();
 
-        
-    
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Passed nJet>=4 conditon" << std::endl;
+            //Important: 1 W fat jet
             if ((nTightMu + nTightEle == 1) && nGood_W_FatJet >= 1 )
                 {totalCutFlow_SL->Fill("nAK8_W >= 1",1);
                 totalCutFlow_SL_GENMatch->Fill("nAK8_W >= 1",1);}
+            //Important: 2 W jets
             if ((nTightMu + nTightEle == 1) && nGood_W_FatJet == 0 &&  nGoodAK4jets >= 2)
-                {totalCutFlow_SL->Fill("nAK4 >= 2",1);
-                totalCutFlow_SL_GENMatch->Fill("nAK4 >= 2",1);}
+            {
+                WVJJTree->TwoJet_LeadJet_p = LV_Ak4Jets[0].P();
+                WVJJTree->TwoJet_LeadJet_pt = LV_Ak4Jets[0].Pt();
+                WVJJTree->TwoJet_LeadJet_pz = LV_Ak4Jets[0].Pz();
+                WVJJTree->TwoJet_LeadJet_eta = LV_Ak4Jets[0].Eta();
+                WVJJTree->TwoJet_LeadJet_phi = LV_Ak4Jets[0].Phi();
+                WVJJTree->TwoJet_LeadJet_M = LV_Ak4Jets[0].M();
+                WVJJTree->TwoJet_LeadJet_E = LV_Ak4Jets[0].E();
+                
+                WVJJTree->TwoJet_SubLeadJet_p = LV_Ak4Jets[1].P();
+                WVJJTree->TwoJet_SubLeadJet_pt = LV_Ak4Jets[1].Pt();
+                WVJJTree->TwoJet_SubLeadJet_pz = LV_Ak4Jets[1].Pz();
+                WVJJTree->TwoJet_SubLeadJet_eta = LV_Ak4Jets[1].Eta();
+                WVJJTree->TwoJet_SubLeadJet_phi = LV_Ak4Jets[1].Phi();
+                WVJJTree->TwoJet_SubLeadJet_M = LV_Ak4Jets[1].M();
+                WVJJTree->TwoJet_SubLeadJet_E = LV_Ak4Jets[1].E();
+                
+              
+                WVJJTree->TwoJet_deltaR_GENRECO_HH = deltaR(LV_Ak4Jets[0] + LV_Ak4Jets[1], LV_GEN_WBosons[0]+LV_GEN_WBosons[1]);
+                // deltaR between GEN W-bosons and Reconstructed W-bosons
+                WVJJTree->TwoJet_deltaR_AK4WBoson_GENW = MinDeltaRFromReferenceLV(LV_Ak4Jets[0] +LV_Ak4Jets[1], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
 
+
+                totalCutFlow_SL->Fill("nAK4 >= 2",1);
+                totalCutFlow_SL_GENMatch->Fill("nAK4 >= 2",1);
+            
+            
+            
+            }
+            
+            // final selection
             if ((nTightMu + nTightEle == 1) && (
                 (nGood_W_FatJet >= 1) ||
                 (nGood_W_FatJet == 0 && nGoodAK4jets >= 2))
@@ -1343,175 +1171,6 @@ int main (int argc, char** argv) {
                 if(WVJJTree->pho1_pt_byMgg > 0.35 && WVJJTree->pho2_pt_byMgg > 0.25 && WVJJTree->diphoton_pt > 100.0)
                     {totalCutFlow_SL->Fill("pT(#gamma #gamma)>100",1);
                     totalCutFlow_SL_GENMatch->Fill("pT(#gamma #gamma)>100",1);}
-            }
-
-            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2)
-            {
-                if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] Passed two jet condition" << std::endl;
-                WVJJTree->TwoJet_LeadFatJet_area = NanoReader_.FatJet_area[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagCMVA = NanoReader_.FatJet_btagCMVA[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagCSVV2 = NanoReader_.FatJet_btagCSVV2[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagDDBvL = NanoReader_.FatJet_btagDDBvL[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagDDBvL_noMD = NanoReader_.FatJet_btagDDBvL_noMD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagDDCvB = NanoReader_.FatJet_btagDDCvB[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagDDCvB_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagDDCvL = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagDDCvL_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagDeepB = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_btagHbb = NanoReader_.FatJet_btagHbb[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_H4qvsQCD = NanoReader_.FatJet_deepTagMD_H4qvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_HbbvsQCD = NanoReader_.FatJet_deepTagMD_HbbvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_TvsQCD = NanoReader_.FatJet_deepTagMD_TvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_WvsQCD = NanoReader_.FatJet_deepTagMD_WvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ZHbbvsQCD = NanoReader_.FatJet_deepTagMD_ZHbbvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ZHccvsQCD = NanoReader_.FatJet_deepTagMD_ZHccvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ZbbvsQCD = NanoReader_.FatJet_deepTagMD_ZbbvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ZvsQCD = NanoReader_.FatJet_deepTagMD_ZvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_bbvsLight = NanoReader_.FatJet_deepTagMD_bbvsLight[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTagMD_ccvsLight = NanoReader_.FatJet_deepTagMD_ccvsLight[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTag_H = NanoReader_.FatJet_deepTag_H[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTag_QCD = NanoReader_.FatJet_deepTag_QCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTag_QCDothers = NanoReader_.FatJet_deepTag_QCDothers[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTag_TvsQCD = NanoReader_.FatJet_deepTag_TvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTag_WvsQCD = NanoReader_.FatJet_deepTag_WvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_deepTag_ZvsQCD = NanoReader_.FatJet_deepTag_ZvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_electronIdx3SJ = NanoReader_.FatJet_electronIdx3SJ[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_eta = NanoReader_.FatJet_eta[goodWJetIndex[0]];
-                if (isMC) WVJJTree->TwoJet_LeadFatJet_genJetAK8Idx = NanoReader_.FatJet_genJetAK8Idx[goodWJetIndex[0]];
-                if (isMC) WVJJTree->TwoJet_LeadFatJet_hadronFlavour = NanoReader_.FatJet_hadronFlavour[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_jetId=NanoReader_.FatJet_jetId[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_lsf3=NanoReader_.FatJet_lsf3[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_mass=NanoReader_.FatJet_mass[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_msoftdrop=NanoReader_.FatJet_msoftdrop[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_muonIdx3SJ=NanoReader_.FatJet_muonIdx3SJ[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_n2b1=NanoReader_.FatJet_n2b1[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_n3b1=NanoReader_.FatJet_n3b1[goodWJetIndex[0]];
-                if (isMC) WVJJTree->TwoJet_LeadFatJet_nBHadrons=NanoReader_.FatJet_nBHadrons[goodWJetIndex[0]];
-                if (isMC) WVJJTree->TwoJet_LeadFatJet_nCHadrons=NanoReader_.FatJet_nCHadrons[goodWJetIndex[0]];
-                //! todo: add this variable but not find in root file
-                // WVJJTree->FatJet_particleNetMD_QCD=NanoReader_.FatJet_particleNetMD_QCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNetMD_Xbb=NanoReader_.FatJet_particleNetMD_Xbb[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNetMD_Xcc=NanoReader_.FatJet_particleNetMD_Xcc[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNetMD_Xqq=NanoReader_.FatJet_particleNetMD_Xqq[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_H4qvsQCD=NanoReader_.FatJet_particleNet_H4qvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_HbbvsQCD=NanoReader_.FatJet_particleNet_HbbvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_HccvsQCD=NanoReader_.FatJet_particleNet_HccvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_QCD=NanoReader_.FatJet_particleNet_QCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_TvsQCD=NanoReader_.FatJet_particleNet_TvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_WvsQCD=NanoReader_.FatJet_particleNet_WvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_ZvsQCD=NanoReader_.FatJet_particleNet_ZvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_phi=NanoReader_.FatJet_phi[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_pt=NanoReader_.FatJet_pt[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_rawFactor=NanoReader_.FatJet_rawFactor[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_subJetIdx1=NanoReader_.FatJet_subJetIdx1[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_subJetIdx2=NanoReader_.FatJet_subJetIdx2[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_tau1=NanoReader_.FatJet_tau1[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_tau2=NanoReader_.FatJet_tau2[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_tau3=NanoReader_.FatJet_tau3[goodWJetIndex[0]];
-                WVJJTree->TwoJet_LeadFatJet_tau4=NanoReader_.FatJet_tau4[goodWJetIndex[0]];
-                WVJJTree->TwoJet_nFatJet=nGood_W_FatJet;
-
-
-                WVJJTree->TwoJet_SubLeadFatJet_area = NanoReader_.FatJet_area[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagCMVA = NanoReader_.FatJet_btagCMVA[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagCSVV2 = NanoReader_.FatJet_btagCSVV2[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagDDBvL = NanoReader_.FatJet_btagDDBvL[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagDDBvL_noMD = NanoReader_.FatJet_btagDDBvL_noMD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagDDCvB = NanoReader_.FatJet_btagDDCvB[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagDDCvB_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagDDCvL = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagDDCvL_noMD = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagDeepB = NanoReader_.FatJet_btagDDCvB_noMD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_btagHbb = NanoReader_.FatJet_btagHbb[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_H4qvsQCD = NanoReader_.FatJet_deepTagMD_H4qvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_HbbvsQCD = NanoReader_.FatJet_deepTagMD_HbbvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_TvsQCD = NanoReader_.FatJet_deepTagMD_TvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_WvsQCD = NanoReader_.FatJet_deepTagMD_WvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ZHbbvsQCD = NanoReader_.FatJet_deepTagMD_ZHbbvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ZHccvsQCD = NanoReader_.FatJet_deepTagMD_ZHccvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ZbbvsQCD = NanoReader_.FatJet_deepTagMD_ZbbvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ZvsQCD = NanoReader_.FatJet_deepTagMD_ZvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_bbvsLight = NanoReader_.FatJet_deepTagMD_bbvsLight[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTagMD_ccvsLight = NanoReader_.FatJet_deepTagMD_ccvsLight[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTag_H = NanoReader_.FatJet_deepTag_H[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTag_QCD = NanoReader_.FatJet_deepTag_QCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTag_QCDothers = NanoReader_.FatJet_deepTag_QCDothers[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTag_TvsQCD = NanoReader_.FatJet_deepTag_TvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTag_WvsQCD = NanoReader_.FatJet_deepTag_WvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_deepTag_ZvsQCD = NanoReader_.FatJet_deepTag_ZvsQCD[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_electronIdx3SJ = NanoReader_.FatJet_electronIdx3SJ[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_eta = NanoReader_.FatJet_eta[goodWJetIndex[1]];
-                if (isMC) WVJJTree->TwoJet_SubLeadFatJet_genJetAK8Idx = NanoReader_.FatJet_genJetAK8Idx[goodWJetIndex[1]];
-                if (isMC) WVJJTree->TwoJet_SubLeadFatJet_hadronFlavour = NanoReader_.FatJet_hadronFlavour[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_jetId=NanoReader_.FatJet_jetId[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_lsf3=NanoReader_.FatJet_lsf3[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_mass=NanoReader_.FatJet_mass[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_msoftdrop=NanoReader_.FatJet_msoftdrop[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_muonIdx3SJ=NanoReader_.FatJet_muonIdx3SJ[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_n2b1=NanoReader_.FatJet_n2b1[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_n3b1=NanoReader_.FatJet_n3b1[goodWJetIndex[1]];
-                if (isMC) WVJJTree->TwoJet_SubLeadFatJet_nBHadrons=NanoReader_.FatJet_nBHadrons[goodWJetIndex[1]];
-                if (isMC) WVJJTree->TwoJet_SubLeadFatJet_nCHadrons=NanoReader_.FatJet_nCHadrons[goodWJetIndex[1]];
-                //! todo: add this variable but not find in root file
-                // WVJJTree->FatJet_particleNetMD_QCD=NanoReader_.FatJet_particleNetMD_QCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNetMD_Xbb=NanoReader_.FatJet_particleNetMD_Xbb[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNetMD_Xcc=NanoReader_.FatJet_particleNetMD_Xcc[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNetMD_Xqq=NanoReader_.FatJet_particleNetMD_Xqq[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_H4qvsQCD=NanoReader_.FatJet_particleNet_H4qvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_HbbvsQCD=NanoReader_.FatJet_particleNet_HbbvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_HccvsQCD=NanoReader_.FatJet_particleNet_HccvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_QCD=NanoReader_.FatJet_particleNet_QCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_TvsQCD=NanoReader_.FatJet_particleNet_TvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_WvsQCD=NanoReader_.FatJet_particleNet_WvsQCD[goodWJetIndex[0]];
-                // WVJJTree->FatJet_particleNet_ZvsQCD=NanoReader_.FatJet_particleNet_ZvsQCD[goodWJetIndex[0]];
-                WVJJTree->TwoJet_SubLeadFatJet_phi=NanoReader_.FatJet_phi[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_pt=NanoReader_.FatJet_pt[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_rawFactor=NanoReader_.FatJet_rawFactor[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_subJetIdx1=NanoReader_.FatJet_subJetIdx1[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_subJetIdx2=NanoReader_.FatJet_subJetIdx2[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_tau1=NanoReader_.FatJet_tau1[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_tau2=NanoReader_.FatJet_tau2[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_tau3=NanoReader_.FatJet_tau3[goodWJetIndex[1]];
-                WVJJTree->TwoJet_SubLeadFatJet_tau4=NanoReader_.FatJet_tau4[goodWJetIndex[1]];
-
-                WVJJTree->TwoJet_HWW_pt = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Pt();
-                WVJJTree->TwoJet_HWW_eta = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Eta();
-                WVJJTree->TwoJet_HWW_phi = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Phi();
-                WVJJTree->TwoJet_HWW_m = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).M();
-                WVJJTree->TwoJet_HWW_E = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).E();
-
-                TLorentzVector TwoJet_Radion_LV = LV_Ak8WZJets[0] + LV_Ak8WZJets[1] + diphoton;
-
-                WVJJTree->TwoJet_Radion_p = TwoJet_Radion_LV.P();
-                WVJJTree->TwoJet_Radion_pt = TwoJet_Radion_LV.Pt();
-                WVJJTree->TwoJet_Radion_pz = TwoJet_Radion_LV.Pz();
-                WVJJTree->TwoJet_Radion_eta = TwoJet_Radion_LV.Eta();
-                WVJJTree->TwoJet_Radion_phi = TwoJet_Radion_LV.Phi();
-                WVJJTree->TwoJet_Radion_m = TwoJet_Radion_LV.M();
-                WVJJTree->TwoJet_Radion_E = TwoJet_Radion_LV.E();
-
-                // deltaR between LHE Higgs and RECO Higgs
-                WVJJTree->TwoJet_deltaR_LHERECO_HH = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_LHE_Higgs[0], LV_LHE_Higgs[1]);
-                // WVJJTree->TwoJet_deltaR_GENRECO_HH = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_GEN_Higgs[0], LV_GEN_Higgs[1]);
-                WVJJTree->TwoJet_deltaR_GENRECO_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1], LV_GEN_WBosons[0]+LV_GEN_WBosons[1]);
-                // deltaR between GEN W-bosons and Reconstructed W-bosons
-                WVJJTree->TwoJet_deltaR_LeadAK8WBoson_GENW = MinDeltaRFromReferenceLV(LV_Ak8WZJets[0], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
-                WVJJTree->TwoJet_deltaR_SubLeadAK8WBoson_GENW = MinDeltaRFromReferenceLV(LV_Ak8WZJets[1], LV_GEN_WBosons[0], LV_GEN_WBosons[1]);
-                
-            
-                 
-
-                WVJJTree->TwoJet_deltaR_jj = deltaR(LV_Ak8WZJets[0],LV_Ak8WZJets[1]);
-                WVJJTree->TwoJet_deltaPhi_jj = deltaPhi(LV_Ak8WZJets[0],LV_Ak8WZJets[1]);
-                WVJJTree->TwoJet_deltaEta_jj = deltaEta(LV_Ak8WZJets[0],LV_Ak8WZJets[1]);
-                WVJJTree->TwoJet_deltaR_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1],diphoton);
-                WVJJTree->TwoJet_deltaEta_HH = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Eta() - diphoton.Eta();
-                WVJJTree->TwoJet_deltaPhi_HH = deltaPhi(LV_Ak8WZJets[0] + LV_Ak8WZJets[1],diphoton);
-        
-                // }
-                WVJJTree->TwoJet_deltaR_HH = deltaR(LV_Ak8WZJets[0] + LV_Ak8WZJets[1],diphoton);
-                WVJJTree->TwoJet_deltaEta_HH = (LV_Ak8WZJets[0] + LV_Ak8WZJets[1]).Eta() - diphoton.Eta();
-                WVJJTree->TwoJet_deltaPhi_HH = deltaPhi(LV_Ak8WZJets[0] + LV_Ak8WZJets[1],diphoton);
             }
 
            

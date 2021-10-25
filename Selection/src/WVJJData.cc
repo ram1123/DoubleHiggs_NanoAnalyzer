@@ -477,8 +477,24 @@ void WVJJData::init() {
   fTree->Branch("OneJet_Radion_phi",&OneJet_Radion_phi,"OneJet_Radion_phi/F");
   fTree->Branch("OneJet_Radion_m",&OneJet_Radion_m,"OneJet_Radion_m/F");
   fTree->Branch("OneJet_Radion_E",&OneJet_Radion_E,"OneJet_Radion_E/F");
-
-
+  // SL channel
+  fTree->Branch("TwoJet_LeadJet_p",&TwoJet_LeadJet_p,"TwoJet_LeadJet_p/F");
+  fTree->Branch("TwoJet_LeadJet_pt",&TwoJet_LeadJet_pt,"TwoJet_LeadJet_pt/F");
+  fTree->Branch("TwoJet_LeadJet_pz",&TwoJet_LeadJet_pz,"TwoJet_LeadJet_pz/F");
+  fTree->Branch("TwoJet_LeadJet_eta",&TwoJet_LeadJet_eta,"TwoJet_LeadJet_eta/F");
+  fTree->Branch("TwoJet_LeadJet_phi",&TwoJet_LeadJet_phi,"TwoJet_LeadJet_phi/F");
+  fTree->Branch("TwoJet_LeadJet_M",&TwoJet_LeadJet_M,"TwoJet_LeadJet_M/F");
+  fTree->Branch("TwoJet_LeadJet_E",&TwoJet_LeadJet_E,"TwoJet_LeadJet_E/F");
+  
+  fTree->Branch("TwoJet_SubLeadJet_p",&TwoJet_SubLeadJet_p,"TwoJet_SubLeadJet_p/F");
+  fTree->Branch("TwoJet_SubLeadJet_pt",&TwoJet_SubLeadJet_pt,"TwoJet_SubLeadJet_pt/F");
+  fTree->Branch("TwoJet_SubLeadJet_pz",&TwoJet_SubLeadJet_pz,"TwoJet_SubLeadJet_pz/F");
+  fTree->Branch("TwoJet_SubLeadJet_eta",&TwoJet_SubLeadJet_eta,"TwoJet_SubLeadJet_eta/F");
+  fTree->Branch("TwoJet_SubLeadJet_phi",&TwoJet_SubLeadJet_phi,"TwoJet_SubLeadJet_phi/F");
+  fTree->Branch("TwoJet_SubLeadJet_M",&TwoJet_SubLeadJet_M,"TwoJet_SubLeadJet_M/F");
+  fTree->Branch("TwoJet_SubLeadJet_E",&TwoJet_SubLeadJet_E,"TwoJet_SubLeadJet_E/F");
+  fTree->Branch("TwoJet_deltaR_AK4WBoson_GENW",&TwoJet_deltaR_AK4WBoson_GENW,"TwoJet_deltaR_AK4WBoson_GENW/F");
+  //----
   fTree->Branch("TwoJet_LeadFatJet_area",&TwoJet_LeadFatJet_area,"TwoJet_LeadFatJet_area/F");
   fTree->Branch("TwoJet_LeadFatJet_btagCMVA",&TwoJet_LeadFatJet_btagCMVA,"TwoJet_LeadFatJet_btagCMVA/F");
   fTree->Branch("TwoJet_LeadFatJet_btagCSVV2",&TwoJet_LeadFatJet_btagCSVV2,"TwoJet_LeadFatJet_btagCSVV2/F");
@@ -1287,6 +1303,25 @@ void WVJJData::clearVars() {
   OneJet_Radion_phi = -999.0;
   OneJet_Radion_m = -999.0;
   OneJet_Radion_E = -999.0;
+  // SL channel
+  TwoJet_LeadJet_p = -999.0;
+  TwoJet_LeadJet_pt = -999.0;
+  TwoJet_LeadJet_pz = -999.0;
+  TwoJet_LeadJet_eta = -999.0;
+  TwoJet_LeadJet_phi = -999.0;
+  TwoJet_LeadJet_M = -999.0;
+  TwoJet_LeadJet_E = -999.0;
+
+  TwoJet_SubLeadJet_p = -999.0;
+  TwoJet_SubLeadJet_pt = -999.0;
+  TwoJet_SubLeadJet_pz = -999.0;
+  TwoJet_SubLeadJet_eta = -999.0;
+  TwoJet_SubLeadJet_phi = -999.0;
+  TwoJet_SubLeadJet_M = -999.0;
+  TwoJet_SubLeadJet_E = -999.0;
+  
+  TwoJet_deltaR_AK4WBoson_GENW = -999.0;
+  //---
   TwoJet_LeadFatJet_area = -999.0;
   TwoJet_LeadFatJet_btagCMVA = -999.0;
   TwoJet_LeadFatJet_btagCSVV2 = -999.0;

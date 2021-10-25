@@ -9,9 +9,9 @@ if not os.path.isdir(plotDir):
     os.makedirs(plotDir)
 
 Hist = [
-        "GluGluToRadionToHHTo2G2Qlnu_M250.root",
-        "GluGluToRadionToHHTo2G2Qlnu_M1000.root",
-        "GluGluToRadionToHHTo2G2Qlnu_M3000.root",
+        "/eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M250.root",
+        "/eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M1000.root",
+        "/eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M3000.root",
         # "GluGluToRadionToHHTo2G2Qlnu_M500.root",
         # "GluGluToRadionToHHTo2G2Qlnu_M800.root",
         # "GluGluToRadionToHHTo2G2Qlnu_M1500.root",
@@ -50,7 +50,7 @@ for files_ in Hist:
     if len(inFileNameSplit) == 1:
         Title = inFileName.replace(".root", "")
     else:
-        Title = inFileName.split("_")[1].replace(".root", "")
+        Title = inFileName.split("_")[-1].replace(".root", "")
     info["SampleName"].append(Title)
     inFile = ROOT.TFile.Open(inFileName, "READ")
 

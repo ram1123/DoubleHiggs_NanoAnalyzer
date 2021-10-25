@@ -554,7 +554,24 @@ public:
   float OneJet_Radion_phi = -999.0;
   float OneJet_Radion_m = -999.0;
   float OneJet_Radion_E = -999.0;
+  // SL channel
+  float TwoJet_LeadJet_p = -999.0;
+  float TwoJet_LeadJet_pt = -999.0;
+  float TwoJet_LeadJet_pz = -999.0;
+  float TwoJet_LeadJet_eta = -999.0;
+  float TwoJet_LeadJet_phi = -999.0;
+  float TwoJet_LeadJet_M = -999.0;
+  float TwoJet_LeadJet_E = -999.0;
+  float TwoJet_SubLeadJet_p = -999.0;
+  float TwoJet_SubLeadJet_pt = -999.0;
+  float TwoJet_SubLeadJet_pz = -999.0;
+  float TwoJet_SubLeadJet_eta = -999.0;
+  float TwoJet_SubLeadJet_phi = -999.0;
+  float TwoJet_SubLeadJet_M = -999.0;
+  float TwoJet_SubLeadJet_E = -999.0;
+  float TwoJet_deltaR_AK4WBoson_GENW = -999.0;
 
+  //---
   float TwoJet_LeadFatJet_area = -999.0;
   float TwoJet_LeadFatJet_btagCMVA = -999.0;
   float TwoJet_LeadFatJet_btagCSVV2 = -999.0;
