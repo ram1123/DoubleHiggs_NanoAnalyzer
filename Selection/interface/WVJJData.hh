@@ -67,6 +67,27 @@ public:
   float GEN_HGG_phi = -999.0;
   float GEN_HGG_energy = -999.0;
 
+  float GEN_Lepton1_p = -999.0;
+  float GEN_Lepton1_pt = -999.0;
+  float GEN_Lepton1_pz = -999.0;
+  float GEN_Lepton1_eta = -999.0;
+  float GEN_Lepton1_phi = -999.0;
+  float GEN_Lepton1_m = -999.0;
+  float GEN_Lepton1_E = -999.0;
+  float GEN_Lepton2_p = -999.0;
+  float GEN_Lepton2_pt = -999.0;
+  float GEN_Lepton2_pz = -999.0;
+  float GEN_Lepton2_eta = -999.0;
+  float GEN_Lepton2_phi = -999.0;
+  float GEN_Lepton2_m = -999.0;
+  float GEN_Lepton2_E = -999.0;
+  float GEN_Lepton3_p = -999.0;
+  float GEN_Lepton3_pt = -999.0;
+  float GEN_Lepton3_pz = -999.0;
+  float GEN_Lepton3_eta = -999.0;
+  float GEN_Lepton3_phi = -999.0;
+  float GEN_Lepton3_m = -999.0;
+  float GEN_Lepton3_E = -999.0;
   float GEN_LeadingPhoton_pT = -999.0;
   float GEN_LeadingPhoton_eta = -999.0;
   float GEN_LeadingPhoton_phi = -999.0;

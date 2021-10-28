@@ -9,8 +9,8 @@ WhichSamples=${1}
 if [ ${WhichSamples} -eq 0 ]
   then
     echo "Running for SL-hadronic.."
-    nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G2Qlnu_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt /eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M1000.root  1 2017 7 0 1 >& /eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M1000.log &
     nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G2Qlnu_M-250_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt /eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M250.root  1 2017 7 0 1 >& /eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M250.log &
+    nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G2Qlnu_M-1000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt /eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M1000.root  1 2017 7 0 1 >& /eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M1000.log &
     nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G2Qlnu_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt /eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M3000.root  1 2017 7 0 1 >& /eos/user/z/zhenxuan/DoubleHiggs/MC_Root/GluGluToRadionToHHTo2G2Qlnu_M3000.log &
     # nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G2Qlnu_M-1500_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt GluGluToRadionToHHTo2G2Qlnu_M1500.root  1 2017 7 0 1 >& GluGluToRadionToHHTo2G2Qlnu_M1500.log &
     # nohup Selection InputSampleTextFiles/GluGluToRadionToHHTo2G2Qlnu_M-2000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8.txt GluGluToRadionToHHTo2G2Qlnu_M2000.root  1 2017 7 0 1 >& GluGluToRadionToHHTo2G2Qlnu_M2000.log &
@@ -123,6 +123,7 @@ if [ ${WhichSamples} -eq 5 ]
     echo "Running a test job.."
     # Selection InputSampleTextFiles/inputFiles.txt test.root 1 2017 7 0 1
     # xrdcp root://cms-xrd-global.cern.ch//store/mc/RunIIFall17NanoAODv7/GluGluToRadionToHHTo2G4Q_M-3000_narrow_TuneCP5_PSWeights_13TeV-madgraph-pythia8/NANOAODSIM/PU2017_12Apr2018_Nano02Apr2020_102X_mc2017_realistic_v8-v1/120000/DB64186F-0685-E445-ACF2-0C039BFD6301.root .
-    Selection DB64186F-0685-E445-ACF2-0C039BFD6301.root test.root 1 2017 7 0 0
+    # Selection DB64186F-0685-E445-ACF2-0C039BFD6301.root test.root 1 2017 7 0 0
+    Selection CDCFA813-DAD0-F545-9930-930F1575D1F6.root test.root 1 2017 7 0 1
 fi
 # python CutFlow.py

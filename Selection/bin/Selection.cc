@@ -45,7 +45,6 @@ int main (int argc, char** argv) {
     bool DEBUG = atoi(argv[6]);
     bool DOWNLOAD_LOCAL_COPY = atoi(argv[7]);
 
-    const float H_MASS = 125.10;
 
     // const float W_MASS = 80.379;
     // const float Z_MASS = 91.1876;
@@ -73,13 +72,11 @@ int main (int argc, char** argv) {
     const float PHO_MVA_ID = -0.9;
 
     //ak8 jet cuts
-    const float AK8_HJET_MIN_PT = 300;
     const float AK8_WJET_MIN_PT = 200;
+    //checking eta with 2.4 to 4.7
     const float AK8_MAX_ETA = 2.4;
 
     // Mass window cuts
-    const float AK8_HJet_MIN_SDM = 90;
-    const float AK8_HJet_MAX_SDM = 170;
     const float AK8_WJet_MIN_SDM = 40;
     const float AK8_WJet_MAX_SDM = 130;
 
@@ -87,6 +84,7 @@ int main (int argc, char** argv) {
     //const float AK4_PT_VETO_CUT = 20;
     // const float AK4_ETA_CUT = 2.4;
     const float AK4_PT_CUT = 25;
+    //checking eta with 2.4 to 4.7
     const float AK4_MAX_ETA = 2.4;
     // const float AK4_JJ_MIN_M = 40.0;
     // const float AK4_JJ_MAX_M = 250.0;
@@ -100,7 +98,6 @@ int main (int argc, char** argv) {
     const float AK4_AK4_DR_CUT = 0.8;
 
     // Jet sub-structure cuts
-    const float TAU42 = 0.55;
     const float TAU21 = 0.55;
 
     // btag deepCSV a.k.a. DeepB working points
@@ -321,6 +318,7 @@ int main (int argc, char** argv) {
         for (uint i=0; i < t->GetEntries(); i++)
         // for (uint i=0; i < 200; i++)
         {
+            
             WVJJTree->clearVars();
             NanoReader_.GetEntry(i);
             totalCutFlow_SL->Fill("Skim NanoAOD",1);
@@ -433,7 +431,11 @@ int main (int argc, char** argv) {
                     int status = NanoReader_.GenPart_status[GENPartCount];
                     int motherPDGid = NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]];
 
-
+                    bool isPrompt = (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 );
+                    bool isHardProcess = (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 );    
+                    bool isFromHardProcess = (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 );
+                    bool isFromHardProcessBeforeFSR = (NanoReader_.GenPart_statusFlags[i] >> 11  & 1 );
+                    
                     // Get Higgs bosons
                     if (pdgid == 25)
                     {
@@ -492,16 +494,22 @@ int main (int argc, char** argv) {
                     }
                     // Important: add lepton and neutrino
                     // Add ele,mu,tao separatly then add together as leptons
-                    if (  (abs(pdgid)==11 ||abs(pdgid)==13||abs(pdgid)==15) && abs(motherPDGid) == 24 && status == 1 )
+                    // if (  (abs(pdgid)==11 ||abs(pdgid)==13||abs(pdgid)==15) && abs(motherPDGid) == 24 && (status == 1||status ==23) )
+                    if (  ((abs(pdgid)==11&&(status==1||status==23)) || (abs(pdgid)==13&&(status==1||status==23)) || (abs(pdgid)==15&&(status==2||status==23))) && abs(motherPDGid) == 24 )
                     {
-                        
+                        // std::cout << "\tEvent No. " << i << "/" << lineCount << ":\tQuarks: pdgID: " << pdgid
+                        //           << "\tstatus: " << status << "\tMother pdgID: " <<  motherPDGid
+                        //           << "\tpT: " << NanoReader_.GenPart_pt[GENPartCount] << "\t isPrompt:" << isPrompt 
+                        //           <<"\t isHardProcess:" << isHardProcess <<"\t isFromHardProcess:" << isFromHardProcess<< 
+                        //           "\t isFromHardProcessBeforeFSR:" << isFromHardProcessBeforeFSR
+                        //           << std::endl;                        
                         LV_GEN_leptons.push_back(TLorentzVector(0,0,0,0));
                         LV_GEN_leptons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
                                                            NanoReader_.GenPart_eta[GENPartCount],
                                                            NanoReader_.GenPart_phi[GENPartCount],
                                                            NanoReader_.GenPart_mass[GENPartCount]);
                     }
-                    if (  (abs(pdgid)==12 ||abs(pdgid)==14||abs(pdgid)==16) && abs(motherPDGid) == 24 && status == 1 )
+                    if (  (abs(pdgid)==12 ||abs(pdgid)==14||abs(pdgid)==16) && abs(motherPDGid) == 24 && (status == 1||status ==23))
                     {
                         
                         LV_GEN_neutrino.push_back(TLorentzVector(0,0,0,0));
@@ -514,6 +522,12 @@ int main (int argc, char** argv) {
                    
                 }
                 
+                // if (LV_GEN_leptons.size() != 1)
+                // {
+                //     std::cout << "Lepton size = " << LV_GEN_leptons.size() << std::endl;
+                // //     std::cout << "GEN Leptons are more than 1. Please check..." << std::endl;
+                // //     exit(0);
+                // }
                 if (LV_GEN_photons.size() != 2)
                 {
                     std::cout << "photons size = " << LV_GEN_photons.size() << std::endl;
@@ -549,6 +563,39 @@ int main (int argc, char** argv) {
             
             WVJJTree->LHEGEN_deltaR_HToWWH = TMath::Min(deltaR(LV_LHE_Higgs[0].Eta(),LV_LHE_Higgs[0].Phi(),LV_GEN_HiggsWW.Eta(),LV_GEN_HiggsWW.Phi()),
                                                     deltaR(LV_LHE_Higgs[1].Eta(),LV_LHE_Higgs[1].Phi(),LV_GEN_HiggsWW.Eta(),LV_GEN_HiggsWW.Phi()));
+
+            // Save pT, eta, phi and mass of LV_GEN_leptons[0] in output Tree
+            WVJJTree->GEN_Lepton1_p = LV_GEN_leptons[0].P();            
+            WVJJTree->GEN_Lepton1_pt = LV_GEN_leptons[0].Pt();            
+            WVJJTree->GEN_Lepton1_pz = LV_GEN_leptons[0].Pz();            
+            WVJJTree->GEN_Lepton1_eta = LV_GEN_leptons[0].Eta();            
+            WVJJTree->GEN_Lepton1_phi = LV_GEN_leptons[0].Phi();            
+            WVJJTree->GEN_Lepton1_m = LV_GEN_leptons[0].M();            
+            WVJJTree->GEN_Lepton1_E = LV_GEN_leptons[0].E();
+            if(LV_GEN_leptons.size() == 3)
+            {
+                WVJJTree->GEN_Lepton1_p = LV_GEN_leptons[0].P();            
+                WVJJTree->GEN_Lepton1_pt = LV_GEN_leptons[0].Pt();            
+                WVJJTree->GEN_Lepton1_pz = LV_GEN_leptons[0].Pz();            
+                WVJJTree->GEN_Lepton1_eta = LV_GEN_leptons[0].Eta();            
+                WVJJTree->GEN_Lepton1_phi = LV_GEN_leptons[0].Phi();            
+                WVJJTree->GEN_Lepton1_m = LV_GEN_leptons[0].M();            
+                WVJJTree->GEN_Lepton1_E = LV_GEN_leptons[0].E();
+                WVJJTree->GEN_Lepton2_p = LV_GEN_leptons[0].P();            
+                WVJJTree->GEN_Lepton2_pt = LV_GEN_leptons[0].Pt();            
+                WVJJTree->GEN_Lepton2_pz = LV_GEN_leptons[0].Pz();            
+                WVJJTree->GEN_Lepton2_eta = LV_GEN_leptons[0].Eta();            
+                WVJJTree->GEN_Lepton2_phi = LV_GEN_leptons[0].Phi();            
+                WVJJTree->GEN_Lepton2_m = LV_GEN_leptons[0].M();            
+                WVJJTree->GEN_Lepton2_E = LV_GEN_leptons[0].E();
+                WVJJTree->GEN_Lepton3_p = LV_GEN_leptons[0].P();            
+                WVJJTree->GEN_Lepton3_pt = LV_GEN_leptons[0].Pt();            
+                WVJJTree->GEN_Lepton3_pz = LV_GEN_leptons[0].Pz();            
+                WVJJTree->GEN_Lepton3_eta = LV_GEN_leptons[0].Eta();            
+                WVJJTree->GEN_Lepton3_phi = LV_GEN_leptons[0].Phi();            
+                WVJJTree->GEN_Lepton3_m = LV_GEN_leptons[0].M();            
+                WVJJTree->GEN_Lepton3_E = LV_GEN_leptons[0].E();
+            }
 
             // Save pT, eta, phi and mass of LV_GEN_photons[0] in output Tree
             // Save pT, eta, phi and mass of LV_GEN_photons[1] in output Tree
@@ -707,6 +754,8 @@ int main (int argc, char** argv) {
                 if (!(abs(NanoReader_.Photon_eta[PhotonCount]) < PHO_ETA_CUT )) continue;
                 if (!(NanoReader_.Photon_isScEtaEB[PhotonCount] || NanoReader_.Photon_isScEtaEE[PhotonCount])) continue;
                 if (!(NanoReader_.Photon_mvaID[PhotonCount] > PHO_MVA_ID)) continue;
+                if(!(NanoReader_.Photon_pixelSeed[PhotonCount]) == 0 ) continue;
+                if (!(NanoReader_.Photon_electronVeto[PhotonCount]) == 1) continue;
                 nTightPhoton++;
 
                 /* ----------- push pt,eta,phi,ecorr in the TightPhoton last index ---------- */
@@ -758,12 +807,99 @@ int main (int argc, char** argv) {
                 // std::cout << "pho1_pt= " << WVJJTree->pho1_pt << std::endl;
                 // std::cout << "pho2_pt= " << WVJJTree->pho2_pt << std::endl;
                 
-                }
+            }
+            TLorentzVector LV_pho1(0,0,0,0);
+            LV_pho1.SetPtEtaPhiM( WVJJTree->pho1_pt, WVJJTree->pho1_eta, WVJJTree->pho1_phi, WVJJTree->pho1_m );
+
+            TLorentzVector LV_pho2(0,0,0,0);
+            LV_pho2.SetPtEtaPhiM( WVJJTree->pho2_pt, WVJJTree->pho2_eta, WVJJTree->pho2_phi, WVJJTree->pho2_m );
+
+            // int nTightMu = 0;
+
+            // for (uint j=0; j < *NanoReader_.nMuon; j++) {
+            //     if ( NanoReader_.Muon_pt[j] < LEP_PT_VETO_CUT ) continue;
+            //     if ( abs(NanoReader_.Muon_eta[j]) > MU_ETA_CUT ) continue;
+
+            //     // cut-based ID, tight WP
+            //     if ( ! NanoReader_.Muon_tightId[j] ) continue;
+
+            //     // MiniIso ID from miniAOD selector (1=MiniIsoLoose, 2=MiniIsoMedium, 3=MiniIsoTight, 4=MiniIsoVeryTight)
+            //     if ( ! (NanoReader_.Muon_miniIsoId[j] > 2) ) continue;
+
+            //     if (DEBUG) std::cout << "\t[INFO::Muons] [" << i <<"/" << lineCount << "] Clean Muons with photons" << std::endl;
+
+            //     bool isClean=true;
+            //     for ( std::size_t k=0; k<LV_tightPhoton.size(); k++) {
+            //         if (deltaR(LV_tightPhoton.at(k).Eta(), LV_tightPhoton.at(k).Phi(),
+            //                    NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j]) < 0.4) {
+            //             isClean = false;
+            //         }
+            //     }
+            //     if ( isClean == false ) continue;
+
+            //     TLorentzVector Mu(0,0,0,0);
+            //     // Mu.SetPtEtaPhiM( NanoReader_.Muon_pt[j], NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j], NanoReader_.Muon_mass[j] );
+            //     Mu.SetPtEtaPhiM( NanoReader_.Muon_pt[j], NanoReader_.Muon_eta[j], NanoReader_.Muon_phi[j], MUON_MASS );
+
+            //     // Electron and photon should not give the Z-mass
+            //     if( fabs((Mu+LV_pho1).M() - 91.187) < 5.0) continue;
+            //     if( fabs((Mu+LV_pho2).M() - 91.187) < 5.0) continue;
+
+            //     nTightMu++;
+            //     LV_tightMuon.push_back(Mu);
+            // }
+            // int nTightEle =0;    
+            // LV_tightEle.clear();
+            // for ( uint j=0; j < *NanoReader_.nElectron; j++ )
+            // {
+
+            //     if ( NanoReader_.Electron_pt[j] < LEP_PT_VETO_CUT ) continue;
+            //     if ( abs(NanoReader_.Electron_eta[j]) > EL_ETA_CUT ) continue;
+            //     if ( NanoReader_.Electron_convVeto[j] == false) continue;
+
+            //     // cut-based ID (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)
+            //     // Veto, 2016 -> cutbased HLT safe
+            //     // 2017, 2018 -> cutbased loost Fall17V2
+            //     if ( era == 2016 ) {
+            //         if ( NanoReader_.Electron_cutBased_HLTPreSel[j] == 0 ) continue;
+            //         // if ( NanoReader_.Electron_lostHits[j] >= 1 ) continue;
+            //     }
+            //     else {
+            //         if ( NanoReader_.Electron_cutBased[j] < 2 ) continue;
+            //         // if ( NanoReader_.Electron_convVeto[j] != 1) continue;
+            //         // for 2017, 2018
+            //         // if ( abs(NanoReader_.Electron_eta[j]) > 1.479 ) {
+            //         // if (abs(NanoReader_.Electron_sieie[j]) > 0.03 ) continue;
+            //         // if (abs(NanoReader_.Electron_eInvMinusPInv[j]) > 0.014 ) continue;
+            //         // }
+            //     }
+            //     bool isClean=true;
+            //     for ( std::size_t k=0; k<LV_tightPhoton.size(); k++) {
+            //         if (deltaR(LV_tightPhoton.at(k).Eta(), LV_tightPhoton.at(k).Phi(),
+            //                    NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j]) < 0.4) {
+            //             isClean = false;
+            //         }
+            //     }
+            //     if ( isClean == false ) continue;
+
+            //     TLorentzVector Ele(0,0,0,0);
+            //     // Ele.SetPtEtaPhiM( NanoReader_.Electron_pt[j], NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j], NanoReader_.Electron_mass[j] );
+            //     Ele.SetPtEtaPhiM( NanoReader_.Electron_pt[j], NanoReader_.Electron_eta[j], NanoReader_.Electron_phi[j], ELE_MASS );
+
+            //     // Electron and photon should not give the Z-mass
+            //     if( fabs((Ele+LV_pho1).M() - 91.187) < 5.0) continue;
+            //     if( fabs((Ele+LV_pho2).M() - 91.187) < 5.0) continue;
+
+            //     nTightEle++;
+            //     LV_tightEle.push_back(Ele);
+            // }
             /* ----------------- Leading and SubLeading photon selection ---------------- */
 
             if(!(WVJJTree->pho1_pt > PHO1_PT_CUT)) continue;
             if(!(WVJJTree->pho2_pt > PHO2_PT_CUT)) continue;
             if (!(nTightPhoton >= 2)) continue;
+            //checking lepton misidentify
+            // if(nTightEle!=1) continue;
             totalCutFlow_SL->Fill("Photon Selection",1);
             totalCutFlow_SL_GENMatch->Fill("Photon Selection",1);
 
@@ -772,11 +908,11 @@ int main (int argc, char** argv) {
             /* -------------------------------------------------------------------------- */
             /*                             photon m,pt,eta,phi                            */
             /* -------------------------------------------------------------------------- */
-            TLorentzVector LV_pho1(0,0,0,0);
-            LV_pho1.SetPtEtaPhiM( WVJJTree->pho1_pt, WVJJTree->pho1_eta, WVJJTree->pho1_phi, WVJJTree->pho1_m );
+            // TLorentzVector LV_pho1(0,0,0,0);
+            // LV_pho1.SetPtEtaPhiM( WVJJTree->pho1_pt, WVJJTree->pho1_eta, WVJJTree->pho1_phi, WVJJTree->pho1_m );
 
-            TLorentzVector LV_pho2(0,0,0,0);
-            LV_pho2.SetPtEtaPhiM( WVJJTree->pho2_pt, WVJJTree->pho2_eta, WVJJTree->pho2_phi, WVJJTree->pho2_m );
+            // TLorentzVector LV_pho2(0,0,0,0);
+            // LV_pho2.SetPtEtaPhiM( WVJJTree->pho2_pt, WVJJTree->pho2_eta, WVJJTree->pho2_phi, WVJJTree->pho2_m );
 
             TLorentzVector diphoton = LV_pho1+LV_pho2;
 
@@ -897,27 +1033,11 @@ int main (int argc, char** argv) {
                 nTightEle++;
                 LV_tightEle.push_back(Ele);
             }
-            bool goodlep = true;
             // if (DEBUG) std::cout << "\t[INFO] Number of leptons: " << nTightEle + nTightMu << std::endl;
-            // checking ecxatly 1 lepton
             if (nTightMu + nTightEle != 1) continue;
-            if(nTightEle == 1){
-                if (MinDeltaRFromReferenceLV(LV_tightEle[0],LV_GEN_quarks[0],LV_GEN_quarks[1]) < 0.4)
-                {
-                    goodlep = false;
-                }
-            }
-            if(nTightMu == 1){
-                if (MinDeltaRFromReferenceLV(LV_tightMuon[0],LV_GEN_quarks[0],LV_GEN_quarks[1]) < 0.4)
-                {
-                    goodlep = false;
-                }
-            }
-            if(goodlep == false) continue;
             totalCutFlow_SL->Fill("Lepton Selection",1);
             totalCutFlow_SL_GENMatch->Fill("Lepton Selection",1);
-            // if (nTightMu + nTightEle == 0)
-
+            
             /* -------------------------------------------------------------------------- */
             /*                                   AK8Jet   Higgs Jet                       */
             /* -------------------------------------------------------------------------- */
@@ -925,7 +1045,6 @@ int main (int argc, char** argv) {
             LV_Ak8HiggsJets.clear();
             goodHJetIndex.clear();
             float dmV = 0.0;
-            int nGood_Higgs_FatJet = 0;
             // int fj_idx = -1;
 
            

@@ -36,6 +36,27 @@ void WVJJData::init() {
   fTree->Branch("GEN_HGG_phi",&GEN_HGG_phi,"GEN_HGG_phi/F");
   fTree->Branch("GEN_HGG_energy",&GEN_HGG_energy,"GEN_HGG_energy/F");
 
+  fTree->Branch("GEN_Lepton1_p",&GEN_Lepton1_p,"GEN_Lepton1_p/F");
+  fTree->Branch("GEN_Lepton1_pt",&GEN_Lepton1_pt,"GEN_Lepton1_pt/F");
+  fTree->Branch("GEN_Lepton1_pz",&GEN_Lepton1_pz,"GEN_Lepton1_pz/F");
+  fTree->Branch("GEN_Lepton1_eta",&GEN_Lepton1_eta,"GEN_Lepton1_eta/F");
+  fTree->Branch("GEN_Lepton1_phi",&GEN_Lepton1_phi,"GEN_Lepton1_phi/F");
+  fTree->Branch("GEN_Lepton1_m",&GEN_Lepton1_m,"GEN_Lepton1_m/F");
+  fTree->Branch("GEN_Lepton1_E",&GEN_Lepton1_E,"GEN_Lepton1_E/F");
+  fTree->Branch("GEN_Lepton2_p",&GEN_Lepton2_p,"GEN_Lepton2_p/F");
+  fTree->Branch("GEN_Lepton2_pt",&GEN_Lepton2_pt,"GEN_Lepton2_pt/F");
+  fTree->Branch("GEN_Lepton2_pz",&GEN_Lepton2_pz,"GEN_Lepton2_pz/F");
+  fTree->Branch("GEN_Lepton2_eta",&GEN_Lepton2_eta,"GEN_Lepton2_eta/F");
+  fTree->Branch("GEN_Lepton2_phi",&GEN_Lepton2_phi,"GEN_Lepton2_phi/F");
+  fTree->Branch("GEN_Lepton2_m",&GEN_Lepton2_m,"GEN_Lepton2_m/F");
+  fTree->Branch("GEN_Lepton2_E",&GEN_Lepton2_E,"GEN_Lepton2_E/F");
+  fTree->Branch("GEN_Lepton3_p",&GEN_Lepton3_p,"GEN_Lepton3_p/F");
+  fTree->Branch("GEN_Lepton3_pt",&GEN_Lepton3_pt,"GEN_Lepton3_pt/F");
+  fTree->Branch("GEN_Lepton3_pz",&GEN_Lepton3_pz,"GEN_Lepton3_pz/F");
+  fTree->Branch("GEN_Lepton3_eta",&GEN_Lepton3_eta,"GEN_Lepton3_eta/F");
+  fTree->Branch("GEN_Lepton3_phi",&GEN_Lepton3_phi,"GEN_Lepton3_phi/F");
+  fTree->Branch("GEN_Lepton3_m",&GEN_Lepton3_m,"GEN_Lepton3_m/F");
+  fTree->Branch("GEN_Lepton3_E",&GEN_Lepton3_E,"GEN_Lepton3_E/F");
   fTree->Branch("GEN_LeadingPhoton_pT",&GEN_LeadingPhoton_pT,"GEN_LeadingPhoton_pT/F");
   fTree->Branch("GEN_LeadingPhoton_eta",&GEN_LeadingPhoton_eta,"GEN_LeadingPhoton_eta/F");
   fTree->Branch("GEN_LeadingPhoton_phi",&GEN_LeadingPhoton_phi,"GEN_LeadingPhoton_phi/F");
@@ -833,6 +854,27 @@ void WVJJData::clearVars() {
 
   is_tZq = false;
 
+  GEN_Lepton1_p = -999.0;
+  GEN_Lepton1_pt = -999.0;
+  GEN_Lepton1_pz = -999.0;
+  GEN_Lepton1_eta = -999.0;
+  GEN_Lepton1_phi = -999.0;
+  GEN_Lepton1_m = -999.0;
+  GEN_Lepton1_E = -999.0;
+  GEN_Lepton2_p = -999.0;
+  GEN_Lepton2_pt = -999.0;
+  GEN_Lepton2_pz = -999.0;
+  GEN_Lepton2_eta = -999.0;
+  GEN_Lepton2_phi = -999.0;
+  GEN_Lepton2_m = -999.0;
+  GEN_Lepton2_E = -999.0;
+  GEN_Lepton3_p = -999.0;
+  GEN_Lepton3_pt = -999.0;
+  GEN_Lepton3_pz = -999.0;
+  GEN_Lepton3_eta = -999.0;
+  GEN_Lepton3_phi = -999.0;
+  GEN_Lepton3_m = -999.0;
+  GEN_Lepton3_E = -999.0;
   GEN_LeadingPhoton_pT = -999.0;
   GEN_LeadingPhoton_eta = -999.0;
   GEN_LeadingPhoton_phi = -999.0;
