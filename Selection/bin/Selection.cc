@@ -139,11 +139,13 @@ int main (int argc, char** argv) {
     std::vector<TLorentzVector> LV_tightPhoton;
 
     std::vector<TLorentzVector> LV_Ak4Jets;
+    // std::vector<TLorentzVector> LV_VBBFAk4Jets;
     // std::vector<TLorentzVector> Ak4JetsTem;
     std::vector<TLorentzVector> LV_Ak8WZJets;
     std::vector<TLorentzVector> LV_Ak8HiggsJets;
 
     std::vector<int> goodAK4JetIndex;
+    // std::vector<int> goodAK4VBFJetIndex;
     std::vector<int> goodWJetIndex;
     std::vector<int> goodWLepJetIndex;
     std::vector<int> goodHJetIndex;
@@ -990,9 +992,6 @@ int main (int argc, char** argv) {
                 WVJJTree->OneJet_deltaPhi_HH = deltaPhi(LV_Ak8HiggsJets[0],diphoton);
             }
 
-            if ((nTightMu + nTightEle == 0) && nGood_Higgs_FatJet>=1 && WVJJTree->OneJet_deltaR_GENRECO_HH<0.8)
-                totalCutFlow_FH_GENMatch->Fill("nAK8_Higgs >= 1",1);
-
             if (DEBUG) std::cout << "\t[INFO::AK8jets] [" << i <<"/" << lineCount << "] After one jet if condition" << std::endl;
 
             /* -------------------------------------------------------------------------- */
@@ -1255,6 +1254,43 @@ int main (int argc, char** argv) {
             }
             if (DEBUG) std::cout << "\t[INFO::AK4jets] [" << i <<"/" << lineCount << "] Outside of AK4 jet loop." << std::endl;
 
+
+            // goodAK4VBFJetIndex.clear();
+            // LV_VBBFAk4Jets.clear();
+            // int nGood_VBFAK4Jet = 0;
+            // int VBF_jet1_index = -1;
+            // int VBF_jet2_index = -1;
+            bool ifVBF = false;
+            double mjj = 100.0;
+
+            if (nGood_AK4Jet >= 2)
+            {
+                for (unsigned int i = 0; i < LV_Ak4Jets.size()-1; ++i)
+                {
+                    for (unsigned int j = i+1; j < LV_Ak4Jets.size(); ++j)
+                    {
+                        if (abs(LV_Ak4Jets[i].Eta() - LV_Ak4Jets[j].Eta())<3.5) continue;
+                        if ((LV_Ak4Jets[i]+LV_Ak4Jets[j]).M()<500) continue;
+
+                        if ((LV_Ak4Jets[i]+LV_Ak4Jets[j]).M() > mjj)
+                        {
+                            mjj = (LV_Ak4Jets[i]+LV_Ak4Jets[j]).M();
+                            // VBF_jet1_index = i;
+                            // VBF_jet2_index = j;
+                            ifVBF = true;
+                        }
+                        // LV_VBBFAk4Jets.push_back(TLorentzVector(0,0,0,0));
+                        // LV_VBBFAk4Jets.back().SetPtEtaPhiM(NanoReader_.Jet_pt[j],
+                        //                             NanoReader_.Jet_eta[j],
+                        //                             NanoReader_.Jet_phi[j],
+                        //                             NanoReader_.Jet_mass[j]
+                        //                             );
+                        // goodAK4VBFJetIndex.push_back(j);
+
+                    }
+                }
+            }
+
             // for (std::vector<int>::iterator It_JetIndex = goodAK4JetIndex.begin(); It_JetIndex != goodAK4JetIndex.end(); ++It_JetIndex)
             // {
             // std::cout << "DEBUG: " << *It_JetIndex << std::endl;
@@ -1265,28 +1301,32 @@ int main (int argc, char** argv) {
 
             int nGoodAK4jets = goodAK4JetIndex.size();
 
+            // FH: 1 jet category
+            if (ifVBF && (nTightMu + nTightEle == 0) && nGood_Higgs_FatJet>=1 && WVJJTree->OneJet_deltaR_GENRECO_HH<0.8)
+                totalCutFlow_FH_GENMatch->Fill("nAK8_Higgs >= 1",1);
+
             // FH: 2 jet category
-            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2)
+            if (ifVBF && nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2)
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8_W >= 2",1);
 
             // FH: 3 jet category (including 2 or more good AK8 jet)
-            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 1 && nGoodAK4jets >= 2)
+            if (ifVBF && nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 1 && nGoodAK4jets >= 4)
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8_W>=1 & nAK4>=2",1);
 
             // FH: 3 jet category  (excluding events with 2 or more good AK8 jet)
-            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2)
+            if (ifVBF && nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 4)
             {
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8_W=1 & nAK4>=2",1);
             }
 
             // FH: 4 jet category
-            if (nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 4)
+            if (ifVBF && nTightMu + nTightEle == 0 && nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 0 && nGoodAK4jets >= 6)
                 totalCutFlow_FH->Fill("nAK8H=0 & nAK8W=0 & nAK4>=4",1);
 
             // Found 1 Higgs jet or
             // Fount 1 fat Wjet and 2 AK4 jets or
             // If we don't find any fat jet then choose 4 AK4 jets
-            if ( nTightMu + nTightEle == 0 && (
+            if (ifVBF &&  nTightMu + nTightEle == 0 && (
                  (nGood_Higgs_FatJet >= 1) ||
                  (nGood_Higgs_FatJet == 0 && nGood_W_FatJet >= 2) ||
                  (nGood_Higgs_FatJet == 0 && nGood_W_FatJet == 1 && nGoodAK4jets >= 2) ||
