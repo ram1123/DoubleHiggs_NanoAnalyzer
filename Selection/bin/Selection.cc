@@ -226,9 +226,11 @@ int main (int argc, char** argv) {
     {
         std::string str = "echo ";
         str = str + inputFile + " > InputRootFileList.txt";
+        std::cout << "DEBUG: " << str << std::endl;
         const char *command = str.c_str();
         system(command);
         inputFile = "InputRootFileList.txt";
+        DOWNLOAD_LOCAL_COPY = 0;    // Set this to zero if the input file is ROOT file.
     }
 
     if(DEBUG) std::cout << "[INFO]: inputTextFile: " << inputFile << std::endl;
@@ -320,10 +322,33 @@ int main (int argc, char** argv) {
         }
 
         if(DEBUG) std::cout << "\t[INFO]: Start of event loop. " << std::endl;
+                std::cout << "pdgID\t"
+                          << "pT\t"
+                          << "status\t"
+                          << "mother\t"
+                          << "GrandMother\t"
+                          << "GreatGrandMother\t"
+                          << "isPrompt\t"
+                          << "isDecayedLeptonHadron\t"
+                          << "isTauDecayProduct\t"
+                          << "isPromptTauDecayProduct\t"
+                          << "isDirectTauDecayProduct\t"
+                          << "isDirectPromptTauDecayProduct\t"
+                          << "isDirectHadronDecayProduct\t"
+                          << "isHardProcess\t"
+                          << "isFromHardProcess\t"
+                          << "isHardProcessTauDecayProduct\t"
+                          << "isDirectHardProcessTauDecayProduct\t"
+                          << "isFromHardProcessBeforeFSR\t"
+                          << "isFirstCopy\t"
+                          << "isLastCopy\t"
+                          << "isLastCopyBeforeFSR"
+                          << std::endl;
         for (uint i=0; i < t->GetEntries(); i++)
-        // for (uint i=0; i < 200; i++)
+        // for (uint i=0; i < 5; i++)
         {
-            
+            // std::cout << "=== " << i  << std::endl;
+
             WVJJTree->clearVars();
             NanoReader_.GetEntry(i);
             totalCutFlow_SL->Fill("Skim NanoAOD",1);
@@ -331,6 +356,8 @@ int main (int argc, char** argv) {
 
             if (i%10000==0) std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
             if (DEBUG)       std::cout <<"\t[INFO]: file " << lineCount << ": event " << i << std::endl;
+
+            std::cout <<"[INFO]: file " << lineCount << ": event " << i << "\t" << std::endl;
 
             if (isMC==1) {
                 WVJJTree->genWeight=*NanoReader_.Generator_weight;
@@ -424,6 +451,24 @@ int main (int argc, char** argv) {
             //
             if (isMC==1)
             {
+                // std::cout << "status\t"
+                //           << "motherPDGid\t"
+                //           << "isPrompt\t"
+                //           << "isDecayedLeptonHadron\t"
+                //           << "isTauDecayProduct\t"
+                //           << "isPromptTauDecayProduct\t"
+                //           << "isDirectTauDecayProduct\t"
+                //           << "isDirectPromptTauDecayProduct\t"
+                //           << "isDirectHadronDecayProduct\t"
+                //           << "isHardProcess\t"
+                //           << "isFromHardProcess\t"
+                //           << "isHardProcessTauDecayProduct\t"
+                //           << "isDirectHardProcessTauDecayProduct\t"
+                //           << "isFromHardProcessBeforeFSR\t"
+                //           << "isFirstCopy\t"
+                //           << "isLastCopy\t"
+                //           << "isLastCopyBeforeFSR"
+                //           << std::endl;
                 LV_GEN_Higgs.clear();
                 LV_GEN_WBosons.clear();
                 LV_GEN_photons.clear();
@@ -431,24 +476,45 @@ int main (int argc, char** argv) {
                 LV_GEN_leptons.clear();
                 LV_GEN_neutrino.clear();
                 // print the GENevents tree
-                for (UInt_t GENPartCount = 0; GENPartCount < *NanoReader_.nGenPart; ++GENPartCount)
-                {   
-                    std::cout
-                    << "Event" << i <<"/idx:" << GENPartCount << "\t ID:" << NanoReader_.GenPart_pdgId[GENPartCount] 
-                    <<"\t MotherID:" << NanoReader_.GenPart_genPartIdxMother[GENPartCount]
-                    << std::endl; 
-                }
+                // for (UInt_t GENPartCount = 0; GENPartCount < *NanoReader_.nGenPart; ++GENPartCount)
+                // {
+                //     std::cout
+                //     << "Event" << i <<"/idx:" << GENPartCount << "\t ID:" << NanoReader_.GenPart_pdgId[GENPartCount]
+                //     <<"\t MotherID:" << NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]]
+                //     << std::endl;
+                // }
+                int countLeptons = 0;
                 for (UInt_t GENPartCount = 0; GENPartCount < *NanoReader_.nGenPart; ++GENPartCount)
                 {
                     int pdgid = NanoReader_.GenPart_pdgId[GENPartCount];
                     int status = NanoReader_.GenPart_status[GENPartCount];
-                    int motherPDGid = NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[GENPartCount]];
+                    int motherIdx = NanoReader_.GenPart_genPartIdxMother[GENPartCount];
+                    int motherPDGid = NanoReader_.GenPart_pdgId[motherIdx];
+                    int GrandMotherIdx = NanoReader_.GenPart_genPartIdxMother[motherIdx];
+                    // int GrandMotherPDGid = motherIdx < 0 ? -1 : NanoReader_.GenPart_pdgId[NanoReader_.GenPart_genPartIdxMother[motherIdx]];
+                    int GrandMotherPDGid = motherIdx < 0 ? -1 : NanoReader_.GenPart_pdgId[GrandMotherIdx];
+                    int GreatGrandMotherIdx = NanoReader_.GenPart_genPartIdxMother[GrandMotherIdx];
+                    int GreatGrandMotherPDGid = motherIdx < 0 ? -1 : NanoReader_.GenPart_pdgId[GreatGrandMotherIdx];
 
-                    bool isPrompt = (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 );
-                    bool isHardProcess = (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 );    
-                    bool isFromHardProcess = (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 );
-                    bool isFromHardProcessBeforeFSR = (NanoReader_.GenPart_statusFlags[i] >> 11  & 1 );
+    // mc_grandmaid = mc_motheridx < 0 ? -1 : genParticles[mc_motheridx].mother_idx;
+
+                    bool isPrompt                      = (NanoReader_.GenPart_statusFlags[i] >> 0  & 1 );
+                    bool isDecayedLeptonHadron         = (NanoReader_.GenPart_statusFlags[i] >> 1  & 1 );
+                    bool isTauDecayProduct             = (NanoReader_.GenPart_statusFlags[i] >> 2  & 1 );
+                    bool isPromptTauDecayProduct       = (NanoReader_.GenPart_statusFlags[i] >> 3  & 1 );
+                    bool isDirectTauDecayProduct       = (NanoReader_.GenPart_statusFlags[i] >> 4  & 1 );
+                    bool isDirectPromptTauDecayProduct = (NanoReader_.GenPart_statusFlags[i] >> 5  & 1 );
+                    bool isDirectHadronDecayProduct    = (NanoReader_.GenPart_statusFlags[i] >> 6  & 1 );
+                    bool isHardProcess                 = (NanoReader_.GenPart_statusFlags[i] >> 7  & 1 );
+                    bool isFromHardProcess             = (NanoReader_.GenPart_statusFlags[i] >> 8  & 1 );
+                    bool isHardProcessTauDecayProduct  = (NanoReader_.GenPart_statusFlags[i] >> 9  & 1 );
+               bool isDirectHardProcessTauDecayProduct = (NanoReader_.GenPart_statusFlags[i] >> 10  & 1 );
+                    bool isFromHardProcessBeforeFSR    = (NanoReader_.GenPart_statusFlags[i] >> 11  & 1 );
+                    bool isFirstCopy                   = (NanoReader_.GenPart_statusFlags[i] >> 12  & 1 );
+                    bool isLastCopy                    = (NanoReader_.GenPart_statusFlags[i] >> 13  & 1 );
+                    bool isLastCopyBeforeFSR           = (NanoReader_.GenPart_statusFlags[i] >> 13  & 1 );
                     
+
                     // Get Higgs bosons
                     if (pdgid == 25)
                     {
@@ -460,6 +526,27 @@ int main (int argc, char** argv) {
                                                            NanoReader_.GenPart_eta[GENPartCount],
                                                            NanoReader_.GenPart_phi[GENPartCount],
                                                            NanoReader_.GenPart_mass[GENPartCount]);
+                        std::cout << std::setw(10) << "Higgs: " << std::setw(3) << pdgid << "\t"
+                                  << std::setw(10) << NanoReader_.GenPart_pt[GENPartCount] << "\t"
+                                  << std::setw(2) << status <<  "\t"
+                                  << std::setw(3) << motherPDGid <<  "\t"
+                                  << std::setw(3) << GrandMotherPDGid << "\t"
+                                  << std::setw(3) << GreatGrandMotherPDGid << "\t"
+                                  << isPrompt <<  "\t"
+                                  << isDecayedLeptonHadron <<  "\t"
+                                  << isTauDecayProduct <<  "\t"
+                                  << isPromptTauDecayProduct <<  "\t"
+                                  << isDirectTauDecayProduct <<  "\t"
+                                  << isDirectPromptTauDecayProduct <<  "\t"
+                                  << isDirectHadronDecayProduct <<  "\t"
+                                  << isHardProcess <<  "\t"
+                                  << isFromHardProcess <<  "\t"
+                                  << isHardProcessTauDecayProduct <<  "\t"
+                                  << isDirectHardProcessTauDecayProduct <<  "\t"
+                                  << isFromHardProcessBeforeFSR <<  "\t"
+                                  << isFirstCopy <<  "\t"
+                                  << isLastCopy <<  "\t"
+                                  << isLastCopyBeforeFSR << std::endl;                                                           
                     }
 
                     // Get GEN photons
@@ -470,6 +557,28 @@ int main (int argc, char** argv) {
                         // std::cout << "Event No. " << i << "/" << lineCount << ":\tpdgID: " << pdgid
                                   // << "\tstatus: " << status << "\tMother pdgID: " <<  motherPDGid
                                   // <<  std::endl;
+
+                        std::cout << std::setw(10) << "Photons: " << std::setw(3) << pdgid << "\t"
+                                  << std::setw(10) << NanoReader_.GenPart_pt[GENPartCount] << "\t"
+                                  << std::setw(2) << status <<  "\t"
+                                  << std::setw(3) << motherPDGid <<  "\t"
+                                  << std::setw(3) << GrandMotherPDGid << "\t"
+                                  << std::setw(3) << GreatGrandMotherPDGid << "\t"
+                                  << isPrompt <<  "\t"
+                                  << isDecayedLeptonHadron <<  "\t"
+                                  << isTauDecayProduct <<  "\t"
+                                  << isPromptTauDecayProduct <<  "\t"
+                                  << isDirectTauDecayProduct <<  "\t"
+                                  << isDirectPromptTauDecayProduct <<  "\t"
+                                  << isDirectHadronDecayProduct <<  "\t"
+                                  << isHardProcess <<  "\t"
+                                  << isFromHardProcess <<  "\t"
+                                  << isHardProcessTauDecayProduct <<  "\t"
+                                  << isDirectHardProcessTauDecayProduct <<  "\t"
+                                  << isFromHardProcessBeforeFSR <<  "\t"
+                                  << isFirstCopy <<  "\t"
+                                  << isLastCopy <<  "\t"
+                                  << isLastCopyBeforeFSR << std::endl;
 
                         LV_GEN_photons.push_back(TLorentzVector(0,0,0,0));
                         LV_GEN_photons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
@@ -489,6 +598,27 @@ int main (int argc, char** argv) {
                                                            NanoReader_.GenPart_eta[GENPartCount],
                                                            NanoReader_.GenPart_phi[GENPartCount],
                                                            NanoReader_.GenPart_mass[GENPartCount]);
+                        std::cout << std::setw(10) << "WBosons: " << std::setw(3) << pdgid << "\t"
+                                  << std::setw(10) << NanoReader_.GenPart_pt[GENPartCount] << "\t"
+                                  << std::setw(2) << status <<  "\t"
+                                  << std::setw(3) << motherPDGid <<  "\t"
+                                  << std::setw(3) << GrandMotherPDGid << "\t"
+                                  << std::setw(3) << GreatGrandMotherPDGid << "\t"
+                                  << isPrompt <<  "\t"
+                                  << isDecayedLeptonHadron <<  "\t"
+                                  << isTauDecayProduct <<  "\t"
+                                  << isPromptTauDecayProduct <<  "\t"
+                                  << isDirectTauDecayProduct <<  "\t"
+                                  << isDirectPromptTauDecayProduct <<  "\t"
+                                  << isDirectHadronDecayProduct <<  "\t"
+                                  << isHardProcess <<  "\t"
+                                  << isFromHardProcess <<  "\t"
+                                  << isHardProcessTauDecayProduct <<  "\t"
+                                  << isDirectHardProcessTauDecayProduct <<  "\t"
+                                  << isFromHardProcessBeforeFSR <<  "\t"
+                                  << isFirstCopy <<  "\t"
+                                  << isLastCopy <<  "\t"
+                                  << isLastCopyBeforeFSR << std::endl;
                     }
 
                     // Get quarks coming from W-bosons and should be final state particles
@@ -499,6 +629,29 @@ int main (int argc, char** argv) {
                                   // << "\tstatus: " << status << "\tMother pdgID: " <<  motherPDGid
                                   // << "\tpT: " << NanoReader_.GenPart_pt[GENPartCount] << std::endl;
                         CountEvents++;
+
+                        std::cout << std::setw(10) << "Quarks: " << std::setw(3) <<  pdgid << "\t"
+                                  << std::setw(10) << NanoReader_.GenPart_pt[GENPartCount] << "\t"
+                                  << std::setw(2) << status <<  "\t"
+                                  << std::setw(3) << motherPDGid <<  "\t"
+                                  << std::setw(3) << GrandMotherPDGid << "\t"
+                                  << std::setw(3) << GreatGrandMotherPDGid << "\t"
+                                  << isPrompt <<  "\t"
+                                  << isDecayedLeptonHadron <<  "\t"
+                                  << isTauDecayProduct <<  "\t"
+                                  << isPromptTauDecayProduct <<  "\t"
+                                  << isDirectTauDecayProduct <<  "\t"
+                                  << isDirectPromptTauDecayProduct <<  "\t"
+                                  << isDirectHadronDecayProduct <<  "\t"
+                                  << isHardProcess <<  "\t"
+                                  << isFromHardProcess <<  "\t"
+                                  << isHardProcessTauDecayProduct <<  "\t"
+                                  << isDirectHardProcessTauDecayProduct <<  "\t"
+                                  << isFromHardProcessBeforeFSR <<  "\t"
+                                  << isFirstCopy <<  "\t"
+                                  << isLastCopy <<  "\t"
+                                  << isLastCopyBeforeFSR << std::endl;
+
                         LV_GEN_quarks.push_back(TLorentzVector(0,0,0,0));
                         LV_GEN_quarks.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
                                                            NanoReader_.GenPart_eta[GENPartCount],
@@ -508,7 +661,10 @@ int main (int argc, char** argv) {
                     // Important: add lepton and neutrino
                     // Add ele,mu,tao separatly then add together as leptons
                     // if (  (abs(pdgid)==11 ||abs(pdgid)==13||abs(pdgid)==15) && abs(motherPDGid) == 24 && (status == 1||status ==23) )
-                    if (  ((abs(pdgid)==11&&(status==1||status==23)) || (abs(pdgid)==13&&(status==1||status==23)) || (abs(pdgid)==15&&(status==2||status==23))) && abs(motherPDGid) == 24 )
+                    if (  ((abs(pdgid)==11&&(status==1||status==23)) ||
+                           (abs(pdgid)==13&&(status==1||status==23)) ||
+                           (abs(pdgid)==15&&(status==2||status==23))) &&
+                          abs(motherPDGid) == 24 )
                     {
                         LV_GEN_leptons.push_back(TLorentzVector(0,0,0,0));
                         LV_GEN_leptons.back().SetPtEtaPhiM(NanoReader_.GenPart_pt[GENPartCount],
@@ -525,6 +681,54 @@ int main (int argc, char** argv) {
                         //           "\t isFromHardProcessBeforeFSR:" << isFromHardProcessBeforeFSR
                         //           << std::endl;                        
                     }
+                    if ( (abs(pdgid) == 11 || abs(pdgid) == 12 ||
+                          abs(pdgid) == 13 || abs(pdgid) == 14 ||
+                          abs(pdgid) == 15 || abs(pdgid) == 16) &&
+                        abs(motherPDGid) == 24)
+                    {
+                        // WVJJTree->GEN_Ele_Status = status;
+                        // WVJJTree->GEN_Ele_Status = motherPDGid;
+                        // WVJJTree->isPrompt = isPrompt;
+                        // WVJJTree->isDecayedLeptonHadron = isDecayedLeptonHadron;
+                        // WVJJTree->isTauDecayProduct = isTauDecayProduct;
+                        // WVJJTree->isPromptTauDecayProduct = isPromptTauDecayProduct;
+                        // WVJJTree->isDirectTauDecayProduct = isDirectTauDecayProduct;
+                        // WVJJTree->isDirectPromptTauDecayProduct = isDirectPromptTauDecayProduct;
+                        // WVJJTree->isDirectHadronDecayProduct = isDirectHadronDecayProduct;
+                        // WVJJTree->isHardProcess = isHardProcess;
+                        // WVJJTree->isFromHardProcess = isFromHardProcess;
+                        // WVJJTree->isHardProcessTauDecayProduct = isHardProcessTauDecayProduct;
+                        // WVJJTree->isDirectHardProcessTauDecayProduct = isDirectHardProcessTauDecayProduct;
+                        // WVJJTree->isFromHardProcessBeforeFSR = isFromHardProcessBeforeFSR;
+                        // WVJJTree->isFirstCopy = isFirstCopy;
+                        // WVJJTree->isLastCopy = isLastCopy;
+                        // WVJJTree->isLastCopyBeforeFSR = isLastCopyBeforeFSR;
+
+                        countLeptons++;
+                        std::cout << std::setw(10) << "Leptons: " << std::setw(3) <<  pdgid << "\t"
+                                  << std::setw(10) << NanoReader_.GenPart_pt[GENPartCount] << "\t"
+                                  << std::setw(2) << status <<  "\t"
+                                  << std::setw(3) << motherPDGid <<  "\t"
+                                  << std::setw(3) << GrandMotherPDGid << "\t"
+                                  << std::setw(3) << GreatGrandMotherPDGid << "\t"
+                                  << isPrompt <<  "\t"
+                                  << isDecayedLeptonHadron <<  "\t"
+                                  << isTauDecayProduct <<  "\t"
+                                  << isPromptTauDecayProduct <<  "\t"
+                                  << isDirectTauDecayProduct <<  "\t"
+                                  << isDirectPromptTauDecayProduct <<  "\t"
+                                  << isDirectHadronDecayProduct <<  "\t"
+                                  << isHardProcess <<  "\t"
+                                  << isFromHardProcess <<  "\t"
+                                  << isHardProcessTauDecayProduct <<  "\t"
+                                  << isDirectHardProcessTauDecayProduct <<  "\t"
+                                  << isFromHardProcessBeforeFSR <<  "\t"
+                                  << isFirstCopy <<  "\t"
+                                  << isLastCopy <<  "\t"
+                                  << isLastCopyBeforeFSR << std::endl;
+                    }
+
+
                     if (  (abs(pdgid)==12 ||abs(pdgid)==14||abs(pdgid)==16) && abs(motherPDGid) == 24 && (status == 1||status ==23))
                     {
                         
@@ -536,6 +740,11 @@ int main (int argc, char** argv) {
                     }
                     
                    
+                }
+                if (countLeptons>2)
+                {
+                    std::cout << "countLeptons: " << countLeptons << std::endl;
+                    exit(0);
                 }
                 
                 if (LV_GEN_leptons.size() != 1)
